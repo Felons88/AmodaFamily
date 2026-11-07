@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme.dart';
 import '../../shared/models.dart';
+import '../../shared/notifications.dart';
 import '../../shared/widgets.dart';
 
 class NotificationsPage extends ConsumerWidget {
@@ -92,6 +93,31 @@ class NotificationsPage extends ConsumerWidget {
                   subtitle: Text('Not available yet — push covers reminders'),
                   value: false,
                   onChanged: null,
+                ),
+                divider(),
+                ListTile(
+                  leading: const Icon(Icons.send_outlined),
+                  title: const Text('Send test notification'),
+                  subtitle: const Text('Verify push delivery on this device'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final ok = await NotificationService.sendPush(
+                      'Kinplora test',
+                      'Push notifications are working.',
+                      data: const {'kind': 'test'},
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            ok
+                                ? 'Test push sent — check your notifications.'
+                                : 'Could not send — sign in first.',
+                          ),
+                        ),
+                      );
+                    }
+                  },
                 ),
               ],
             ),

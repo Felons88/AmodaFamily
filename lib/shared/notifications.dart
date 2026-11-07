@@ -230,6 +230,28 @@ class NotificationService {
     } catch (_) {}
   }
 
+  /// Sends a real FCM push to this account's registered devices via the
+  /// `send-push` edge function. Returns true if the function accepted it.
+  /// No-op (false) when Supabase or sign-in is unavailable.
+  static Future<bool> sendPush(
+    String title,
+    String body, {
+    Map<String, String> data = const {},
+  }) async {
+    if (kIsWeb || !Supabase.instance.isInitialized) return false;
+    final client = Supabase.instance.client;
+    if (client.auth.currentUser == null) return false;
+    try {
+      await client.functions.invoke(
+        'send-push',
+        body: {'title': title, 'body': body, 'data': data},
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Upserts the FCM token into `push_tokens` so a server-side sender can
   /// reach this device. No-op when signed out, offline of Supabase, or
   /// Firebase is unavailable.

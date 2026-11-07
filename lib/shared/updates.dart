@@ -1,19 +1,18 @@
-/// Update checker — compares the installed version against a remote
-/// manifest and offers a download link. For Play Store builds the same
-/// surface can be swapped to the in-app-update API; sideloaded APKs use the
-/// manifest flow below.
+/// Update checker — auto-detects new builds from a remote manifest, offers
+/// in-app download, and hands the APK to Android's package installer so the
+/// user only has to tap "Update". Falls back to the browser on any failure.
 ///
-/// Manifest JSON (hosted anywhere, e.g. GitHub Releases or Supabase Storage):
-///   { "version": "0.2.0", "build": 2, "apkUrl": "https://…/app-release.apk",
-///     "notes": "What's new", "mandatory": false }
-///
+/// Manifest JSON: { "version": "0.2.0", "build": 2,
+///   "apkUrl": "https://…/app-release.apk", "notes": "…", "mandatory": false }
 /// Configure with --dart-define=UPDATE_MANIFEST_URL=https://…/version.json
 library;
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -44,8 +43,8 @@ class UpdateChecker {
       if (remoteVersion.isEmpty || apkUrl.isEmpty) return null;
       final info = await PackageInfo.fromPlatform();
       final localBuild = int.tryParse(info.buildNumber) ?? 0;
-      final localNewer = _compareVersion(info.version, remoteVersion) >= 0 && localBuild >= remoteBuild;
-      if (localNewer) return null;
+      final remoteIsNewer = remoteBuild > localBuild || _compareVersion(remoteVersion, info.version) > 0;
+      if (!remoteIsNewer) return null;
       return UpdateInfo(
         version: remoteVersion,
         build: remoteBuild,
@@ -82,15 +81,84 @@ class UpdateChecker {
           if (!update.mandatory)
             TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Later')),
           FilledButton.icon(
-            icon: const Icon(Icons.download_outlined),
-            label: const Text('Download'),
+            icon: const Icon(Icons.system_update_alt),
+            label: const Text('Update now'),
             onPressed: () {
-              launchUrl(Uri.parse(update.apkUrl), mode: LaunchMode.externalApplication);
-              if (!update.mandatory) Navigator.of(dialogContext).pop();
+              Navigator.of(dialogContext).pop();
+              _downloadAndInstall(context, update);
             },
           ),
         ],
       ),
     );
+  }
+
+  /// Streams the APK to temp storage with a progress dialog, then opens the
+  /// platform installer (REQUEST_INSTALL_PACKAGES is in the manifest).
+  static Future<void> _downloadAndInstall(BuildContext context, UpdateInfo update) async {
+    final progress = ValueNotifier<double>(0);
+    var cancelled = false;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: const Text('Downloading update'),
+          content: ValueListenableBuilder<double>(
+            valueListenable: progress,
+            builder: (context, p, _) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(value: p == 0 ? null : p),
+                const SizedBox(height: 12),
+                Text('${(p * 100).round()}%'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                cancelled = true;
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final request = http.Request('GET', Uri.parse(update.apkUrl));
+      final response = await request.send().timeout(const Duration(seconds: 30));
+      if (response.statusCode != 200) throw StateError('download_failed');
+      final total = response.contentLength ?? 0;
+      final file = File('${Directory.systemTemp.path}/family-circle-update.apk');
+      final sink = file.openWrite();
+      var received = 0;
+      await for (final chunk in response.stream) {
+        if (cancelled) {
+          await sink.close();
+          await file.delete();
+          return;
+        }
+        sink.add(chunk);
+        received += chunk.length;
+        if (total > 0) progress.value = received / total;
+      }
+      await sink.close();
+      progress.value = 1;
+      if (!context.mounted) return;
+      Navigator.of(context, rootNavigator: true).pop(); // close progress
+      final result = await OpenFilex.open(file.path);
+      if (result.type != ResultType.done) throw StateError('open_failed');
+    } catch (_) {
+      if (!context.mounted) return;
+      if (Navigator.of(context, rootNavigator: true).canPop()) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      launchUrl(Uri.parse(update.apkUrl), mode: LaunchMode.externalApplication);
+    }
   }
 }

@@ -11,13 +11,18 @@ library;
 
 import 'package:family_circle_planner_engine/planner_engine.dart';
 import 'package:family_circle_safety_engine/safety_engine.dart';
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'catalog.dart' as catalog;
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'errors.dart';
+import 'persistence.dart';
 import 'models.dart';
 
 /// Actions that are safe to queue while offline (idempotent, low risk).
@@ -28,6 +33,10 @@ class AppStore extends ChangeNotifier {
   /// sync into it without a provider dependency.
   static AppStore? instanceFromAuth;
   // ---------- session ----------
+  AppStore() {
+    unawaited(_restore());
+  }
+
   String? _userEmail;
   Circle? _circle;
   String? _actorId;
@@ -1452,5 +1461,160 @@ class AppStore extends ChangeNotifier {
       'r-veggie-pasta',
     ], openFor: const Duration(hours: 48));
     ensureQuest();
+  }
+
+  // ---------- persistence ----------
+
+  Timer? _persistTimer;
+  String? _snapshotKey;
+  static const _prefsKey = 'kinplora_state_v1';
+  static const _keyPrefsKey = 'kinplora_snapshot_key';
+
+  /// Every mutation notifies -> schedule a debounced snapshot write.
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+    _schedulePersist();
+  }
+
+  void _schedulePersist() {
+    _persistTimer?.cancel();
+    _persistTimer = Timer(const Duration(milliseconds: 800), _persist);
+  }
+
+  /// Restores local snapshot, then remote if newer. Fire-and-forget.
+  Future<void> _restore() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _snapshotKey = prefs.getString(_keyPrefsKey);
+      _snapshotKey ??= _nextId('snap');
+      await prefs.setString(_keyPrefsKey, _snapshotKey!);
+      final raw = prefs.getString(_prefsKey);
+      if (raw != null) {
+        importState(jsonDecode(raw) as Map<String, dynamic>);
+      }
+      unawaited(_restoreRemote());
+    } catch (_) {}
+  }
+
+  Future<void> _restoreRemote() async {
+    try {
+      if (!Supabase.instance.isInitialized || _snapshotKey == null) return;
+      final res = await Supabase.instance.client
+          .from('app_snapshots')
+          .select('state, updated_at')
+          .eq('key', _snapshotKey!)
+          .maybeSingle();
+      if (res == null) return;
+      final remoteSaved = DateTime.tryParse(res['updated_at'] as String? ?? '');
+      final localSaved = _lastSavedAt;
+      if (remoteSaved != null && (localSaved == null || remoteSaved.isAfter(localSaved))) {
+        importState((res['state'] as Map).cast<String, dynamic>());
+        notifyListeners();
+      }
+    } catch (_) {}
+  }
+
+  DateTime? _lastSavedAt;
+
+  Future<void> _persist() async {
+    try {
+      final state = exportState();
+      state['_savedAt'] = DateTime.now().toIso8601String();
+      final json = jsonEncode(state);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_prefsKey, json);
+      _lastSavedAt = DateTime.now();
+      // Remote sync — fire and forget; offline queue covers failures.
+      if (Supabase.instance.isInitialized && _snapshotKey != null) {
+        unawaited(
+          Supabase.instance.client.from('app_snapshots').upsert({
+            'key': _snapshotKey,
+            'state': state,
+            'updated_at': DateTime.now().toIso8601String(),
+          }).then((_) {}).catchError((_) {}),
+        );
+      }
+    } catch (_) {}
+  }
+
+  /// Serializes all user-owned state (catalog stays static).
+  Map<String, dynamic> exportState() => {
+        'v': 1,
+        'email': _userEmail,
+        'name': _displayName,
+        'google': _googleAuth,
+        'actor': _actorId,
+        'consent': {
+          'a': _consent.analytics,
+          'p': _consent.personalization,
+          'ai': _consent.aiProcessing,
+        },
+        'circle': _circle == null ? null : circleJson(_circle!),
+        'plan': _plan == null ? null : planJson(_plan!),
+        'planSerial': _planSerial,
+        'serial': _serial,
+        'shopInterval': _shoppingIntervalDays,
+        'budget': budgetJson(_budget),
+        'pantry': [for (final p in _pantry) pantryJson(p)],
+        'grocery': [for (final g in _groceryList) groceryJson(g)],
+        'trips': [for (final t in _trips) tripJson(t)],
+        'votes': [for (final v in _voteRounds) voteJson(v)],
+        'sessions': [for (final g in _gameSessions) sessionJson(g)],
+        'badges': [for (final b in _badges) badgeJson(b)],
+        'entitlement': entitlementJson(_entitlement),
+        'beverages': [for (final b in _beverages) beverageJson(b)],
+        'learning': {for (final e in _learning.entries) e.key: learningJson(e.value)},
+        'feedback': [for (final f in _feedback) feedbackJson(f)],
+        'notif': notifJson(_notifPrefs),
+        'pending': [for (final p in _pending) pendingJson(p)],
+        'favorites': [for (final f in _favorites) favJson(f)],
+        'vault': {for (final e in _vault.entries) e.key: vaultJson(e.value)},
+        'quest': [for (final q in _quest) questJson(q)],
+      };
+
+  /// Restores state from a snapshot map. Does not notify — caller does.
+  void importState(Map<String, dynamic> j) {
+    if ((j['v'] as int? ?? 0) != 1) return;
+    _userEmail = j['email'] as String?;
+    _displayName = j['name'] as String?;
+    _googleAuth = j['google'] as bool? ?? false;
+    _actorId = j['actor'] as String?;
+    final c = j['consent'] as Map?;
+    if (c != null) {
+      _consent = ConsentFlags(
+        analytics: c['a'] as bool? ?? true,
+        personalization: c['p'] as bool? ?? true,
+        aiProcessing: c['ai'] as bool? ?? false,
+      );
+    }
+    _circle = j['circle'] == null ? null : circleFrom(j['circle'] as Map<String, dynamic>);
+    _plan = j['plan'] == null ? null : planFrom(j['plan'] as Map<String, dynamic>);
+    _planSerial = j['planSerial'] as int? ?? 0;
+    _serial = j['serial'] as int? ?? 0;
+    _shoppingIntervalDays = j['shopInterval'] as int? ?? 7;
+    _budget = budgetFrom(j['budget'] as Map<String, dynamic>? ?? {});
+    _pantry = [for (final p in (j['pantry'] as List? ?? [])) pantryFrom(p as Map<String, dynamic>)];
+    _groceryList = [for (final g in (j['grocery'] as List? ?? [])) groceryFrom(g as Map<String, dynamic>)];
+    _trips = [for (final t in (j['trips'] as List? ?? [])) tripFrom(t as Map<String, dynamic>)];
+    _voteRounds = [for (final v in (j['votes'] as List? ?? [])) voteFrom(v as Map<String, dynamic>)];
+    _gameSessions = [for (final g in (j['sessions'] as List? ?? [])) sessionFrom(g as Map<String, dynamic>)];
+    _badges = [for (final b in (j['badges'] as List? ?? [])) badgeFrom(b as Map<String, dynamic>)];
+    _entitlement = entitlementFrom(j['entitlement'] as Map<String, dynamic>? ?? {});
+    _beverages = [for (final b in (j['beverages'] as List? ?? [])) beverageFrom(b as Map<String, dynamic>)];
+    _learning = {
+      for (final e in ((j['learning'] as Map?) ?? {}).entries)
+        e.key as String: learningFrom(e.value as Map<String, dynamic>)
+    };
+    _feedback = [for (final f in (j['feedback'] as List? ?? [])) feedbackFrom(f as Map<String, dynamic>)];
+    _notifPrefs = notifFrom(j['notif'] as Map<String, dynamic>? ?? {});
+    _pending = [for (final p in (j['pending'] as List? ?? [])) pendingFrom(p as Map<String, dynamic>)];
+    _favorites = [for (final f in (j['favorites'] as List? ?? [])) favFrom(f as Map<String, dynamic>)];
+    _vault = {
+      for (final e in ((j['vault'] as Map?) ?? {}).entries)
+        e.key as String: vaultFrom(e.value as Map<String, dynamic>)
+    };
+    _quest = [for (final q in (j['quest'] as List? ?? [])) questFrom(q as Map<String, dynamic>)];
+    _lastSavedAt = DateTime.tryParse(j['_savedAt'] as String? ?? '');
   }
 }

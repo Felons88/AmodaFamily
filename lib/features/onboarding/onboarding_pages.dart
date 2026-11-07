@@ -279,8 +279,10 @@ class _HeroBenefit extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: Theme.of(context).textTheme.bodySmall
-                      ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.3),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.3,
+                  ),
                 ),
               ],
             ),
@@ -504,7 +506,9 @@ class WelcomePage extends ConsumerWidget {
                                     fontWeight: FontWeight.w800,
                                     fontSize: 17,
                                     letterSpacing: 0.2,
-                                    color: Theme.of(context).colorScheme.onSurface,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -513,7 +517,9 @@ class WelcomePage extends ConsumerWidget {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -532,7 +538,9 @@ class WelcomePage extends ConsumerWidget {
                               style: Theme.of(context).textTheme.displaySmall
                                   ?.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: Theme.of(context).colorScheme.onSurface,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface,
                                     height: 1.12,
                                     letterSpacing: -0.4,
                                   ),
@@ -542,7 +550,9 @@ class WelcomePage extends ConsumerWidget {
                               'Allergy-checked plans, shared grocery lists, family votes and kid-safe games — built for real households.',
                               style: Theme.of(context).textTheme.bodyLarge
                                   ?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                     height: 1.45,
                                   ),
                             ),
@@ -615,9 +625,25 @@ class WelcomePage extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              onPressed: () {
-                                ref.read(appStoreProvider).signInWithGoogle();
-                                context.go(AppRoute.household.path);
+                              onPressed: () async {
+                                try {
+                                  await ref
+                                      .read(appStoreProvider)
+                                      .signInWithGoogle();
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Finish sign-in in your browser — you will return automatically.',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } on FcException catch (e) {
+                                  if (context.mounted) {
+                                    _showError(context, e);
+                                  }
+                                }
                               },
                             ),
                             const SizedBox(height: 14),
@@ -626,9 +652,10 @@ class WelcomePage extends ConsumerWidget {
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(
-                                      alpha: 0.85,
-                                    ),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant
+                                        .withValues(alpha: 0.85),
                                   ),
                             ),
                             const SizedBox(height: 8),
@@ -641,16 +668,19 @@ class WelcomePage extends ConsumerWidget {
                                   child: Text(
                                     'Preview meals',
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                                   ),
                                 ),
                                 Text(
                                   '•',
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(
-                                      alpha: 0.6,
-                                    ),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
                                 TextButton(
@@ -659,7 +689,9 @@ class WelcomePage extends ConsumerWidget {
                                   child: Text(
                                     'Try demo',
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                                   ),
                                 ),
@@ -799,7 +831,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
   Future<void> _submit({required bool create}) async {
     setState(() => _busy = true);
     try {
-      ref
+      await ref
           .read(appStoreProvider)
           .signIn(
             _email.text,
@@ -808,6 +840,28 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             name: _name.text,
           );
       if (mounted) context.go(AppRoute.household.path);
+    } on FcException catch (e) {
+      if (mounted) _showError(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _google({String? name}) async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(appStoreProvider).signInWithGoogle(name: name);
+      // OAuth completes in the browser; the session returns via deep link
+      // and the router moves the user into onboarding automatically.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Finish sign-in in your browser — you will return automatically.',
+            ),
+          ),
+        );
+      }
     } on FcException catch (e) {
       if (mounted) _showError(context, e);
     } finally {
@@ -905,14 +959,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             delay: const Duration(milliseconds: 240),
             child: _GoogleButton(
               label: 'Sign up with Google',
-              onPressed: _busy
-                  ? null
-                  : () {
-                      ref
-                          .read(appStoreProvider)
-                          .signInWithGoogle(name: _name.text);
-                      context.go(AppRoute.household.path);
-                    },
+              onPressed: _busy ? null : () => _google(name: _name.text),
             ),
           ),
           const SizedBox(height: 12),

@@ -46,8 +46,9 @@ class InsightsPage extends ConsumerWidget {
                       const SizedBox(height: 5),
                       Text(
                         'Only explicit actions change these: votes cast, ratings, cooked confirmations. Skipped or unseen meals count as neutral.',
-                        style: Theme.of(context).textTheme.bodySmall
-                            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -133,7 +134,9 @@ class InsightsPage extends ConsumerWidget {
                                   'Evidence: ${s.evidence.map((e) => e.replaceAll('_', ' ')).join(', ')}',
                                   style: Theme.of(context).textTheme.labelSmall
                                       ?.copyWith(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
                                       ),
                                 ),
                               ],

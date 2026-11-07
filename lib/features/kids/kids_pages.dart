@@ -728,7 +728,7 @@ class KidsQuestPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final store = ref.watch(appStoreProvider);
     store.ensureQuest();
-    final doneCount = store.quest.where((q) => q.done).length;
+    final doneCount = store.quest.where((q) => q.adultApproved).length;
     final progress = store.quest.isEmpty ? 0.0 : doneCount / store.quest.length;
     return Scaffold(
       appBar: AppBar(title: const Text('Family quest')),
@@ -880,7 +880,9 @@ class KidsQuestPage extends ConsumerWidget {
                             size: 20,
                             color: q.done
                                 ? FamilyCircleColors.primary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -1343,7 +1345,9 @@ class KidsPassportPage extends ConsumerWidget {
                                   hasStamp ? Icons.verified : Icons.public,
                                   color: hasStamp
                                       ? accent
-                                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                                      : Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
                                   size: 28,
                                 ),
                               ),
@@ -1390,25 +1394,27 @@ class KidsPassportPage extends ConsumerWidget {
                               icon: const Icon(Icons.stars_outlined, size: 18),
                               label: const Text('Earn this stamp'),
                               onPressed: () {
-                                final session = store.startGame('world-food');
-                                final badge = store.finishGame(
-                                  GameSession(
-                                    id: 'passport-$i-${session.id}',
-                                    gameId: 'world-food',
-                                    startedAt: DateTime.now(),
-                                  ),
-                                  rewardTitle: '${stop.name} Explorer',
-                                  rewardDescription:
-                                      'Learned about food from ${stop.name}.',
-                                );
-                                store.completeQuestObjective('q-passport');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Badge earned: ${badge.title}',
+                                try {
+                                  final session = store.startGame('world-food');
+                                  final badge = store.finishGame(
+                                    session,
+                                    rewardTitle: '${stop.name} Explorer',
+                                    rewardDescription:
+                                        'Learned about food from ${stop.name}.',
+                                  );
+                                  store.completeQuestObjective('q-passport');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Badge earned: ${badge.title}',
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                } on FcException catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(e.safeMessage)),
+                                  );
+                                }
                               },
                             ),
                           ],

@@ -29,13 +29,6 @@ class PantryPage extends ConsumerWidget {
 
     return FcScaffold(
       title: 'Pantry',
-      actions: [
-        IconButton(
-          tooltip: 'Scan items (requires camera permission)',
-          icon: const Icon(Icons.photo_camera_outlined),
-          onPressed: () => _showScannerSheet(context),
-        ),
-      ],
       fab: FloatingActionButton.extended(
         onPressed: () => _showAddSheet(context, store),
         icon: const Icon(Icons.add),
@@ -111,36 +104,6 @@ class PantryPage extends ConsumerWidget {
       'hummus' => 'Fridge',
       _ => 'Pantry',
     };
-  }
-
-  void _showScannerSheet(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Pantry scanning',
-                style: Theme.of(sheetContext).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Camera and receipt scanning need your explicit permission and are not available in this build. Manual entry always works and is verified by you.',
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => Navigator.of(sheetContext).pop(),
-                child: const Text('Got it'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   void _showAddSheet(BuildContext context, AppStore store) {

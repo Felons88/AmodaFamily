@@ -808,9 +808,20 @@ class SpendingPage extends ConsumerWidget {
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              'Budgets are manual entries — no account or EBT balances are synced.',
-              style: Theme.of(context).textTheme.bodySmall,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Budgets are manual entries — no account or EBT balances are synced.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => _editBudget(context, store),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: const Text('Edit'),
+                ),
+              ],
             ),
           ),
           const SectionHeader('Trips'),
@@ -843,6 +854,81 @@ class SpendingPage extends ConsumerWidget {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _editBudget(BuildContext context, AppStore store) {
+    final cash = TextEditingController(
+      text: (store.budget.cashCents / 100).toStringAsFixed(2),
+    );
+    final snap = TextEditingController(
+      text: (store.budget.snapCents / 100).toStringAsFixed(2),
+    );
+    final deposit = TextEditingController(
+      text: store.budget.depositDay?.toString() ?? '',
+    );
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Edit budget'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: cash,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(
+                labelText: 'Cash per period (\$)',
+              ),
+            ),
+            TextField(
+              controller: snap,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(
+                labelText: 'SNAP per period (\$)',
+              ),
+            ),
+            TextField(
+              controller: deposit,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Deposit day (1-31, optional)',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              int cents(String s) => ((double.tryParse(s) ?? -1) * 100).round();
+              final cashCents = cents(cash.text);
+              final snapCents = cents(snap.text);
+              final dayText = deposit.text.trim();
+              final day = dayText.isEmpty ? null : int.tryParse(dayText);
+              try {
+                store.setBudget(
+                  cashCents: cashCents,
+                  snapCents: snapCents,
+                  depositDay: day,
+                );
+                Navigator.of(dialogContext).pop();
+              } on FcException catch (e) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(e.safeMessage)));
+              }
+            },
+            child: const Text('Save'),
+          ),
         ],
       ),
     );

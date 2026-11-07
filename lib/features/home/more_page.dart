@@ -54,6 +54,18 @@ class MorePage extends ConsumerWidget {
         AppRoute.members.path,
       ),
       (
+        Icons.face_retouching_natural_outlined,
+        'Kids mode',
+        'Kid-safe home, votes & quests',
+        AppRoute.kidsHome.path,
+      ),
+      (
+        Icons.sports_esports_outlined,
+        'Family games',
+        '16 games the whole household can play',
+        AppRoute.games.path,
+      ),
+      (
         Icons.how_to_vote_outlined,
         'Votes',
         'Family ballots',
@@ -156,6 +168,7 @@ class MorePage extends ConsumerWidget {
               circleName: circle?.name ?? 'Household',
               memberCount: circle?.activeMembers.length ?? 0,
               plan: store.entitlement.plan.label,
+              isDemo: store.isDemoMode,
             ),
             section('Plan & shop', entries),
             section('Household', household),
@@ -170,9 +183,9 @@ class MorePage extends ConsumerWidget {
                   children: [
                     SwitchListTile(
                       secondary: const Icon(Icons.wifi_off_outlined),
-                      title: const Text('Simulate offline'),
+                      title: const Text('Offline mode'),
                       subtitle: const Text(
-                        'Demo: test offline caching and queued changes',
+                        'Manually enable to test offline behavior and queued changes',
                       ),
                       value: store.isOffline,
                       onChanged: (v) => store.setOffline(v),
@@ -223,12 +236,14 @@ class _ProfileSummary extends StatelessWidget {
     required this.circleName,
     required this.memberCount,
     required this.plan,
+    this.isDemo = false,
   });
 
   final String name;
   final String circleName;
   final int memberCount;
   final String plan;
+  final bool isDemo;
 
   @override
   Widget build(BuildContext context) {
@@ -267,6 +282,28 @@ class _ProfileSummary extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(color: scheme.onSurfaceVariant),
                   ),
+                  if (isDemo) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: FamilyCircleColors.warning.withValues(
+                          alpha: .15,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Demo household — sample data',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: FamilyCircleColors.warning,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

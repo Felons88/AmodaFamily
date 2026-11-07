@@ -38,6 +38,42 @@ class NotificationsPage extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
         children: [
+          const SectionHeader('Recent activity'),
+          if (store.events.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text('No household activity recorded yet.'),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(
+                  children: [
+                    for (
+                      var i = 0;
+                      i < store.events.length.clamp(0, 8);
+                      i++
+                    ) ...[
+                      _ActivityTile(
+                        event: store.events[store.events.length - 1 - i],
+                        label: _activityLabel(
+                          store.events[store.events.length - 1 - i].type,
+                        ),
+                      ),
+                      if (i < store.events.length.clamp(0, 8) - 1)
+                        Divider(
+                          height: 1,
+                          indent: 68,
+                          color: Theme.of(context).colorScheme.outlineVariant
+                              .withValues(alpha: .45),
+                        ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           const SectionHeader('Channels'),
           card(
             Column(
@@ -154,6 +190,39 @@ class NotificationsPage extends ConsumerWidget {
     );
   }
 
+  String _activityLabel(String type) => switch (type) {
+    'signed_in' => 'Signed in',
+    'account_created' => 'Account created',
+    'circle_created' => 'Household created',
+    'member_added' => 'Member added',
+    'food_needs_saved' => 'Food needs updated',
+    'budget_saved' => 'Budget updated',
+    'plan_generated' => 'Meal plan generated',
+    'plan_approved' => 'Meal plan approved',
+    'slot_swapped' => 'Plan slot changed',
+    'grocery_checked' => 'Grocery item checked off',
+    'purchase_confirmed' => 'Shopping trip confirmed',
+    'ingredient_depleted' => 'Pantry updated',
+    'quantity_corrected' => 'Pantry amount corrected',
+    'beverage_confirmed' => 'Drink restock confirmed',
+    'vote_opened' => 'Vote round opened',
+    'vote_cast' => 'Vote cast',
+    'vote_closed' => 'Vote closed',
+    'game_started' => 'Game started',
+    'game_completed' => 'Game completed',
+    'badge_earned' => 'Badge earned',
+    'quest_objective_done' => 'Quest progress',
+    'recipe_rated' => 'Recipe feedback',
+    'recipe_saved' => 'Recipe saved',
+    'catalog_share_requested' => 'Recipe shared for review',
+    'learning_corrected' => 'Taste learning corrected',
+    'learning_deleted' => 'Learning data deleted',
+    'notification_opt_in' => 'Notification preference changed',
+    'offline_queue_replayed' => 'Offline changes synced',
+    'profile_switched' => 'Profile switched',
+    _ => type.replaceAll('_', ' '),
+  };
+
   void _editQuietHours(
     BuildContext context,
     NotificationPrefs prefs,
@@ -208,6 +277,40 @@ class NotificationsPage extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// One row in the real in-app activity feed.
+class _ActivityTile extends StatelessWidget {
+  const _ActivityTile({required this.event, required this.label});
+
+  final AppEvent event;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final at = event.at;
+    final time =
+        '${at.month}/${at.day} ${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
+    return ListTile(
+      dense: true,
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: scheme.primary.withValues(alpha: .12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(Icons.bolt_outlined, size: 18, color: scheme.primary),
+      ),
+      title: Text(
+        label,
+        style: Theme.of(context).textTheme.titleSmall
+            ?.copyWith(fontWeight: FontWeight.w700),
+      ),
+      subtitle: Text(time),
     );
   }
 }

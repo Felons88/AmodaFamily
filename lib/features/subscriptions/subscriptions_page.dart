@@ -66,13 +66,19 @@ class SubscriptionsPage extends ConsumerWidget {
                       ),
                     ),
                     FcChip(
-                      ent.verified ? 'Verified' : 'Unverified',
-                      icon: ent.verified
-                          ? Icons.verified_outlined
-                          : Icons.error_outline,
-                      color: ent.verified
+                      ent.plan == EntitlementPlan.free
+                          ? 'Free'
+                          : (ent.verified ? 'Verified' : 'Unverified'),
+                      icon: ent.plan == EntitlementPlan.free
+                          ? Icons.eco_outlined
+                          : (ent.verified
+                                ? Icons.verified_outlined
+                                : Icons.error_outline),
+                      color: ent.plan == EntitlementPlan.free
                           ? FamilyCircleColors.primary
-                          : FamilyCircleColors.warning,
+                          : (ent.verified
+                                ? FamilyCircleColors.primary
+                                : FamilyCircleColors.warning),
                     ),
                   ],
                 ),
@@ -105,24 +111,25 @@ class SubscriptionsPage extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Column(
                 children: [
-                  ListTile(
-                    leading: const Icon(Icons.restore),
-                    title: const Text('Restore purchase'),
-                    subtitle: const Text('Check an existing subscription'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      try {
-                        store.restorePurchase();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Purchase restored.')),
-                        );
-                      } on FcException catch (e) {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text(e.safeMessage)));
-                      }
-                    },
-                  ),
+                  if (ent.providerReference != null)
+                    ListTile(
+                      leading: const Icon(Icons.restore),
+                      title: const Text('Restore purchase'),
+                      subtitle: const Text('Check an existing subscription'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        try {
+                          store.restorePurchase();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Purchase restored.')),
+                          );
+                        } on FcException catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.safeMessage)),
+                          );
+                        }
+                      },
+                    ),
                   if (ent.isPaid && !ent.cancelAtPeriodEnd)
                     ListTile(
                       leading: const Icon(Icons.cancel_outlined),
@@ -139,10 +146,11 @@ class SubscriptionsPage extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              'One subscription covers the whole household — kids never see or pay for it. Demo checkout uses a mock provider; no real charge occurs.',
+              'One subscription covers the whole household — kids never see or pay for it. Paid plans are not on sale yet: every feature is free during early access and no payment is collected.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -219,21 +227,9 @@ class SubscriptionsPage extends ConsumerWidget {
                 child: FcChip('Active', icon: Icons.check),
               )
             else
-              FilledButton.tonal(
-                onPressed: () {
-                  try {
-                    store.checkout(plan);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('${plan.label} activated (demo).'),
-                      ),
-                    );
-                  } on FcException catch (e) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text(e.safeMessage)));
-                  }
-                },
-                child: const Text('Choose'),
+              const Padding(
+                padding: EdgeInsets.only(top: 6),
+                child: FcChip('Not on sale yet', icon: Icons.schedule_outlined),
               ),
           ],
         ),

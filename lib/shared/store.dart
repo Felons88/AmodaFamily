@@ -11,6 +11,7 @@ library;
 
 import 'package:family_circle_planner_engine/planner_engine.dart';
 import 'package:family_circle_safety_engine/safety_engine.dart';
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -26,7 +27,12 @@ import 'persistence.dart';
 import 'models.dart';
 
 /// Actions that are safe to queue while offline (idempotent, low risk).
-enum _QueueableAction { groceryCheck, pantryConfirm }
+/// Values are the `action` strings stored on PendingWrite for replay.
+abstract final class QueueAction {
+  static const groceryCheck = 'grocery_check';
+  static const pantryAdd = 'pantry_add';
+  static const pantryAdjust = 'pantry_adjust';
+}
 
 class AppStore extends ChangeNotifier {
   /// Set by the app shell once the store exists so Supabase auth events can
@@ -128,13 +134,19 @@ class AppStore extends ChangeNotifier {
     if (_offline) throw const FcException(FcErrorCode.offlineNotSupported);
   }
 
-  void _queue(_QueueableAction action, String description) {
+  void _queue(
+    String action,
+    String description, [
+    Map<String, Object?> params = const {},
+  ]) {
     _pending = [
       ..._pending,
       PendingWrite(
         id: _nextId('pw'),
         description: description,
         queuedAt: DateTime.now(),
+        action: action,
+        params: params,
       ),
     ];
     notifyListeners();
@@ -170,24 +182,67 @@ class AppStore extends ChangeNotifier {
   bool _googleAuth = false;
   bool get usedGoogleAuth => _googleAuth;
 
-  void signIn(
+  Future<void> signIn(
     String email,
     String password, {
     bool create = false,
     String? name,
-  }) {
+  }) async {
     if (email.trim().isEmpty || !email.contains('@')) {
       throw const FcException(FcErrorCode.validation, 'Enter a valid email.');
     }
-    if (password.length < 4) {
+    if (password.length < 8) {
       throw const FcException(
         FcErrorCode.validation,
-        'Password needs at least 4 characters.',
+        'Password needs at least 8 characters.',
       );
     }
     if (create && (name == null || name.trim().isEmpty)) {
       throw const FcException(FcErrorCode.validation, 'Enter your name.');
     }
+    if (Supabase.instance.isInitialized) {
+      try {
+        if (create) {
+          final res = await Supabase.instance.client.auth.signUp(
+            email: email.trim(),
+            password: password,
+            data: {
+              if (name != null && name.trim().isNotEmpty)
+                'full_name': name.trim(),
+            },
+          );
+          var session = res.session;
+          session ??= (await Supabase.instance.client.auth.signInWithPassword(
+            email: email.trim(),
+            password: password,
+          )).session;
+          if (session == null) {
+            throw const FcException(
+              FcErrorCode.validation,
+              'Account created — check your email to confirm, then sign in.',
+            );
+          }
+          syncSupabaseSession(session);
+        } else {
+          final res = await Supabase.instance.client.auth.signInWithPassword(
+            email: email.trim(),
+            password: password,
+          );
+          syncSupabaseSession(res.session);
+        }
+        emit(create ? 'account_created' : 'signed_in');
+        notifyListeners();
+        return;
+      } on FcException {
+        rethrow;
+      } catch (_) {
+        throw const FcException(
+          FcErrorCode.authRequired,
+          'Could not sign in. Check your details and connection.',
+        );
+      }
+    }
+    // Local-only fallback: Supabase not configured (tests, unconfigured builds).
     _userEmail = email.trim();
     _displayName = name?.trim();
     _googleAuth = false;
@@ -195,24 +250,27 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Google sign-in entry point. The local backend simulates the OAuth
-  /// exchange; production swaps this for Supabase auth.signInWithOAuth —
-  /// the flow is identical: no email/password, onboarding continues.
+  /// Google sign-in via Supabase OAuth. The session arrives through the
+  /// deep-link redirect -> onAuthStateChange -> syncSupabaseSession; the
+  /// router then sends the user into onboarding automatically.
   Future<void> signInWithGoogle({String? name}) async {
+    if (!Supabase.instance.isInitialized) {
+      throw const FcException(
+        FcErrorCode.validation,
+        'Google sign-in needs a connection right now.',
+      );
+    }
     try {
       await Supabase.instance.client.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: 'com.amoda.kinplora://login-callback',
       );
-      return; // session arrives via deep link -> syncSupabaseSession
-    } catch (_) {}
-    _userEmail = 'google.user@gmail.com';
-    _displayName = (name != null && name.trim().isNotEmpty)
-        ? name.trim()
-        : 'Google User';
-    _googleAuth = true;
-    emit('signed_in', meta: {'provider': 'google'});
-    notifyListeners();
+    } catch (_) {
+      throw const FcException(
+        FcErrorCode.authRequired,
+        'Google sign-in could not start. Check your connection.',
+      );
+    }
   }
 
   /// Called once when the store is created — picks up any session that
@@ -223,27 +281,58 @@ class AppStore extends ChangeNotifier {
     } catch (_) {}
   }
 
+  /// Supabase user id used to scope cloud snapshots; null for local-only
+  /// sessions (demo, unconfigured builds) which never touch remote state.
+  String? _supabaseUserId;
+
   void syncSupabaseSession(Session? session) {
     final email = session?.user.email;
-    if (email == null || email.isEmpty) return;
+    if (session == null || email == null || email.isEmpty) {
+      // Real sign-out / expired session: only act if we had a Supabase
+      // identity — never wipe a local-only account on a null session.
+      if (_supabaseUserId != null) signOut();
+      return;
+    }
+    final accountChanged = _userEmail != null && _userEmail != email;
+    if (accountChanged) _clearLocalState();
     final wasSignedOut = _userEmail == null;
+    _supabaseUserId = session.user.id;
     _userEmail = email;
     _displayName ??=
-        session?.user.userMetadata?['full_name'] as String? ??
-        session?.user.userMetadata?['name'] as String?;
-    _googleAuth = true;
+        session.user.userMetadata?['full_name'] as String? ??
+        session.user.userMetadata?['name'] as String?;
+    _googleAuth = session.user.appMetadata['provider'] == 'google';
+    if (wasSignedOut || accountChanged) {
+      _remoteReady = false;
+      unawaited(_restoreRemote());
+    }
     if (wasSignedOut) emit('signed_in', meta: {'provider': 'supabase'});
     notifyListeners();
   }
 
   void signInDemo() {
+    _supabaseUserId = null;
     _userEmail = 'demo@familycircle.local';
     _seedDemoHousehold();
     emit('signed_in', meta: {'mode': 'demo'});
     notifyListeners();
   }
 
+  /// Whether the current session is the seeded demo household.
+  bool get isDemoMode => _userEmail == 'demo@familycircle.local';
+
   void signOut() {
+    _supabaseUserId = null;
+    try {
+      if (Supabase.instance.isInitialized) {
+        unawaited(Supabase.instance.client.auth.signOut());
+      }
+    } catch (_) {}
+    _clearLocalState();
+    notifyListeners();
+  }
+
+  void _clearLocalState() {
     _userEmail = null;
     _displayName = null;
     _googleAuth = false;
@@ -269,7 +358,7 @@ class AppStore extends ChangeNotifier {
     _consent = const ConsentFlags();
     _notifPrefs = const NotificationPrefs();
     _offline = false;
-    notifyListeners();
+    _lastSavedAt = null;
   }
 
   void switchActor(String memberId) {
@@ -284,11 +373,48 @@ class AppStore extends ChangeNotifier {
   void setOffline(bool value) {
     _offline = value;
     if (!value && _pending.isNotEmpty) {
-      // Replay queued idempotent writes.
-      _pending = [];
-      emit('offline_queue_replayed', meta: {'count': 'done'});
+      _replayPending();
     }
     notifyListeners();
+  }
+
+  /// Re-applies queued safe writes on reconnect. Writes that still fail
+  /// (validation, missing catalog entry) stay queued so nothing is lost
+  /// silently; the rest are applied through the normal code paths.
+  void _replayPending() {
+    final queued = List<PendingWrite>.of(_pending);
+    final failed = <PendingWrite>[];
+    var applied = 0;
+    for (final p in queued) {
+      try {
+        switch (p.action) {
+          case QueueAction.groceryCheck:
+            toggleGrocery(p.params['ingredientId'] as String);
+          case QueueAction.pantryAdd:
+            addPantryItem(
+              p.params['ingredientId'] as String,
+              p.params['amount'] as int,
+              confirmed: p.params['confirmed'] as bool? ?? true,
+              expiresAt: DateTime.tryParse(
+                p.params['expiresAt'] as String? ?? '',
+              ),
+            );
+          case QueueAction.pantryAdjust:
+            adjustPantry(
+              p.params['ingredientId'] as String,
+              p.params['amount'] as int,
+            );
+          default:
+            failed.add(p);
+            continue;
+        }
+        applied++;
+      } catch (_) {
+        failed.add(p);
+      }
+    }
+    _pending = failed;
+    emit('offline_queue_replayed', meta: {'count': '$applied'});
   }
 
   // ---------- circle / members ----------
@@ -678,7 +804,9 @@ class AppStore extends ChangeNotifier {
   void toggleGrocery(String ingredientId) {
     _requireCircle();
     if (_offline) {
-      _queue(_QueueableAction.groceryCheck, 'Check off $ingredientId');
+      _queue(QueueAction.groceryCheck, 'Check off $ingredientId', {
+        'ingredientId': ingredientId,
+      });
       return;
     }
     _groceryList = [
@@ -774,7 +902,12 @@ class AppStore extends ChangeNotifier {
       );
     }
     if (_offline) {
-      _queue(_QueueableAction.pantryConfirm, 'Add pantry $ingredientId');
+      _queue(QueueAction.pantryAdd, 'Add pantry $ingredientId', {
+        'ingredientId': ingredientId,
+        'amount': amount,
+        'confirmed': confirmed,
+        'expiresAt': expiresAt?.toIso8601String(),
+      });
       return;
     }
     final ing = catalog.ingredients[ingredientId]!;
@@ -840,7 +973,10 @@ class AppStore extends ChangeNotifier {
       );
     }
     if (_offline) {
-      _queue(_QueueableAction.pantryConfirm, 'Adjust pantry $ingredientId');
+      _queue(QueueAction.pantryAdjust, 'Adjust pantry $ingredientId', {
+        'ingredientId': ingredientId,
+        'amount': newAmount,
+      });
       return;
     }
     _pantry = [
@@ -1355,6 +1491,17 @@ class AppStore extends ChangeNotifier {
   void deleteHousehold() {
     _requireAdult();
     _requireOnline();
+    final uid = _supabaseUserId;
+    if (Supabase.instance.isInitialized && uid != null) {
+      unawaited(
+        Supabase.instance.client
+            .from('app_snapshots')
+            .delete()
+            .eq('key', uid)
+            .then((_) {})
+            .catchError((_) {}),
+      );
+    }
     signOut();
   }
 
@@ -1466,9 +1613,12 @@ class AppStore extends ChangeNotifier {
   // ---------- persistence ----------
 
   Timer? _persistTimer;
-  String? _snapshotKey;
   static const _prefsKey = 'kinplora_state_v1';
-  static const _keyPrefsKey = 'kinplora_snapshot_key';
+
+  /// Remote snapshots are keyed by the Supabase user id so RLS can scope
+  /// rows to `auth.uid()`. Local-only sessions (demo, unconfigured builds)
+  /// never touch the remote table.
+  bool _remoteReady = false;
 
   /// Every mutation notifies -> schedule a debounced snapshot write.
   @override
@@ -1486,33 +1636,42 @@ class AppStore extends ChangeNotifier {
   Future<void> _restore() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _snapshotKey = prefs.getString(_keyPrefsKey);
-      _snapshotKey ??= _nextId('snap');
-      await prefs.setString(_keyPrefsKey, _snapshotKey!);
       final raw = prefs.getString(_prefsKey);
       if (raw != null) {
         importState(jsonDecode(raw) as Map<String, dynamic>);
+        notifyListeners();
       }
       unawaited(_restoreRemote());
     } catch (_) {}
   }
 
   Future<void> _restoreRemote() async {
+    final uid = _supabaseUserId;
+    if (uid == null || !Supabase.instance.isInitialized) return;
     try {
-      if (!Supabase.instance.isInitialized || _snapshotKey == null) return;
       final res = await Supabase.instance.client
           .from('app_snapshots')
           .select('state, updated_at')
-          .eq('key', _snapshotKey!)
+          .eq('key', uid)
           .maybeSingle();
       if (res == null) return;
       final remoteSaved = DateTime.tryParse(res['updated_at'] as String? ?? '');
       final localSaved = _lastSavedAt;
-      if (remoteSaved != null && (localSaved == null || remoteSaved.isAfter(localSaved))) {
+      // A local state with no household never blocks a remote restore —
+      // this is what makes sign-in on a new device (or after sign-out)
+      // recover the cloud snapshot regardless of local write timestamps.
+      final localEmpty = _circle == null;
+      if (remoteSaved != null &&
+          (localEmpty ||
+              localSaved == null ||
+              remoteSaved.isAfter(localSaved))) {
         importState((res['state'] as Map).cast<String, dynamic>());
         notifyListeners();
       }
-    } catch (_) {}
+    } catch (_) {
+    } finally {
+      _remoteReady = true;
+    }
   }
 
   DateTime? _lastSavedAt;
@@ -1525,14 +1684,24 @@ class AppStore extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefsKey, json);
       _lastSavedAt = DateTime.now();
-      // Remote sync — fire and forget; offline queue covers failures.
-      if (Supabase.instance.isInitialized && _snapshotKey != null) {
+      // Remote sync — only for Supabase-authenticated users, and only after
+      // the first remote fetch so a stale local state can't clobber newer
+      // cloud data on sign-in.
+      final uid = _supabaseUserId;
+      if (Supabase.instance.isInitialized &&
+          uid != null &&
+          _remoteReady &&
+          isSignedIn) {
         unawaited(
-          Supabase.instance.client.from('app_snapshots').upsert({
-            'key': _snapshotKey,
-            'state': state,
-            'updated_at': DateTime.now().toIso8601String(),
-          }).then((_) {}).catchError((_) {}),
+          Supabase.instance.client
+              .from('app_snapshots')
+              .upsert({
+                'key': uid,
+                'state': state,
+                'updated_at': DateTime.now().toIso8601String(),
+              })
+              .then((_) {})
+              .catchError((_) {}),
         );
       }
     } catch (_) {}
@@ -1540,38 +1709,40 @@ class AppStore extends ChangeNotifier {
 
   /// Serializes all user-owned state (catalog stays static).
   Map<String, dynamic> exportState() => {
-        'v': 1,
-        'email': _userEmail,
-        'name': _displayName,
-        'google': _googleAuth,
-        'actor': _actorId,
-        'consent': {
-          'a': _consent.analytics,
-          'p': _consent.personalization,
-          'ai': _consent.aiProcessing,
-        },
-        'circle': _circle == null ? null : circleJson(_circle!),
-        'plan': _plan == null ? null : planJson(_plan!),
-        'planSerial': _planSerial,
-        'serial': _serial,
-        'shopInterval': _shoppingIntervalDays,
-        'budget': budgetJson(_budget),
-        'pantry': [for (final p in _pantry) pantryJson(p)],
-        'grocery': [for (final g in _groceryList) groceryJson(g)],
-        'trips': [for (final t in _trips) tripJson(t)],
-        'votes': [for (final v in _voteRounds) voteJson(v)],
-        'sessions': [for (final g in _gameSessions) sessionJson(g)],
-        'badges': [for (final b in _badges) badgeJson(b)],
-        'entitlement': entitlementJson(_entitlement),
-        'beverages': [for (final b in _beverages) beverageJson(b)],
-        'learning': {for (final e in _learning.entries) e.key: learningJson(e.value)},
-        'feedback': [for (final f in _feedback) feedbackJson(f)],
-        'notif': notifJson(_notifPrefs),
-        'pending': [for (final p in _pending) pendingJson(p)],
-        'favorites': [for (final f in _favorites) favJson(f)],
-        'vault': {for (final e in _vault.entries) e.key: vaultJson(e.value)},
-        'quest': [for (final q in _quest) questJson(q)],
-      };
+    'v': 1,
+    'email': _userEmail,
+    'name': _displayName,
+    'google': _googleAuth,
+    'actor': _actorId,
+    'consent': {
+      'a': _consent.analytics,
+      'p': _consent.personalization,
+      'ai': _consent.aiProcessing,
+    },
+    'circle': _circle == null ? null : circleJson(_circle!),
+    'plan': _plan == null ? null : planJson(_plan!),
+    'planSerial': _planSerial,
+    'serial': _serial,
+    'shopInterval': _shoppingIntervalDays,
+    'budget': budgetJson(_budget),
+    'pantry': [for (final p in _pantry) pantryJson(p)],
+    'grocery': [for (final g in _groceryList) groceryJson(g)],
+    'trips': [for (final t in _trips) tripJson(t)],
+    'votes': [for (final v in _voteRounds) voteJson(v)],
+    'sessions': [for (final g in _gameSessions) sessionJson(g)],
+    'badges': [for (final b in _badges) badgeJson(b)],
+    'entitlement': entitlementJson(_entitlement),
+    'beverages': [for (final b in _beverages) beverageJson(b)],
+    'learning': {
+      for (final e in _learning.entries) e.key: learningJson(e.value),
+    },
+    'feedback': [for (final f in _feedback) feedbackJson(f)],
+    'notif': notifJson(_notifPrefs),
+    'pending': [for (final p in _pending) pendingJson(p)],
+    'favorites': [for (final f in _favorites) favJson(f)],
+    'vault': {for (final e in _vault.entries) e.key: vaultJson(e.value)},
+    'quest': [for (final q in _quest) questJson(q)],
+  };
 
   /// Restores state from a snapshot map. Does not notify — caller does.
   void importState(Map<String, dynamic> j) {
@@ -1588,33 +1759,72 @@ class AppStore extends ChangeNotifier {
         aiProcessing: c['ai'] as bool? ?? false,
       );
     }
-    _circle = j['circle'] == null ? null : circleFrom(j['circle'] as Map<String, dynamic>);
-    _plan = j['plan'] == null ? null : planFrom(j['plan'] as Map<String, dynamic>);
+    _circle = j['circle'] == null
+        ? null
+        : circleFrom(j['circle'] as Map<String, dynamic>);
+    _plan = j['plan'] == null
+        ? null
+        : planFrom(j['plan'] as Map<String, dynamic>);
     _planSerial = j['planSerial'] as int? ?? 0;
     _serial = j['serial'] as int? ?? 0;
     _shoppingIntervalDays = j['shopInterval'] as int? ?? 7;
     _budget = budgetFrom(j['budget'] as Map<String, dynamic>? ?? {});
-    _pantry = [for (final p in (j['pantry'] as List? ?? [])) pantryFrom(p as Map<String, dynamic>)];
-    _groceryList = [for (final g in (j['grocery'] as List? ?? [])) groceryFrom(g as Map<String, dynamic>)];
-    _trips = [for (final t in (j['trips'] as List? ?? [])) tripFrom(t as Map<String, dynamic>)];
-    _voteRounds = [for (final v in (j['votes'] as List? ?? [])) voteFrom(v as Map<String, dynamic>)];
-    _gameSessions = [for (final g in (j['sessions'] as List? ?? [])) sessionFrom(g as Map<String, dynamic>)];
-    _badges = [for (final b in (j['badges'] as List? ?? [])) badgeFrom(b as Map<String, dynamic>)];
-    _entitlement = entitlementFrom(j['entitlement'] as Map<String, dynamic>? ?? {});
-    _beverages = [for (final b in (j['beverages'] as List? ?? [])) beverageFrom(b as Map<String, dynamic>)];
+    _pantry = [
+      for (final p in (j['pantry'] as List? ?? []))
+        pantryFrom(p as Map<String, dynamic>),
+    ];
+    _groceryList = [
+      for (final g in (j['grocery'] as List? ?? []))
+        groceryFrom(g as Map<String, dynamic>),
+    ];
+    _trips = [
+      for (final t in (j['trips'] as List? ?? []))
+        tripFrom(t as Map<String, dynamic>),
+    ];
+    _voteRounds = [
+      for (final v in (j['votes'] as List? ?? []))
+        voteFrom(v as Map<String, dynamic>),
+    ];
+    _gameSessions = [
+      for (final g in (j['sessions'] as List? ?? []))
+        sessionFrom(g as Map<String, dynamic>),
+    ];
+    _badges = [
+      for (final b in (j['badges'] as List? ?? []))
+        badgeFrom(b as Map<String, dynamic>),
+    ];
+    _entitlement = entitlementFrom(
+      j['entitlement'] as Map<String, dynamic>? ?? {},
+    );
+    _beverages = [
+      for (final b in (j['beverages'] as List? ?? []))
+        beverageFrom(b as Map<String, dynamic>),
+    ];
     _learning = {
       for (final e in ((j['learning'] as Map?) ?? {}).entries)
-        e.key as String: learningFrom(e.value as Map<String, dynamic>)
+        e.key as String: learningFrom(e.value as Map<String, dynamic>),
     };
-    _feedback = [for (final f in (j['feedback'] as List? ?? [])) feedbackFrom(f as Map<String, dynamic>)];
+    _feedback = [
+      for (final f in (j['feedback'] as List? ?? []))
+        feedbackFrom(f as Map<String, dynamic>),
+    ];
     _notifPrefs = notifFrom(j['notif'] as Map<String, dynamic>? ?? {});
-    _pending = [for (final p in (j['pending'] as List? ?? [])) pendingFrom(p as Map<String, dynamic>)];
-    _favorites = [for (final f in (j['favorites'] as List? ?? [])) favFrom(f as Map<String, dynamic>)];
+    _pending = [
+      for (final p in (j['pending'] as List? ?? []))
+        pendingFrom(p as Map<String, dynamic>),
+    ];
+    _favorites = [
+      for (final f in (j['favorites'] as List? ?? []))
+        favFrom(f as Map<String, dynamic>),
+    ];
     _vault = {
       for (final e in ((j['vault'] as Map?) ?? {}).entries)
-        e.key as String: vaultFrom(e.value as Map<String, dynamic>)
+        e.key as String: vaultFrom(e.value as Map<String, dynamic>),
     };
-    _quest = [for (final q in (j['quest'] as List? ?? [])) questFrom(q as Map<String, dynamic>)];
+    _quest = [
+      for (final q in (j['quest'] as List? ?? []))
+        questFrom(q as Map<String, dynamic>),
+    ];
     _lastSavedAt = DateTime.tryParse(j['_savedAt'] as String? ?? '');
   }
 }

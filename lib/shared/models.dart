@@ -736,11 +736,19 @@ class PendingWrite {
     required this.id,
     required this.description,
     required this.queuedAt,
+    this.action,
+    this.params = const {},
   });
 
   final String id;
   final String description;
   final DateTime queuedAt;
+
+  /// Machine-readable action replayed on reconnect, e.g. 'grocery_check'.
+  final String? action;
+
+  /// JSON-serializable arguments for [action].
+  final Map<String, Object?> params;
 }
 
 class FavoriteEntry {

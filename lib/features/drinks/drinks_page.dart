@@ -58,8 +58,9 @@ class DrinksPage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               'Forecasts use confirmed check-ins. Until three are logged, amounts are an initial estimate.',
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],

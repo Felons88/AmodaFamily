@@ -65,11 +65,7 @@ class OfflineStatusPage extends ConsumerWidget {
                           ? Icons.wifi_off_outlined
                           : Icons.wifi_outlined,
                     ),
-                    label: Text(
-                      store.isOffline
-                          ? 'Simulate reconnect'
-                          : 'Simulate offline',
-                    ),
+                    label: Text(store.isOffline ? 'Reconnect' : 'Go offline'),
                     onPressed: () => store.setOffline(!store.isOffline),
                   ),
                 ),

@@ -228,8 +228,9 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             Center(
               child: Text(
                 'About: ${recipe.title}',
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
         ],

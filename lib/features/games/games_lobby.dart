@@ -194,7 +194,9 @@ class GamesLobbyPage extends ConsumerWidget {
                           child: Icon(
                             gameIcon(def.icon),
                             size: 32,
-                            color: locked ? Theme.of(context).colorScheme.onSurfaceVariant : accent,
+                            color: locked
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : accent,
                           ),
                         ),
                         if (tooYoung)
@@ -208,15 +210,18 @@ class GamesLobbyPage extends ConsumerWidget {
                                 color: FamilyCircleColors.surfaceHighest,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(
-                                    alpha: 0.5,
-                                  ),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                               child: Icon(
                                 Icons.lock_outline,
                                 size: 15,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -240,7 +245,9 @@ class GamesLobbyPage extends ConsumerWidget {
                                 Icon(
                                   Icons.lock_outline,
                                   size: 16,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                 ),
                             ],
                           ),
@@ -256,7 +263,9 @@ class GamesLobbyPage extends ConsumerWidget {
                             FcChip(
                               'For older kids',
                               icon: Icons.lock_outline,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             )
                           else if (exhausted)
                             FcChip(

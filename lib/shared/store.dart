@@ -192,7 +192,7 @@ class AppStore extends ChangeNotifier {
     try {
       await Supabase.instance.client.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'com.example.family_circle://login-callback',
+        redirectTo: 'com.amoda.kinplora://login-callback',
       );
       return; // session arrives via deep link -> syncSupabaseSession
     } catch (_) {}

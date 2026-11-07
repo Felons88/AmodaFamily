@@ -1,4 +1,4 @@
-package com.example.family_circle
+package com.amoda.kinplora
 
 import io.flutter.embedding.android.FlutterActivity
 

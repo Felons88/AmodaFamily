@@ -1,5 +1,5 @@
-/// ADULT-003 Recipe detail — validated ingredients, labeled imagery,
-/// substitutions, allergen uncertainty disclosure, instructions.
+/// ADULT-003 Recipe detail — AnyList-style hero, metadata, ingredients,
+/// substitutions, allergen uncertainty disclosure and numbered steps.
 library;
 
 import 'package:flutter/material.dart';
@@ -29,6 +29,7 @@ class RecipeDetailPage extends ConsumerWidget {
       );
     }
     final eligibility = store.eligibilityFor([recipe])[recipe.id];
+    final eligible = eligibility?.isEligible ?? false;
     final favorite = store.favorites.any((f) => f.recipeId == recipe.id);
     final signal = store.learning[recipe.id];
 
@@ -45,40 +46,91 @@ class RecipeDetailPage extends ConsumerWidget {
         ),
       ],
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.zero,
         children: [
-          DishImage(image: recipe.image, height: 180),
-          if (recipe.image.credit != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                recipe.image.credit!,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ),
-          const SizedBox(height: 12),
-          Text(recipe.summary, style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Stack(
             children: [
-              FcChip(recipe.meal.label, icon: Icons.restaurant_outlined),
-              FcChip('${recipe.minutes} min', icon: Icons.schedule_outlined),
-              FcChip('Serves ${recipe.servings}', icon: Icons.people_outline),
-              FcChip(recipe.cuisine, icon: Icons.public),
-              if (eligibility?.isEligible ?? false)
-                const FcChip(
-                  'Checked for your household',
-                  icon: Icons.verified_user_outlined,
-                )
-              else
-                FcChip(
-                  'Not eligible: ${eligibility?.code.name ?? 'unknown'}',
-                  icon: Icons.warning_amber_outlined,
-                  color: FamilyCircleColors.error,
+              DishImage(image: recipe.image, height: 250),
+              if (recipe.image.credit != null)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 10,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: .48),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        recipe.image.credit!,
+                        style: Theme.of(context).textTheme.labelSmall
+                            ?.copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ),
             ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  recipe.title,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  recipe.summary,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  height: 42,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _MetaPill(
+                        icon: Icons.restaurant_outlined,
+                        label: recipe.meal.label,
+                      ),
+                      _MetaPill(
+                        icon: Icons.schedule_outlined,
+                        label: '${recipe.minutes} min',
+                      ),
+                      _MetaPill(
+                        icon: Icons.people_outline,
+                        label: 'Serves ${recipe.servings}',
+                      ),
+                      _MetaPill(icon: Icons.public, label: recipe.cuisine),
+                      if (recipe.kidFriendly)
+                        const _MetaPill(
+                          icon: Icons.child_care_outlined,
+                          label: 'Kid friendly',
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _EligibilityCard(
+                  eligible: eligible,
+                  code: eligibility?.code.name,
+                ),
+              ],
+            ),
           ),
           const SectionHeader('Ingredients'),
           Padding(
@@ -87,44 +139,11 @@ class RecipeDetailPage extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 children: [
-                  for (final need in recipe.needs)
-                    Builder(
-                      builder: (context) {
-                        final ing = catalog.ingredients[need.ingredientId];
-                        final sub = recipe.substitutions[need.ingredientId];
-                        return ListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                          leading: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary
-                                  .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.grass_outlined,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          title: Text(ing?.name ?? need.ingredientId),
-                          subtitle: Text(
-                            [
-                              '$need.amount ${ing == null ? '' : switch (ing.stockUnit) {
-                                      FoodUnit.grams => 'g',
-                                      FoodUnit.milliliters => 'ml',
-                                      FoodUnit.pieces => 'pc',
-                                    }}',
-                              if (ing != null && ing.allergens.isNotEmpty)
-                                'contains ${ing.allergens.join(', ').replaceAll('_', ' ')}',
-                              if (sub != null)
-                                'swap: ${catalog.ingredients[sub]?.name ?? sub}',
-                            ].join(' • '),
-                          ),
-                        );
-                      },
+                  for (var i = 0; i < recipe.needs.length; i++)
+                    _IngredientRow(
+                      need: recipe.needs[i],
+                      recipe: recipe,
+                      showDivider: i < recipe.needs.length - 1,
                     ),
                 ],
               ),
@@ -145,18 +164,14 @@ class RecipeDetailPage extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: FcCard(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
               child: Column(
                 children: [
                   for (var i = 0; i < recipe.steps.length; i++)
-                    ListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        radius: 12,
-                        child: Text('${i + 1}', style: const TextStyle(fontSize: 12)),
-                      ),
-                      title: Text(recipe.steps[i]),
+                    _StepRow(
+                      index: i + 1,
+                      text: recipe.steps[i],
+                      last: i == recipe.steps.length - 1,
                     ),
                 ],
               ),
@@ -170,7 +185,233 @@ class RecipeDetailPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
+        ],
+      ),
+    );
+  }
+}
+
+class _MetaPill extends StatelessWidget {
+  const _MetaPill({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh.withValues(alpha: .6),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: scheme.outlineVariant.withValues(alpha: .45)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: scheme.primary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EligibilityCard extends StatelessWidget {
+  const _EligibilityCard({required this.eligible, required this.code});
+
+  final bool eligible;
+  final String? code;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = eligible
+        ? FamilyCircleColors.primary
+        : FamilyCircleColors.error;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: .3)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            eligible
+                ? Icons.verified_user_outlined
+                : Icons.warning_amber_outlined,
+            color: color,
+            size: 20,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              eligible
+                  ? 'Checked safe for your household'
+                  : 'Not eligible for this household: ${code ?? 'unknown'}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: scheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IngredientRow extends StatelessWidget {
+  const _IngredientRow({
+    required this.need,
+    required this.recipe,
+    required this.showDivider,
+  });
+
+  final RecipeNeed need;
+  final CatalogRecipe recipe;
+  final bool showDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final ingredient = catalog.ingredients[need.ingredientId];
+    final recipeSubstitution = recipe.substitutions[need.ingredientId];
+    return Builder(
+      builder: (context) {
+        final details = <String>[
+          '${need.amount} ${switch (ingredient?.stockUnit) {
+            FoodUnit.grams => 'g',
+            FoodUnit.milliliters => 'ml',
+            FoodUnit.pieces => 'pc',
+            null => '',
+          }}',
+          if (ingredient != null && ingredient.allergens.isNotEmpty)
+            'contains ${ingredient.allergens.join(', ').replaceAll('_', ' ')}',
+          if (recipeSubstitution != null)
+            'swap: ${catalog.ingredients[recipeSubstitution]?.name ?? recipeSubstitution}',
+        ];
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: .12),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Icon(
+                      Icons.eco_outlined,
+                      size: 18,
+                      color: scheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          ingredient?.name ?? need.ingredientId,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          details.join(' • '),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (showDivider)
+              Divider(
+                height: 1,
+                color: scheme.outlineVariant.withValues(alpha: .45),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StepRow extends StatelessWidget {
+  const _StepRow({required this.index, required this.text, required this.last});
+
+  final int index;
+  final String text;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: .15),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: scheme.primary.withValues(alpha: .35),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    '$index',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+              if (!last)
+                Expanded(
+                  child: Container(
+                    width: 1.5,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    color: scheme.outlineVariant.withValues(alpha: .55),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: last ? 8 : 16),
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(height: 1.45),
+              ),
+            ),
+          ),
         ],
       ),
     );

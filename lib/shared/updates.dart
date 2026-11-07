@@ -17,7 +17,13 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpdateInfo {
-  const UpdateInfo({required this.version, required this.build, required this.apkUrl, this.notes, this.mandatory = false});
+  const UpdateInfo({
+    required this.version,
+    required this.build,
+    required this.apkUrl,
+    this.notes,
+    this.mandatory = false,
+  });
 
   final String version;
   final int build;
@@ -34,7 +40,9 @@ class UpdateChecker {
   static Future<UpdateInfo?> check() async {
     if (manifestUrl.isEmpty) return null;
     try {
-      final res = await http.get(Uri.parse(manifestUrl)).timeout(const Duration(seconds: 10));
+      final res = await http
+          .get(Uri.parse(manifestUrl))
+          .timeout(const Duration(seconds: 10));
       if (res.statusCode != 200) return null;
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       final remoteBuild = (body['build'] as num?)?.toInt() ?? 0;
@@ -43,7 +51,9 @@ class UpdateChecker {
       if (remoteVersion.isEmpty || apkUrl.isEmpty) return null;
       final info = await PackageInfo.fromPlatform();
       final localBuild = int.tryParse(info.buildNumber) ?? 0;
-      final remoteIsNewer = remoteBuild > localBuild || _compareVersion(remoteVersion, info.version) > 0;
+      final remoteIsNewer =
+          remoteBuild > localBuild ||
+          _compareVersion(remoteVersion, info.version) > 0;
       if (!remoteIsNewer) return null;
       return UpdateInfo(
         version: remoteVersion,
@@ -76,10 +86,17 @@ class UpdateChecker {
       barrierDismissible: !update.mandatory,
       builder: (dialogContext) => AlertDialog(
         title: Text('Update available: ${update.version}'),
-        content: Text(update.notes?.isNotEmpty == true ? update.notes! : 'A newer version of Kinplora is ready.'),
+        content: Text(
+          update.notes?.isNotEmpty == true
+              ? update.notes!
+              : 'A newer version of Kinplora is ready.',
+        ),
         actions: [
           if (!update.mandatory)
-            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Later')),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Later'),
+            ),
           FilledButton.icon(
             icon: const Icon(Icons.system_update_alt),
             label: const Text('Update now'),
@@ -95,7 +112,10 @@ class UpdateChecker {
 
   /// Streams the APK to temp storage with a progress dialog, then opens the
   /// platform installer (REQUEST_INSTALL_PACKAGES is in the manifest).
-  static Future<void> _downloadAndInstall(BuildContext context, UpdateInfo update) async {
+  static Future<void> _downloadAndInstall(
+    BuildContext context,
+    UpdateInfo update,
+  ) async {
     final progress = ValueNotifier<double>(0);
     var cancelled = false;
     showDialog<void>(
@@ -131,10 +151,14 @@ class UpdateChecker {
 
     try {
       final request = http.Request('GET', Uri.parse(update.apkUrl));
-      final response = await request.send().timeout(const Duration(seconds: 30));
+      final response = await request.send().timeout(
+        const Duration(seconds: 30),
+      );
       if (response.statusCode != 200) throw StateError('download_failed');
       final total = response.contentLength ?? 0;
-      final file = File('${Directory.systemTemp.path}/family-circle-update.apk');
+      final file = File(
+        '${Directory.systemTemp.path}/family-circle-update.apk',
+      );
       final sink = file.openWrite();
       var received = 0;
       await for (final chunk in response.stream) {

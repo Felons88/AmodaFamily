@@ -24,13 +24,19 @@ class AiConfig {
   static const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
   static const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
-  static bool get configured => supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
+  static bool get configured =>
+      supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
 
-  static Uri get functionUri => Uri.parse('$supabaseUrl/functions/v1/ai-meal-idea');
+  static Uri get functionUri =>
+      Uri.parse('$supabaseUrl/functions/v1/ai-meal-idea');
 }
 
 class AiResult {
-  const AiResult({required this.text, required this.model, required this.isAiGenerated});
+  const AiResult({
+    required this.text,
+    required this.model,
+    required this.isAiGenerated,
+  });
 
   final String text;
   final String model;
@@ -40,7 +46,8 @@ class AiResult {
 }
 
 class AiMealIdeaClient {
-  AiMealIdeaClient({http.Client? httpClient}) : _http = httpClient ?? http.Client();
+  AiMealIdeaClient({http.Client? httpClient})
+    : _http = httpClient ?? http.Client();
 
   final http.Client _http;
 
@@ -53,7 +60,10 @@ class AiMealIdeaClient {
     MealType? meal,
   }) async {
     if (!AiConfig.configured) {
-      throw const FcException(FcErrorCode.validation, 'AI is not configured on this device.');
+      throw const FcException(
+        FcErrorCode.validation,
+        'AI is not configured on this device.',
+      );
     }
     final res = await _http
         .post(
@@ -77,9 +87,16 @@ class AiMealIdeaClient {
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     final text = body['text'];
     if (text is! String || text.trim().isEmpty) {
-      throw const FcException(FcErrorCode.validation, 'AI returned an empty answer.');
+      throw const FcException(
+        FcErrorCode.validation,
+        'AI returned an empty answer.',
+      );
     }
-    return AiResult(text: text.trim(), model: body['model'] as String? ?? 'ai', isAiGenerated: true);
+    return AiResult(
+      text: text.trim(),
+      model: body['model'] as String? ?? 'ai',
+      isAiGenerated: true,
+    );
   }
 
   void dispose() => _http.close();

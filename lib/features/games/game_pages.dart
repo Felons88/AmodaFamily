@@ -15,17 +15,18 @@ import '../../shared/errors.dart';
 import '../../shared/models.dart';
 import '../../shared/widgets.dart';
 
-/// Vivid per-game accent colors. Always used as tints behind themed
-/// text/icons so light and dark themes both stay readable.
+/// Warm, vivid per-game accent colors (terracotta / coral / honey family)
+/// that harmonize with the cream-and-terracotta app theme. Always used as
+/// tints behind themed text/icons so light and dark themes stay readable.
 const _gamePalette = [
-  Color(0xFF7C6CF0),
-  Color(0xFFFF8A5C),
-  Color(0xFF42B6E8),
-  Color(0xFFFFC94D),
-  Color(0xFF9B7EDE),
-  Color(0xFF3ECF8E),
-  Color(0xFFFF7BA9),
-  Color(0xFF5AA9E6),
+  Color(0xFFE8863F), // terracotta
+  Color(0xFFFF8A5C), // coral
+  Color(0xFFF2B84B), // honey
+  Color(0xFF2BB3A3), // lagoon teal
+  Color(0xFFFF7BA9), // bubblegum pink
+  Color(0xFFB565D8), // plum
+  Color(0xFF4FA8DE), // warm sky
+  Color(0xFF7CB342), // leaf green
 ];
 
 Color _gameAccent(String seed) {
@@ -54,9 +55,16 @@ class _GameMedallion extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(size * 0.3),
-        border: Border.all(color: accent.withValues(alpha: 0.45), width: 1.5),
+        color: accent.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(size * 0.32),
+        border: Border.all(color: accent.withValues(alpha: 0.55), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: accent.withValues(alpha: 0.3),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Icon(icon, color: accent, size: size * 0.5),
     );
@@ -64,26 +72,58 @@ class _GameMedallion extends StatelessWidget {
 }
 
 /// Playful confetti-ish strip of colored dots shown on the results screen.
-class _ConfettiDots extends StatelessWidget {
+/// Dots gently pop and bob on a staggered loop for a celebratory feel.
+class _ConfettiDots extends StatefulWidget {
   const _ConfettiDots();
 
   @override
+  State<_ConfettiDots> createState() => _ConfettiDotsState();
+}
+
+class _ConfettiDotsState extends State<_ConfettiDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1800),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = 0; i < _gamePalette.length; i++) ...[
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: _gamePalette[i],
-              shape: BoxShape.circle,
-            ),
-          ),
-          if (i < _gamePalette.length - 1) const SizedBox(width: 6),
-        ],
-      ],
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < _gamePalette.length; i++) ...[
+              _dot(i),
+              if (i < _gamePalette.length - 1) const SizedBox(width: 7),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _dot(int i) {
+    final phase = (_c.value + i / _gamePalette.length) % 1.0;
+    final s = 0.75 + 0.3 * (0.5 + 0.5 * sin(phase * 2 * pi));
+    return Transform.scale(
+      scale: s,
+      child: Container(
+        width: 11,
+        height: 11,
+        decoration: BoxDecoration(
+          color: _gamePalette[i],
+          shape: BoxShape.circle,
+        ),
+      ),
     );
   }
 }
@@ -185,16 +225,27 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
         children: [
           const SizedBox(height: 16),
           Center(
-            child: _GameMedallion(icon: gameIcon(def.icon), accent: accent),
+            child: _GameMedallion(
+              icon: gameIcon(def.icon),
+              accent: accent,
+              size: 96,
+            ),
           ),
           const SizedBox(height: 20),
           Text(
             def.title,
-            style: Theme.of(context).textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800),
+            style: Theme.of(context).textTheme.headlineMedium
+                ?.copyWith(fontWeight: FontWeight.w900),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
+          Text(
+            'Ready? Let\'s play!',
+            style: Theme.of(context).textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700, color: accent),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -218,12 +269,16 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
           ],
           const SizedBox(height: 28),
           FilledButton.icon(
-            icon: const Icon(Icons.play_arrow),
+            icon: const Icon(Icons.play_arrow, size: 28),
             label: const Text('Play'),
             style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(54),
+              minimumSize: const Size.fromHeight(60),
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(22),
               ),
             ),
             onPressed: begin,
@@ -242,7 +297,7 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
     final badge = _badge!;
     final accent = _gameAccent(def.id);
     return FcScaffold(
-      title: 'Nice one!',
+      title: 'Great job!',
       child: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -250,21 +305,28 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
             mainAxisSize: MainAxisSize.min,
             children: [
               const _ConfettiDots(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               _GameMedallion(
                 icon: gameIcon(def.icon),
                 accent: accent,
-                size: 84,
+                size: 96,
               ),
               const SizedBox(height: 20),
               Text(
                 badge.title,
-                style: Theme.of(context).textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(context).textTheme.headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w900),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(summary, textAlign: TextAlign.center),
+              const SizedBox(height: 10),
+              Text(
+                'Great try — keep up the awesome work!',
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(fontWeight: FontWeight.w600, color: accent),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 12),
               FcChip(
                 'Badge earned',
@@ -276,9 +338,13 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
                 width: double.infinity,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(54),
+                    minimumSize: const Size.fromHeight(58),
+                    textStyle: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(22),
                     ),
                   ),
                   onPressed: () => context.pop(),
@@ -469,7 +535,7 @@ class _BingoState extends _GameState<_BingoGame> {
               children: [
                 Expanded(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     child: LinearProgressIndicator(
                       value: _marked.length / 9,
                       minHeight: 10,
@@ -521,7 +587,7 @@ class _BingoState extends _GameState<_BingoGame> {
                       border: Border.all(
                         color: marked
                             ? FamilyCircleColors.primary
-                            : FamilyCircleColors.outline,
+                            : Theme.of(context).colorScheme.outline,
                       ),
                     ),
                     child: Column(
@@ -645,8 +711,17 @@ class _RouletteState extends _GameState<_RouletteGame> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
-                  icon: const Icon(Icons.casino_outlined),
-                  label: Text(_spinning ? 'Spinning…' : 'Spin'),
+                  icon: const Icon(Icons.casino_outlined, size: 24),
+                  label: Text(
+                    _spinning ? 'Spinning…' : 'Spin',
+                    style: const TextStyle(fontSize: 17),
+                  ),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                   onPressed: _spinning ? null : _spin,
                 ),
               ],
@@ -1140,8 +1215,18 @@ class _MysteryState extends _GameState<_MysteryGame> {
           const SizedBox(height: 16),
           for (final r in _choices)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 10),
               child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 16,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
                 onPressed: () {
                   if (r.id == _mystery.recipeId) {
                     finish(
@@ -1307,7 +1392,7 @@ class _RestaurantState extends _GameState<_RestaurantGame> {
           ),
           const SizedBox(height: 6),
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
             child: LinearProgressIndicator(
               value: _menu.length / 3,
               minHeight: 8,
@@ -1438,7 +1523,7 @@ class _BudgetHeroState extends _GameState<_BudgetHeroGame> {
             ),
           const SizedBox(height: 12),
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
             child: LinearProgressIndicator(
               value: targetCents == 0 ? 0 : (cost / targetCents).clamp(0, 1),
               minHeight: 10,
@@ -1522,7 +1607,7 @@ class _TriviaState extends _GameState<_TriviaGame> {
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 10,
@@ -1547,14 +1632,22 @@ class _TriviaState extends _GameState<_TriviaGame> {
               padding: const EdgeInsets.only(bottom: 8),
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 16,
+                  ),
                   side: BorderSide(
                     color: !_answered
-                        ? FamilyCircleColors.outline
+                        ? Theme.of(context).colorScheme.outline
                         : i == q.answerIndex
                         ? FamilyCircleColors.primary
                         : i == _picked
                         ? FamilyCircleColors.error
-                        : FamilyCircleColors.outline,
+                        : Theme.of(context).colorScheme.outline,
+                    width: 2,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 onPressed: _answered
@@ -1656,7 +1749,7 @@ class _JuniorChefState extends _GameState<_JuniorChefGame> {
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   child: LinearProgressIndicator(
                     value: _stepsDone.length / lesson.steps.length,
                     minHeight: 8,
@@ -1772,7 +1865,7 @@ class _CookingTogetherState extends _GameState<_CookingTogetherGame> {
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   child: LinearProgressIndicator(
                     value: _done.length / recipe.steps.length,
                     minHeight: 8,
@@ -2016,7 +2109,7 @@ class _QuestState extends _GameState<_QuestGame> {
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   child: LinearProgressIndicator(
                     value: store.quest.isEmpty
                         ? 0

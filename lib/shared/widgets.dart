@@ -1,6 +1,5 @@
-/// Family Circle design system components.
-/// Tokens from docs/design_system/DESIGN_SYSTEM.md: restrained charcoal
-/// surfaces, fresh-green accent, cream text, 4pt spacing, 12/16/24 radii,
+/// Design tokens for the Kinplora warm food-app palette: cream surfaces,
+/// deep green primary, terracotta/amber accents, warm charcoal dark theme.
 /// >=44pt touch targets, no emojis, labeled image states.
 library;
 
@@ -125,9 +124,8 @@ class OfflineBanner extends ConsumerWidget {
                 store.pending.isEmpty
                     ? 'You are offline. Showing saved content.'
                     : 'Offline. ${store.pending.length} change(s) will send when you reconnect.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
           ],
@@ -181,8 +179,8 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 16,
+            width: 3,
+            height: 14,
             margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               color: scheme.primary,
@@ -192,9 +190,9 @@ class SectionHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                letterSpacing: 0.4,
+                letterSpacing: -0.1,
                 color: scheme.onSurface,
               ),
             ),
@@ -240,17 +238,17 @@ class FcChip extends StatelessWidget {
     return Semantics(
       label: label,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: c.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: c.withValues(alpha: 0.28)),
+          color: c.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: c.withValues(alpha: 0.24)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon case final i?) ...[
-              Icon(i, size: 14, color: c),
+              Icon(i, size: 13, color: c),
               const SizedBox(width: 4),
             ],
             Flexible(
@@ -259,7 +257,8 @@ class FcChip extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: c,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.1,
                 ),
               ),
             ),
@@ -367,20 +366,44 @@ class SnapBadge extends StatelessWidget {
 // ---------- recipe imagery ----------
 
 /// Never shows a wrong dish: labeled placeholder when no verified photo.
+/// Placeholder art uses warm terracotta/sage/amber gradient palettes seeded
+/// by the recipe's alt text so each dish gets a stable, appetizing backdrop.
 class DishImage extends StatelessWidget {
   const DishImage({super.key, required this.image, this.height = 140});
 
   final RecipeImage image;
   final double height;
 
+  static const _lightPalettes = [
+    // Terracotta
+    (gradient: [Color(0xFFFCE9DC), Color(0xFFF3C4A4)], icon: Color(0xFFB85C38)),
+    // Sage
+    (gradient: [Color(0xFFEAF0E2), Color(0xFFCBDFC0)], icon: Color(0xFF5F7D4F)),
+    // Amber
+    (gradient: [Color(0xFFFDF1D6), Color(0xFFF6DDA9)], icon: Color(0xFFB07F22)),
+  ];
+
+  static const _darkPalettes = [
+    // Terracotta
+    (gradient: [Color(0xFF3A2B24), Color(0xFF4E352A)], icon: Color(0xFFE8A87C)),
+    // Sage
+    (gradient: [Color(0xFF25301F), Color(0xFF33412A)], icon: Color(0xFFB7D6A8)),
+    // Amber
+    (gradient: [Color(0xFF3A2F1E), Color(0xFF4C3C24)], icon: Color(0xFFE8C37E)),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final dark = scheme.brightness == Brightness.dark;
     final (icon, label) = switch (image.kind) {
       ImageKind.verifiedPhoto => (Icons.restaurant, image.altText),
       ImageKind.aiIllustration => (Icons.auto_awesome, image.altText),
       ImageKind.placeholder => (Icons.dinner_dining, image.altText),
     };
+    final seed = image.altText.codeUnits.fold(0, (a, b) => a + b);
+    final palette = (dark ? _darkPalettes : _lightPalettes)[seed.abs() % 3];
+    final accent = palette.icon;
     return Semantics(
       image: true,
       label: image.altText,
@@ -391,26 +414,27 @@ class DishImage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              scheme.primary.withValues(alpha: 0.14),
-              scheme.surfaceContainerHigh.withValues(alpha: 0.5),
-            ],
+            colors: palette.gradient,
           ),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: scheme.outlineVariant.withValues(alpha: 0.35),
+            color: scheme.outlineVariant.withValues(alpha: 0.3),
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: scheme.primary.withValues(alpha: 0.14),
+                color: accent.withValues(alpha: dark ? 0.22 : 0.16),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: accent.withValues(alpha: 0.35),
+                  width: 1.2,
+                ),
               ),
-              child: Icon(icon, size: 30, color: scheme.primary),
+              child: Icon(icon, size: 32, color: accent),
             ),
             const SizedBox(height: 10),
             Padding(
@@ -419,7 +443,8 @@ class DishImage extends StatelessWidget {
                 image.badge,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: scheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
@@ -461,22 +486,28 @@ class EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: scheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    scheme.primary.withValues(alpha: 0.2),
+                    scheme.tertiary.withValues(alpha: 0.14),
+                  ],
+                ),
                 border: Border.all(
-                  color: scheme.primary.withValues(alpha: 0.18),
+                  color: scheme.primary.withValues(alpha: 0.22),
                 ),
               ),
-              child: Icon(icon, size: 40, color: scheme.primary),
+              child: Icon(icon, size: 42, color: scheme.primary),
             ),
             const SizedBox(height: 20),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -485,9 +516,8 @@ class EmptyState extends StatelessWidget {
               child: Text(
                 message,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(color: scheme.onSurfaceVariant),
               ),
             ),
             if (actionLabel != null && onAction != null) ...[
@@ -572,7 +602,11 @@ class SkeletonList extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant
+                  .withValues(alpha: 0.4),
+            ),
           ),
           child: const _Shimmer(),
         ),
@@ -615,7 +649,7 @@ class _ShimmerState extends State<_Shimmer>
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
       child: AnimatedBuilder(
         animation: _c,
         builder: (context, _) {
@@ -682,6 +716,111 @@ class MemberAvatar extends StatelessWidget {
             fontWeight: FontWeight.w800,
             fontSize: size * 0.42,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Days-left chip colored by food urgency: fresh green, amber when expiring
+/// soon (<=3 days), coral/red once expired or past date.
+class FreshnessBadge extends StatelessWidget {
+  const FreshnessBadge({super.key, required this.daysLeft, this.icon});
+
+  /// Negative or zero means expired / expires today.
+  final int daysLeft;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final light = Theme.of(context).brightness == Brightness.light;
+    final (color, iconData, label) = switch (daysLeft) {
+      < 0 => (
+        light ? FamilyCircleColors.lightExpired : FamilyCircleColors.expired,
+        Icons.error_outline,
+        'Expired',
+      ),
+      0 => (
+        light
+            ? FamilyCircleColors.lightExpiringSoon
+            : FamilyCircleColors.expiringSoon,
+        Icons.schedule,
+        'Expires today',
+      ),
+      1 => (
+        light
+            ? FamilyCircleColors.lightExpiringSoon
+            : FamilyCircleColors.expiringSoon,
+        Icons.schedule,
+        '1 day left',
+      ),
+      <= 3 => (
+        light
+            ? FamilyCircleColors.lightExpiringSoon
+            : FamilyCircleColors.expiringSoon,
+        Icons.schedule,
+        '$daysLeft days left',
+      ),
+      _ => (
+        light ? FamilyCircleColors.lightFresh : FamilyCircleColors.fresh,
+        Icons.eco_outlined,
+        '$daysLeft days left',
+      ),
+    };
+    return FcChip(label, icon: icon ?? iconData, color: color);
+  }
+}
+
+/// Rounded icon tile used for pantry categories and quick filters.
+class CategoryIconTile extends StatelessWidget {
+  const CategoryIconTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.color,
+    this.onTap,
+    this.size = 52,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color? color;
+  final VoidCallback? onTap;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final c = color ?? scheme.primary;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                color: c.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: c.withValues(alpha: 0.22)),
+              ),
+              child: Icon(icon, size: size * 0.46, color: c),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

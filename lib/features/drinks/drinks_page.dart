@@ -1,5 +1,5 @@
-/// ADULT-006 Drinks — beverage profiles, EWMA consumption forecast,
-/// 'initial estimate' labeling until 3 confirmed intervals.
+/// ADULT-006 Drinks — beverage profile cards with EWMA forecast and honest
+/// 'initial estimate' labeling until three confirmed intervals.
 library;
 
 import 'package:flutter/material.dart';
@@ -20,20 +20,47 @@ class DrinksPage extends ConsumerWidget {
     return FcScaffold(
       title: 'Drinks',
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
         children: [
-          Text(
-            'Track household beverages and what to buy before the next trip. Water suggestions are not medical advice.',
-            style: Theme.of(context).textTheme.bodyMedium,
+          FcCard(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary
+                        .withValues(alpha: .14),
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: Icon(
+                    Icons.local_drink_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Track household beverages and what to buy before the next trip. Water suggestions are not medical advice.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
-          for (final bev in catalog.beverages.values)
+          const SizedBox(height: 14),
+          for (final bev in catalog.beverages.values) ...[
             _beverageCard(context, store, bev),
-          const SizedBox(height: 8),
-          Text(
-            'Forecasts use confirmed check-ins. Until three are logged, amounts are an initial estimate.',
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: FamilyCircleColors.muted),
+            const SizedBox(height: 10),
+          ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              'Forecasts use confirmed check-ins. Until three are logged, amounts are an initial estimate.',
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
           ),
         ],
       ),
@@ -45,31 +72,50 @@ class DrinksPage extends ConsumerWidget {
         store.beverages.where((b) => b.beverageId == bev.id).firstOrNull ??
         BeverageProfile(beverageId: bev.id);
     final forecast = store.beverageForecast(bev.id);
+    final scheme = Theme.of(context).colorScheme;
     return FcCard(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary
-                      .withValues(alpha: 0.14),
-                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      scheme.primary.withValues(alpha: .85),
+                      scheme.primary.withValues(alpha: .5),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(15),
                 ),
                 child: Icon(
                   Icons.local_drink_outlined,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: scheme.onPrimary,
+                  size: 23,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  bev.name,
-                  style: Theme.of(context).textTheme.titleMedium,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bev.name,
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    Text(
+                      'Pack size ${fmtQty(bev.packSize)}',
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: scheme.onSurfaceVariant),
+                    ),
+                  ],
                 ),
               ),
               FcChip(
@@ -83,19 +129,39 @@ class DrinksPage extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _ForecastMetric(
+                value: '${forecast.packsNeeded.toInt()}',
+                label: 'packs needed',
+                icon: Icons.inventory_2_outlined,
+              ),
+              _ForecastMetric(
+                value: profile.onHand.toStringAsFixed(1),
+                label: 'on hand',
+                icon: Icons.water_drop_outlined,
+              ),
+              _ForecastMetric(
+                value: profile.servingsPerDay.toStringAsFixed(1),
+                label: 'servings/day',
+                icon: Icons.local_cafe_outlined,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           Text(
-            '~${profile.servingsPerDay.toStringAsFixed(1)} servings/day set • ${forecast.packsNeeded.toInt()} pack${forecast.packsNeeded == 1 ? '' : 's'} (${fmtQty(bev.packSize)}) for next trip',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            '~${profile.servingsPerDay.toStringAsFixed(1)} servings/day set • ${forecast.packsNeeded.toInt()} pack${forecast.packsNeeded == 1 ? '' : 's'} for next trip',
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              OutlinedButton(
+              OutlinedButton.icon(
                 onPressed: () => _editProfile(context, store, bev, profile),
-                child: const Text('Edit'),
+                icon: const Icon(Icons.tune, size: 18),
+                label: const Text('Edit'),
               ),
               const SizedBox(width: 8),
               TextButton.icon(
@@ -211,6 +277,50 @@ class DrinksPage extends ConsumerWidget {
             child: const Text('Log'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ForecastMetric extends StatelessWidget {
+  const _ForecastMetric({
+    required this.value,
+    required this.label,
+    required this.icon,
+  });
+
+  final String value;
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh.withValues(alpha: .48),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 17, color: scheme.primary),
+            const SizedBox(height: 7),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall
+                  ?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -15,7 +15,7 @@ class FamilyCircleApp extends ConsumerWidget {
       title: 'Kinplora',
       theme: FamilyCircleTheme.light,
       darkTheme: FamilyCircleTheme.dark,
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.system,
       routerConfig: ref.watch(appRouterProvider),
       builder: (context, child) =>
           _UpdateGate(child: child ?? const SizedBox.shrink()),

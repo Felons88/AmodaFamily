@@ -1,5 +1,5 @@
-/// ADULT-007 Circle members — invite/remove adults, add managed children,
-/// review roles. Kids see none of this (server rejects anyway).
+/// ADULT-007 Circle members — grouped household management. Kids see none of
+/// this surface; the server rejects privileged writes anyway.
 library;
 
 import 'package:flutter/material.dart';
@@ -32,23 +32,39 @@ class MembersPage extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: 96),
         children: [
           const SectionHeader('Adults'),
-          for (final m in circle.adults) _memberTile(context, store, m),
+          _memberGroup(
+            context,
+            store,
+            circle.adults,
+            emptyMessage: 'No adult members.',
+          ),
           const SectionHeader('Managed kids'),
-          if (circle.minors.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'No kid profiles yet. Adults manage them — kids never need accounts.',
-              ),
-            )
-          else
-            for (final m in circle.minors) _memberTile(context, store, m),
-          const SizedBox(height: 16),
+          _memberGroup(
+            context,
+            store,
+            circle.minors,
+            emptyMessage: 'No kid profiles yet. Adults manage them — kids never need accounts.',
+          ),
+          const SectionHeader('Household rules'),
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'Kid profiles see no prices, billing, ads or purchase prompts — ever. Removing a member keeps household meal history.',
-              style: Theme.of(context).textTheme.bodySmall,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FcCard(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.verified_user_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Kid profiles see no prices, billing, ads or purchase prompts — ever. Removing a member keeps household meal history.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -56,21 +72,69 @@ class MembersPage extends ConsumerWidget {
     );
   }
 
+  Widget _memberGroup(
+    BuildContext context,
+    AppStore store,
+    List<CircleMember> members, {
+    required String emptyMessage,
+  }) {
+    if (members.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: FcCard(
+          child: Text(
+            emptyMessage,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: FcCard(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          children: [
+            for (var i = 0; i < members.length; i++) ...[
+              _memberTile(context, store, members[i]),
+              if (i < members.length - 1)
+                Divider(
+                  height: 1,
+                  indent: 68,
+                  color: Theme.of(context).colorScheme.outlineVariant
+                      .withValues(alpha: .45),
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _memberTile(BuildContext context, AppStore store, CircleMember m) {
     return ListTile(
-      leading: MemberAvatar(name: m.name, minor: m.isMinor, size: 40),
-      title: Text(m.name),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+      leading: MemberAvatar(name: m.name, minor: m.isMinor, size: 42),
+      title: Text(
+        m.name,
+        style: Theme.of(context).textTheme.titleSmall
+            ?.copyWith(fontWeight: FontWeight.w800),
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 3),
           Text(
             m.isMinor ? 'Kid • ages ${m.ageBand.label}' : m.role.name,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           if (m.hardAllergens.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 7),
             Wrap(
               spacing: 6,
-              runSpacing: 4,
+              runSpacing: 6,
               children: [
                 for (final a in m.hardAllergens)
                   FcChip(

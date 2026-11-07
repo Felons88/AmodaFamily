@@ -1,4 +1,5 @@
-/// More tab: hub for remaining adult destinations + session controls.
+/// More tab: grouped hub for remaining adult destinations and session
+/// controls.
 library;
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/family_circle_app.dart';
 import '../../app/router.dart';
+import '../../app/theme.dart';
+import '../../shared/models.dart';
 import '../../shared/widgets.dart';
 
 class MorePage extends ConsumerWidget {
@@ -15,6 +18,8 @@ class MorePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final store = ref.watch(appStoreProvider);
+    final circle = store.circle;
+    final actor = store.actor;
     final entries = [
       (
         Icons.event_repeat_outlined,
@@ -108,36 +113,50 @@ class MorePage extends ConsumerWidget {
       ),
     ];
 
-    Widget section(String title, List<(IconData, String, String, String)> items) =>
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader(title),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: FcCard(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    for (var i = 0; i < items.length; i++) ...[
-                      if (i > 0)
-                        const Divider(height: 1, indent: 68),
-                      _MoreTile(entry: items[i]),
-                    ],
-                  ],
-                ),
-              ),
+    Widget section(
+      String title,
+      List<(IconData, String, String, String)> items,
+    ) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(title),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FcCard(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                for (var i = 0; i < items.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 1,
+                      indent: 68,
+                      color: Theme.of(context).colorScheme.outlineVariant
+                          .withValues(alpha: .45),
+                    ),
+                  _MoreTile(entry: items[i]),
+                ],
+              ],
             ),
-          ],
-        );
+          ),
+        ),
+      ],
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('More')),
       bottomNavigationBar: const AdultNavBar(current: '/more'),
       body: SafeArea(
         child: ListView(
+          padding: const EdgeInsets.only(bottom: 24),
           children: [
             const OfflineBanner(),
+            _ProfileSummary(
+              name: actor?.name ?? 'Adult',
+              circleName: circle?.name ?? 'Household',
+              memberCount: circle?.activeMembers.length ?? 0,
+              plan: store.entitlement.plan.label,
+            ),
             section('Plan & shop', entries),
             section('Household', household),
             section('You', personal),
@@ -158,9 +177,28 @@ class MorePage extends ConsumerWidget {
                       value: store.isOffline,
                       onChanged: (v) => store.setOffline(v),
                     ),
-                    const Divider(height: 1, indent: 68),
+                    Divider(
+                      height: 1,
+                      indent: 68,
+                      color: Theme.of(context).colorScheme.outlineVariant
+                          .withValues(alpha: .45),
+                    ),
                     ListTile(
-                      leading: const Icon(Icons.logout),
+                      leading: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: FamilyCircleColors.error.withValues(
+                            alpha: .12,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.logout,
+                          color: FamilyCircleColors.error,
+                          size: 19,
+                        ),
+                      ),
                       title: const Text('Sign out'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
@@ -172,7 +210,67 @@ class MorePage extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileSummary extends StatelessWidget {
+  const _ProfileSummary({
+    required this.name,
+    required this.circleName,
+    required this.memberCount,
+    required this.plan,
+  });
+
+  final String name;
+  final String circleName;
+  final int memberCount;
+  final String plan;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              scheme.primary.withValues(alpha: .16),
+              scheme.primary.withValues(alpha: .03),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: scheme.primary.withValues(alpha: .22)),
+        ),
+        child: Row(
+          children: [
+            MemberAvatar(name: name, size: 52),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hi, $name',
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  Text(
+                    '$circleName • $memberCount member${memberCount == 1 ? '' : 's'} • $plan',
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.tune, color: scheme.primary),
           ],
         ),
       ),
@@ -191,19 +289,23 @@ class _MoreTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       leading: Container(
-        width: 36,
-        height: 36,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
-          color: scheme.primary.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
+          color: scheme.primary.withValues(alpha: .12),
+          borderRadius: BorderRadius.circular(11),
         ),
-        child: Icon(entry.$1, size: 18, color: scheme.primary),
+        child: Icon(entry.$1, size: 19, color: scheme.primary),
       ),
-      title: Text(entry.$2),
+      title: Text(
+        entry.$2,
+        style: Theme.of(context).textTheme.titleSmall
+            ?.copyWith(fontWeight: FontWeight.w700),
+      ),
       subtitle: Text(entry.$3),
       trailing: Icon(
         Icons.chevron_right,
-        size: 18,
+        size: 20,
         color: scheme.onSurfaceVariant,
       ),
       onTap: () => context.push(entry.$4),

@@ -14,6 +14,7 @@ import 'package:family_circle_safety_engine/safety_engine.dart';
 import 'package:flutter/foundation.dart';
 
 import 'catalog.dart' as catalog;
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'errors.dart';
@@ -218,7 +219,8 @@ class AppStore extends ChangeNotifier {
     if (email == null || email.isEmpty) return;
     final wasSignedOut = _userEmail == null;
     _userEmail = email;
-    _displayName ??= session?.user.userMetadata?['full_name'] as String? ??
+    _displayName ??=
+        session?.user.userMetadata?['full_name'] as String? ??
         session?.user.userMetadata?['name'] as String?;
     _googleAuth = true;
     if (wasSignedOut) emit('signed_in', meta: {'provider': 'supabase'});

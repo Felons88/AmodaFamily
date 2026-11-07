@@ -1,5 +1,5 @@
-/// ADULT-014 Privacy controls — analytics/personalization/AI consent,
-/// export, learning deletion, child policies, household deletion.
+/// ADULT-014 Privacy controls — consent, export, learning deletion, child
+/// policies and household deletion.
 library;
 
 import 'dart:convert';
@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
+import '../../app/theme.dart';
 import '../../shared/errors.dart';
 import '../../shared/widgets.dart';
 
@@ -22,79 +23,141 @@ class PrivacyPage extends ConsumerWidget {
     return FcScaffold(
       title: 'Privacy controls',
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
         children: [
           const SectionHeader('Data choices'),
-          SwitchListTile(
-            secondary: const Icon(Icons.insights_outlined),
-            title: const Text('Usage analytics'),
-            subtitle: const Text(
-              'Privacy-minimized events that help the app work. Required for core features.',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FcCard(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    secondary: const Icon(Icons.insights_outlined),
+                    title: const Text('Usage analytics'),
+                    subtitle: const Text(
+                      'Privacy-minimized events that help the app work. Required for core features.',
+                    ),
+                    value: consent.analytics,
+                    onChanged: (v) => store.setConsent(analytics: v),
+                  ),
+                  Divider(
+                    height: 1,
+                    indent: 68,
+                    color: Theme.of(context).colorScheme.outlineVariant
+                        .withValues(alpha: .45),
+                  ),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.tune_outlined),
+                    title: const Text('Personalization'),
+                    subtitle: const Text(
+                      'Learn from your explicit choices to improve meal suggestions.',
+                    ),
+                    value: consent.personalization,
+                    onChanged: (v) => store.setConsent(personalization: v),
+                  ),
+                  Divider(
+                    height: 1,
+                    indent: 68,
+                    color: Theme.of(context).colorScheme.outlineVariant
+                        .withValues(alpha: .45),
+                  ),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.auto_awesome_outlined),
+                    title: const Text('AI processing'),
+                    subtitle: const Text(
+                      'Optional AI features. Hard allergy checks never rely on AI either way.',
+                    ),
+                    value: consent.aiProcessing,
+                    onChanged: (v) => store.setConsent(aiProcessing: v),
+                  ),
+                ],
+              ),
             ),
-            value: consent.analytics,
-            onChanged: (v) => store.setConsent(analytics: v),
           ),
-          SwitchListTile(
-            secondary: const Icon(Icons.tune_outlined),
-            title: const Text('Personalization'),
-            subtitle: const Text(
-              'Learn from your explicit choices to improve meal suggestions.',
-            ),
-            value: consent.personalization,
-            onChanged: (v) => store.setConsent(personalization: v),
-          ),
-          SwitchListTile(
-            secondary: const Icon(Icons.auto_awesome_outlined),
-            title: const Text('AI processing'),
-            subtitle: const Text(
-              'Optional AI features. Hard allergy checks never rely on AI either way.',
-            ),
-            value: consent.aiProcessing,
-            onChanged: (v) => store.setConsent(aiProcessing: v),
-          ),
-          const Divider(height: 32),
           const SectionHeader('Your data'),
-          ListTile(
-            leading: const Icon(Icons.download_outlined),
-            title: const Text('Export my data'),
-            subtitle: const Text(
-              'Household profile, events count and learned signals.',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FcCard(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.download_outlined),
+                    title: const Text('Export my data'),
+                    subtitle: const Text(
+                      'Household profile, events count and learned signals.',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _showExport(context, store),
+                  ),
+                  Divider(
+                    height: 1,
+                    indent: 68,
+                    color: Theme.of(context).colorScheme.outlineVariant
+                        .withValues(alpha: .45),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.auto_delete_outlined),
+                    title: const Text('Delete learning data'),
+                    subtitle: const Text(
+                      'Clears taste signals, feedback and activity. Plans stay.',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _confirm(
+                      context,
+                      'Delete learning data?',
+                      'Recommendations reset to neutral. This cannot be undone.',
+                      () => store.deleteLearningData(),
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    indent: 68,
+                    color: Theme.of(context).colorScheme.outlineVariant
+                        .withValues(alpha: .45),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.child_care_outlined),
+                    title: const Text('Children\'s data'),
+                    subtitle: const Text(
+                      'Kid activity is only used for requested features — never ads or profiling.',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _showChildPolicy(context),
+                  ),
+                ],
+              ),
             ),
-            onTap: () => _showExport(context, store),
           ),
-          ListTile(
-            leading: const Icon(Icons.auto_delete_outlined),
-            title: const Text('Delete learning data'),
-            subtitle: const Text(
-              'Clears taste signals, feedback and activity. Plans stay.',
+          const SectionHeader('Danger zone'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FcCard(
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: FamilyCircleColors.error.withValues(alpha: .13),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.delete_forever_outlined,
+                    color: FamilyCircleColors.error,
+                  ),
+                ),
+                title: const Text('Delete household'),
+                subtitle: const Text(
+                  'Removes the circle, members and all data.',
+                ),
+                onTap: () => _confirm(context, 'Delete household?', 'All members lose access and data is removed. This cannot be undone.', () {
+                  store.deleteHousehold();
+                  context.go(AppRoute.welcome.path);
+                }),
+              ),
             ),
-            onTap: () => _confirm(
-              context,
-              'Delete learning data?',
-              'Recommendations reset to neutral. This cannot be undone.',
-              () => store.deleteLearningData(),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.child_care_outlined),
-            title: const Text('Children\'s data'),
-            subtitle: const Text(
-              'Kid activity is only used for requested features — never ads or profiling.',
-            ),
-            onTap: () => _showChildPolicy(context),
-          ),
-          const Divider(height: 32),
-          ListTile(
-            leading: const Icon(
-              Icons.delete_forever_outlined,
-              color: Colors.redAccent,
-            ),
-            title: const Text('Delete household'),
-            subtitle: const Text('Removes the circle, members and all data.'),
-            onTap: () => _confirm(context, 'Delete household?', 'All members lose access and data is removed. This cannot be undone.', () {
-              store.deleteHousehold();
-              context.go(AppRoute.welcome.path);
-            }),
           ),
         ],
       ),

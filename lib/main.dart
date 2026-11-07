@@ -12,7 +12,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (_supabaseUrl.isNotEmpty && _supabaseAnonKey.isNotEmpty) {
     try {
-      await Supabase.initialize(url: _supabaseUrl, publishableKey: _supabaseAnonKey);
+      await Supabase.initialize(
+        url: _supabaseUrl,
+        publishableKey: _supabaseAnonKey,
+      );
       // Sync real Supabase auth sessions into the app store.
       Supabase.instance.client.auth.onAuthStateChange.listen((state) {
         AppStore.instanceFromAuth?.syncSupabaseSession(state.session);

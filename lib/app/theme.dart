@@ -1,33 +1,52 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens from docs/design_system/DESIGN_SYSTEM.md.
+/// Design tokens for the Kinplora warm food-app palette.
+/// Cream surfaces, deep forest green primary, terracotta/amber accents,
+/// sage secondary — light theme feels like a modern pantry app, dark theme
+/// is a warm charcoal rather than cold black-green.
 abstract final class FamilyCircleColors {
-  static const background = Color(0xFF0E120F);
-  static const surface = Color(0xFF171D19);
-  static const surfaceElevated = Color(0xFF212A23);
-  static const surfaceHighest = Color(0xFF2A342B);
-  static const card = Color(0xFF1B221D);
-  static const primary = Color(0xFF65D36E);
-  static const primaryDark = Color(0xFF215C35);
-  static const primaryContainer = Color(0xFF2B4A33);
-  static const onPrimaryContainer = Color(0xFFB9F3C0);
-  static const tertiary = Color(0xFFE8A04C);
-  static const text = Color(0xFFF5F7F2);
-  static const muted = Color(0xFFB6C2B9);
-  static const warning = Color(0xFFEAB65F);
-  static const error = Color(0xFFFF746C);
-  static const outline = Color(0xFF38443C);
+  // ---- Dark theme (warm charcoal) ----
+  static const background = Color(0xFF1C1917);
+  static const surface = Color(0xFF26221E);
+  static const surfaceElevated = Color(0xFF2E2924);
+  static const surfaceHighest = Color(0xFF38322C);
+  static const card = Color(0xFF23201B);
+  static const primary = Color(0xFF9CCB8E);
+  static const primaryDark = Color(0xFF2F6B3F);
+  static const primaryContainer = Color(0xFF2E4A34);
+  static const onPrimaryContainer = Color(0xFFC9E8CE);
+  static const tertiary = Color(0xFFE0815A);
+  static const sage = Color(0xFF9DB5A0);
+  static const text = Color(0xFFFAF4EC);
+  static const muted = Color(0xFFC4BCAE);
+  static const warning = Color(0xFFE8B45C);
+  static const error = Color(0xFFE86A5A);
+  static const outline = Color(0xFF4A4238);
 
-  // Light-mode variant per design system contract.
-  static const lightBackground = Color(0xFFF5F7F3);
-  static const lightSurface = Color(0xFFFFFFFF);
-  static const lightSurfaceElevated = Color(0xFFEFF2EC);
-  static const lightSurfaceHighest = Color(0xFFE3E8E0);
-  static const lightCard = Color(0xFFFFFFFF);
-  static const lightText = Color(0xFF1A1F1B);
-  static const lightMuted = Color(0xFF5A675E);
-  static const lightOutline = Color(0xFFC9D2C9);
-  static const lightPrimary = Color(0xFF215C35);
+  // ---- Freshness tokens (dark) ----
+  static const fresh = Color(0xFF7FC98B);
+  static const expiringSoon = Color(0xFFE8B45C);
+  static const expired = Color(0xFFE86A5A);
+
+  // ---- Light theme (warm cream) ----
+  static const lightBackground = Color(0xFFFAF4EA);
+  static const lightSurface = Color(0xFFFFFDF8);
+  static const lightSurfaceElevated = Color(0xFFF3EAD9);
+  static const lightSurfaceHighest = Color(0xFFEBDDC4);
+  static const lightCard = Color(0xFFFFFDF8);
+  static const lightText = Color(0xFF2B241B);
+  static const lightMuted = Color(0xFF7C7263);
+  static const lightOutline = Color(0xFFE3D6C2);
+  static const lightPrimary = Color(0xFF2F6B3F);
+  static const lightPrimaryContainer = Color(0xFFD9EBD8);
+  static const lightOnPrimaryContainer = Color(0xFF14301C);
+  static const lightTertiary = Color(0xFFB85C38);
+  static const lightSage = Color(0xFF6E8A66);
+
+  // ---- Freshness tokens (light) ----
+  static const lightFresh = Color(0xFF3E9B5F);
+  static const lightExpiringSoon = Color(0xFFD9822B);
+  static const lightExpired = Color(0xFFD94F3C);
 }
 
 abstract final class FamilyCircleTheme {
@@ -40,7 +59,7 @@ abstract final class FamilyCircleTheme {
           error: FamilyCircleColors.error,
         ).copyWith(
           primary: FamilyCircleColors.primary,
-          onPrimary: const Color(0xFF0E120F),
+          onPrimary: const Color(0xFF1C1917),
           primaryContainer: FamilyCircleColors.primaryContainer,
           onPrimaryContainer: FamilyCircleColors.onPrimaryContainer,
           secondary: FamilyCircleColors.tertiary,
@@ -63,23 +82,23 @@ abstract final class FamilyCircleTheme {
   static ThemeData get light {
     final scheme =
         ColorScheme.fromSeed(
-          seedColor: FamilyCircleColors.primaryDark,
+          seedColor: FamilyCircleColors.lightPrimary,
           brightness: Brightness.light,
           surface: FamilyCircleColors.lightSurface,
           error: const Color(0xFFB3261E),
         ).copyWith(
           primary: FamilyCircleColors.lightPrimary,
           onPrimary: Colors.white,
-          primaryContainer: const Color(0xFFD6EFD8),
-          onPrimaryContainer: const Color(0xFF0F3A1C),
-          secondary: FamilyCircleColors.tertiary,
-          tertiary: FamilyCircleColors.tertiary,
+          primaryContainer: FamilyCircleColors.lightPrimaryContainer,
+          onPrimaryContainer: FamilyCircleColors.lightOnPrimaryContainer,
+          secondary: FamilyCircleColors.lightTertiary,
+          tertiary: FamilyCircleColors.lightTertiary,
           surface: FamilyCircleColors.lightSurface,
           surfaceDim: FamilyCircleColors.lightSurfaceHighest,
           surfaceBright: FamilyCircleColors.lightSurface,
           surfaceContainerLowest: FamilyCircleColors.lightBackground,
           surfaceContainerLow: FamilyCircleColors.lightBackground,
-          surfaceContainer: FamilyCircleColors.lightSurface,
+          surfaceContainer: FamilyCircleColors.lightCard,
           surfaceContainerHigh: FamilyCircleColors.lightSurfaceElevated,
           surfaceContainerHighest: FamilyCircleColors.lightSurfaceHighest,
           outline: FamilyCircleColors.lightOutline,
@@ -101,10 +120,44 @@ abstract final class FamilyCircleTheme {
         thickness: 1,
         space: 1,
       ),
-      textTheme: const TextTheme().apply(
-        bodyColor: scheme.onSurface,
-        displayColor: scheme.onSurface,
-      ),
+      textTheme: TextTheme(
+        displaySmall: const TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+        ),
+        headlineMedium: const TextStyle(
+          fontSize: 26,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.4,
+        ),
+        headlineSmall: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.3,
+        ),
+        titleLarge: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.2,
+        ),
+        titleMedium: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.1,
+        ),
+        titleSmall: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        bodyLarge: const TextStyle(fontSize: 16, height: 1.45),
+        bodyMedium: const TextStyle(fontSize: 14, height: 1.4),
+        bodySmall: const TextStyle(fontSize: 12.5, height: 1.35),
+        labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        labelMedium: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        labelSmall: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
+        ),
+      ).apply(bodyColor: scheme.onSurface, displayColor: scheme.onSurface),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
@@ -112,27 +165,30 @@ abstract final class FamilyCircleTheme {
         elevation: 0,
         titleTextStyle: TextStyle(
           color: scheme.onSurface,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
+          fontSize: 21,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.3,
         ),
         iconTheme: IconThemeData(color: scheme.onSurface),
         actionsIconTheme: IconThemeData(color: scheme.onSurface),
       ),
       cardTheme: CardThemeData(
         color: dark ? FamilyCircleColors.card : scheme.surface,
-        elevation: 0,
+        elevation: dark ? 0.5 : 1,
+        shadowColor: dark
+            ? Colors.black.withValues(alpha: 0.35)
+            : const Color(0xFF8A7A5E).withValues(alpha: 0.18),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.surfaceContainerHigh,
-        selectedColor: scheme.primary.withValues(alpha: 0.18),
+        selectedColor: scheme.primary.withValues(alpha: 0.16),
         disabledColor: scheme.surfaceContainerHigh.withValues(alpha: 0.4),
-        side: BorderSide(color: scheme.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+        shape: const StadiumBorder(),
         labelStyle: TextStyle(color: scheme.onSurface, fontSize: 13),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         showCheckmark: false,
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -141,17 +197,17 @@ abstract final class FamilyCircleTheme {
             ? FamilyCircleColors.surfaceElevated
             : scheme.surfaceContainerHighest.withValues(alpha: 0.5),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
             color: scheme.outlineVariant.withValues(alpha: 0.6),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: scheme.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
@@ -184,7 +240,9 @@ abstract final class FamilyCircleTheme {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(textStyle: const TextStyle(fontWeight: FontWeight.w600)),
+        style: TextButton.styleFrom(
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         elevation: 2,

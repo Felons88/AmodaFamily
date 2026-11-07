@@ -1,5 +1,5 @@
-/// ADULT-012 Recipe vault — favorites, cook history, opt-in moderated
-/// catalog sharing (private notes and child data never migrate).
+/// ADULT-012 Recipe vault — favorites, cook history and opt-in moderated
+/// catalog sharing. Private notes and child data never migrate.
 library;
 
 import 'package:flutter/material.dart';
@@ -25,49 +25,46 @@ class VaultPage extends ConsumerWidget {
     return FcScaffold(
       title: 'Recipe vault',
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
         children: [
           const SectionHeader('Favorites'),
           if (favorites.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Save recipes with the heart icon and they appear here.',
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                child: Text(
+                  'Save recipes with the heart icon and they appear here.',
+                ),
               ),
             )
           else
-            for (final f in favorites)
-              Builder(
-                builder: (context) {
-                  final r = catalog.recipes[f.recipeId];
-                  if (r == null) return const SizedBox.shrink();
-                  return ListTile(
-                    leading: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: FamilyCircleColors.error.withValues(alpha: 0.14),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.favorite,
-                        color: FamilyCircleColors.error,
-                        size: 18,
-                      ),
-                    ),
-                    title: Text(r.title),
-                    subtitle: Text('${r.meal.label} • ${r.minutes} min'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () =>
-                        context.push('${AppRoute.recipeDetail.path}/${r.id}'),
-                  );
-                },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < favorites.length; i++) ...[
+                      _favoriteTile(context, favorites[i].recipeId),
+                      if (i < favorites.length - 1)
+                        Divider(
+                          height: 1,
+                          indent: 66,
+                          color: Theme.of(context).colorScheme.outlineVariant
+                              .withValues(alpha: .45),
+                        ),
+                    ],
+                  ],
+                ),
               ),
+            ),
           const SectionHeader('Cook history'),
           if (vault.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Meals you confirm as cooked build this history.'),
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                child: Text('Meals you confirm as cooked build this history.'),
+              ),
             )
           else
             for (final v in vault)
@@ -75,54 +72,108 @@ class VaultPage extends ConsumerWidget {
                 builder: (context) {
                   final r = catalog.recipes[v.recipeId];
                   if (r == null) return const SizedBox.shrink();
-                  return FcCard(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                r.title,
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                              Text(
-                                'Cooked ${v.cookedCount}x${v.lastCooked == null ? '' : ' • last ${v.lastCooked!.month}/${v.lastCooked!.day}'}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const SizedBox(height: 4),
-                              FcChip(
-                                switch (v.shareStatus) {
-                                  ShareStatus.privateOnly =>
-                                    'Private to household',
-                                  ShareStatus.pendingReview =>
-                                    'Pending catalog review',
-                                  ShareStatus.published => 'Shared to catalog',
-                                },
-                                icon: switch (v.shareStatus) {
-                                  ShareStatus.privateOnly => Icons.lock_outline,
-                                  ShareStatus.pendingReview =>
-                                    Icons.hourglass_top_outlined,
-                                  ShareStatus.published => Icons.public,
-                                },
-                                color: v.shareStatus == ShareStatus.privateOnly
-                                    ? FamilyCircleColors.muted
-                                    : FamilyCircleColors.primary,
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (v.shareStatus == ShareStatus.privateOnly)
-                          TextButton(
-                            onPressed: () =>
-                                _confirmShare(context, store, v.recipeId),
-                            child: const Text('Share'),
-                          ),
-                      ],
-                    ),
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                    child: _historyCard(context, store, v, r.title),
                   );
                 },
               ),
+        ],
+      ),
+    );
+  }
+
+  Widget _favoriteTile(BuildContext context, String recipeId) {
+    final r = catalog.recipes[recipeId];
+    if (r == null) return const SizedBox.shrink();
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+      leading: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: FamilyCircleColors.error.withValues(alpha: .13),
+          borderRadius: BorderRadius.circular(13),
+        ),
+        child: const Icon(
+          Icons.favorite,
+          color: FamilyCircleColors.error,
+          size: 20,
+        ),
+      ),
+      title: Text(
+        r.title,
+        style: Theme.of(context).textTheme.titleSmall
+            ?.copyWith(fontWeight: FontWeight.w800),
+      ),
+      subtitle: Text(
+        '${r.meal.label} • ${r.minutes} min • serves ${r.servings}',
+      ),
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      onTap: () => context.push('${AppRoute.recipeDetail.path}/${r.id}'),
+    );
+  }
+
+  Widget _historyCard(
+    BuildContext context,
+    AppStore store,
+    VaultEntry entry,
+    String title,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return FcCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: scheme.primary.withValues(alpha: .13),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(Icons.soup_kitchen_outlined, color: scheme.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Cooked ${entry.cookedCount}x${entry.lastCooked == null ? '' : ' • last ${entry.lastCooked!.month}/${entry.lastCooked!.day}/${entry.lastCooked!.year}'}',
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: scheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 8),
+                FcChip(
+                  switch (entry.shareStatus) {
+                    ShareStatus.privateOnly => 'Private to household',
+                    ShareStatus.pendingReview => 'Pending catalog review',
+                    ShareStatus.published => 'Shared to catalog',
+                  },
+                  icon: switch (entry.shareStatus) {
+                    ShareStatus.privateOnly => Icons.lock_outline,
+                    ShareStatus.pendingReview => Icons.hourglass_top_outlined,
+                    ShareStatus.published => Icons.public,
+                  },
+                  color: entry.shareStatus == ShareStatus.privateOnly
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : FamilyCircleColors.primary,
+                ),
+              ],
+            ),
+          ),
+          if (entry.shareStatus == ShareStatus.privateOnly)
+            TextButton(
+              onPressed: () => _confirmShare(context, store, entry.recipeId),
+              child: const Text('Share'),
+            ),
         ],
       ),
     );

@@ -1,6 +1,5 @@
-/// ADULT-010 Family votes — create parent-approved ballots, close rounds,
-/// deterministic tie handling. Voting is also open to managed kids via
-/// KIDS-002; abstention and unseen ballots stay neutral.
+/// ADULT-010 Family votes — parent-approved ballots, deterministic close and
+/// neutral handling for skips/unseen members. Kids can vote through KIDS-002.
 library;
 
 import 'package:flutter/material.dart';
@@ -45,21 +44,31 @@ class VotesPage extends ConsumerWidget {
           const SectionHeader('Open'),
           if (open.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'No open ballots. Start one and everyone gets a pick.',
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                child: Text(
+                  'No open ballots. Start one and everyone gets a pick.',
+                ),
               ),
             )
           else
-            for (final r in open) _roundCard(context, store, r),
+            for (final r in open)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _roundCard(context, store, r),
+              ),
           const SectionHeader('Closed'),
           if (closed.isEmpty)
             const Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text('No finished votes yet.'),
             )
           else
-            for (final r in closed) _closedTile(context, r),
+            for (final r in closed)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: _closedTile(context, r),
+              ),
         ],
       ),
     );
@@ -72,16 +81,43 @@ class VotesPage extends ConsumerWidget {
     final notYetVoted = members
         .where((m) => !round.votes.containsKey(m.id))
         .length;
+    final scheme = Theme.of(context).colorScheme;
+    final hoursLeft = round.closesAt.difference(DateTime.now()).inHours;
+
     return FcCard(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: .14),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(Icons.how_to_vote_outlined, color: scheme.primary),
+              ),
+              const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  round.title,
-                  style: Theme.of(context).textTheme.titleMedium,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      round.title,
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    Text(
+                      hoursLeft > 0
+                          ? 'Closes in ~${hoursLeft}h • ${round.votes.length} vote${round.votes.length == 1 ? '' : 's'}'
+                          : 'Closing soon • ${round.votes.length} vote${round.votes.length == 1 ? '' : 's'}',
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: scheme.onSurfaceVariant),
+                    ),
+                  ],
                 ),
               ),
               FcChip(
@@ -90,12 +126,13 @@ class VotesPage extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             '$notYetVoted member${notYetVoted == 1 ? ' hasn\'t' : 's haven\'t'} voted — that stays neutral, not a dislike.',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: scheme.onSurfaceVariant),
           ),
-          const Divider(height: 24),
+          const SizedBox(height: 12),
           for (final optionId in round.optionIds)
             Builder(
               builder: (context) {
@@ -107,42 +144,79 @@ class VotesPage extends ConsumerWidget {
                 final share = members.isEmpty
                     ? 0.0
                     : (votes / members.length).clamp(0.0, 1.0);
-                return ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Icon(
-                    selected
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_off,
-                    color: selected ? FamilyCircleColors.primary : null,
-                  ),
-                  onTap: () {
-                    try {
-                      store.castVote(round.id, optionId);
-                    } on FcException catch (e) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(e.safeMessage)));
-                    }
-                  },
-                  title: Text(recipe?.title ?? optionId),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('$votes vote${votes == 1 ? '' : 's'}'),
-                      const SizedBox(height: 4),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: share,
-                          minHeight: 4,
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).colorScheme.primary,
-                          ),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      try {
+                        store.castVote(round.id, optionId);
+                      } on FcException catch (e) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(e.safeMessage)));
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? scheme.primary.withValues(alpha: .11)
+                            : scheme.surfaceContainerHigh.withValues(alpha: .4),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: selected
+                              ? scheme.primary.withValues(alpha: .55)
+                              : scheme.outlineVariant.withValues(alpha: .4),
                         ),
                       ),
-                    ],
+                      child: Row(
+                        children: [
+                          Icon(
+                            selected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_off,
+                            color: selected
+                                ? scheme.primary
+                                : scheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  recipe?.title ?? optionId,
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: 5),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: share,
+                                    minHeight: 5,
+                                    backgroundColor:
+                                        scheme.surfaceContainerHighest,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      scheme.primary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  '$votes vote${votes == 1 ? '' : 's'} • ${recipe?.minutes ?? 0} min',
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 );
               },
@@ -177,22 +251,51 @@ class VotesPage extends ConsumerWidget {
     final winner = round.winnerId == null
         ? null
         : catalog.recipes[round.winnerId];
-    return ListTile(
-      leading: Icon(
-        round.status == VoteRoundStatus.closed
-            ? Icons.check_circle_outline
-            : Icons.timer_off_outlined,
-        color: round.status == VoteRoundStatus.closed
-            ? FamilyCircleColors.primary
-            : FamilyCircleColors.muted,
-      ),
-      title: Text(round.title),
-      subtitle: Text(
-        round.status == VoteRoundStatus.closed
-            ? (winner == null
-                  ? 'Closed — no votes cast (neutral)'
-                  : 'Winner: ${winner.title}')
-            : 'Expired unclosed — counted as neutral',
+    final closed = round.status == VoteRoundStatus.closed;
+    return FcCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color:
+                  (closed
+                          ? FamilyCircleColors.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant)
+                      .withValues(alpha: .14),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              closed ? Icons.check_circle_outline : Icons.timer_off_outlined,
+              color: closed
+                  ? FamilyCircleColors.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  round.title,
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                Text(
+                  closed
+                      ? (winner == null
+                            ? 'Closed — no votes cast (neutral)'
+                            : 'Winner: ${winner.title}')
+                      : 'Expired unclosed — counted as neutral',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -232,35 +335,55 @@ class VotesPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: ListView(
-                      children: [
-                        for (final r in options)
-                          CheckboxListTile(
-                            contentPadding: EdgeInsets.zero,
-                            value: selected.contains(r.id),
+                    child: ListView.separated(
+                      itemCount: options.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final r = options[index];
+                        final checked = selected.contains(r.id);
+                        return Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: CheckboxListTile(
+                            value: checked,
                             onChanged: (sel) => setSheetState(
                               () => sel == true
                                   ? selected.add(r.id)
                                   : selected.remove(r.id),
                             ),
                             title: Text(r.title),
-                            subtitle: Text(r.meal.label),
+                            subtitle: Text(
+                              '${r.meal.label} • ${r.minutes} min • serves ${r.servings}',
+                            ),
+                            secondary: checked
+                                ? Icon(
+                                    Icons.check_circle,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary,
+                                  )
+                                : null,
                           ),
-                      ],
+                        );
+                      },
                     ),
                   ),
-                  FilledButton(
-                    onPressed: () {
-                      try {
-                        store.openVoteRound(title.text, selected.toList());
-                        Navigator.of(sheetContext).pop();
-                      } on FcException catch (e) {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text(e.safeMessage)));
-                      }
-                    },
-                    child: const Text('Open vote'),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.how_to_vote_outlined),
+                      label: const Text('Open vote'),
+                      onPressed: () {
+                        try {
+                          store.openVoteRound(title.text, selected.toList());
+                          Navigator.of(sheetContext).pop();
+                        } on FcException catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.safeMessage)),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),

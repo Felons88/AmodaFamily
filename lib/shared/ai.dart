@@ -1,15 +1,14 @@
-/// OpenRouter AI adapter.
+/// AI adapter — calls the `ai-meal-idea` Supabase Edge Function, which owns
+/// the OpenRouter key server-side. The APK carries no AI secrets; the
+/// publishable Supabase anon key is designed for client use (RLS protects
+/// data, and this function only accepts the minimal prompt payload below).
 ///
 /// Contract notes honored here:
-/// - AI output is NEVER treated as safety evidence. Anything the model
-///   suggests must still pass the deterministic allergen filter before it is
-///   shown as a meal option. An LLM cannot declare an ingredient safe.
-/// - Feature is gated by the `aiProcessing` consent flag and adult role.
-/// - API key is injected via `--dart-define=OPENROUTER_API_KEY`. For
-///   production this call must move behind a Supabase Edge Function so the
-///   key never ships in the client; the client surface is identical.
-/// - Model and endpoint are overridable via dart-defines; failures fall back
-///   to an honest "unavailable" state, never fabricated content.
+/// - AI output is NEVER treated as safety evidence. The hard allergen filter
+///   always decides what is safe; the model only receives already-verified
+///   ingredient names.
+/// - Gated by the `aiProcessing` consent flag and adult role upstream.
+/// - Failures fall back to an honest "unavailable" state.
 library;
 
 import 'dart:convert';
@@ -19,15 +18,15 @@ import 'package:http/http.dart' as http;
 import 'errors.dart';
 import 'models.dart';
 
-class OpenRouterConfig {
-  const OpenRouterConfig();
+class AiConfig {
+  const AiConfig();
 
-  static const apiKey = String.fromEnvironment('OPENROUTER_API_KEY');
-  static const baseUrl = String.fromEnvironment('OPENROUTER_BASE_URL', defaultValue: 'https://openrouter.ai/api/v1');
-  static const model = String.fromEnvironment('OPENROUTER_MODEL', defaultValue: 'openrouter/auto');
-  static const appName = String.fromEnvironment('OPENROUTER_APP_NAME', defaultValue: 'Family Circle');
+  static const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
-  static bool get configured => apiKey.isNotEmpty;
+  static bool get configured => supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
+
+  static Uri get functionUri => Uri.parse('$supabaseUrl/functions/v1/ai-meal-idea');
 }
 
 class AiResult {
@@ -40,72 +39,48 @@ class AiResult {
   final bool isAiGenerated;
 }
 
-class OpenRouterClient {
-  OpenRouterClient({http.Client? httpClient}) : _http = httpClient ?? http.Client();
+class AiMealIdeaClient {
+  AiMealIdeaClient({http.Client? httpClient}) : _http = httpClient ?? http.Client();
 
   final http.Client _http;
 
-  /// One-shot chat completion. Throws [FcException.validation] when
-  /// unconfigured; callers treat transport failures as unavailable.
-  Future<AiResult> complete(List<Map<String, String>> messages, {int maxTokens = 400, double temperature = 0.7}) async {
-    if (!OpenRouterConfig.configured) {
+  /// Sends only privacy-minimized inputs: allergen keys, verified-safe
+  /// ingredient names, servings and meal type.
+  Future<AiResult> mealIdea({
+    required Set<String> hardAllergens,
+    required List<String> safeIngredientNames,
+    required int servings,
+    MealType? meal,
+  }) async {
+    if (!AiConfig.configured) {
       throw const FcException(FcErrorCode.validation, 'AI is not configured on this device.');
     }
-    final uri = Uri.parse('${OpenRouterConfig.baseUrl}/chat/completions');
     final res = await _http
         .post(
-          uri,
+          AiConfig.functionUri,
           headers: {
-            'Authorization': 'Bearer ${OpenRouterConfig.apiKey}',
+            'Authorization': 'Bearer ${AiConfig.supabaseAnonKey}',
+            'apikey': AiConfig.supabaseAnonKey,
             'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://familycircle.local',
-            'X-Title': OpenRouterConfig.appName,
           },
           body: jsonEncode({
-            'model': OpenRouterConfig.model,
-            'messages': messages,
-            'max_tokens': maxTokens,
-            'temperature': temperature,
+            'allergens': hardAllergens.toList(),
+            'ingredients': safeIngredientNames,
+            'servings': servings,
+            'meal': meal?.name ?? 'dinner',
           }),
         )
         .timeout(const Duration(seconds: 20));
     if (res.statusCode != 200) {
-      throw FcException(FcErrorCode.validation, 'AI request failed (${res.statusCode}).');
+      throw FcException(FcErrorCode.validation, 'AI is unavailable right now.');
     }
     final body = jsonDecode(res.body) as Map<String, dynamic>;
-    final choices = body['choices'] as List?;
-    final content = choices?.firstOrNull?['message']?['content'];
-    if (content is! String || content.trim().isEmpty) {
+    final text = body['text'];
+    if (text is! String || text.trim().isEmpty) {
       throw const FcException(FcErrorCode.validation, 'AI returned an empty answer.');
     }
-    return AiResult(text: content.trim(), model: body['model'] as String? ?? OpenRouterConfig.model, isAiGenerated: true);
+    return AiResult(text: text.trim(), model: body['model'] as String? ?? 'ai', isAiGenerated: true);
   }
 
   void dispose() => _http.close();
-}
-
-/// Builds the privacy-minimized prompt for a household meal idea. Sends only
-/// non-identifying data: allergen keys, verified ingredient names, budget
-/// presence — never names, events history, or child data.
-List<Map<String, String>> mealIdeaPrompt({
-  required Set<String> hardAllergens,
-  required List<String> safeIngredientNames,
-  required int servings,
-  MealType? meal,
-}) {
-  return [
-    {
-      'role': 'system',
-      'content':
-          'You suggest one family meal idea. Rules: use only the listed verified-safe ingredients; never claim allergy safety; output dish name, 3-4 short steps, and which listed ingredients it uses. Plain text, no markdown.',
-    },
-    {
-      'role': 'user',
-      'content':
-          'Hard allergens to avoid: ${hardAllergens.isEmpty ? 'none reported' : hardAllergens.join(', ')}. '
-              'Verified-safe ingredients available: ${safeIngredientNames.join(', ')}. '
-              'Servings needed: $servings. ${meal == null ? '' : 'Course: ${meal.label}.'} '
-              'Give one realistic weeknight meal.',
-    },
-  ];
 }

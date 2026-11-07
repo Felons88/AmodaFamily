@@ -24,9 +24,19 @@ Flutter public Supabase URL/anon key only; never include service role. Backend p
 
 | Variable | Purpose | Notes |
 |---|---|---|
-| `OPENROUTER_API_KEY` | OpenRouter API key for AI meal ideas | Dev-only via `--dart-define`; production must proxy through an Edge Function — key must never ship in a production client |
-| `OPENROUTER_BASE_URL` | API base | default `https://openrouter.ai/api/v1` |
-| `OPENROUTER_MODEL` | Model id | default `openrouter/auto` |
+| `SUPABASE_URL` | Supabase project URL | safe to ship |
+| `SUPABASE_ANON_KEY` | Publishable anon key | designed for client use; data is protected by RLS |
 | `UPDATE_MANIFEST_URL` | Auto-update manifest JSON | `{version, build, apkUrl, notes, mandatory}`; silent no-op when unset |
 
-AI feature is gated behind the in-app AI-processing consent toggle and adult role; output is labeled AI-generated and never treated as allergy verification.
+## Server-side secrets (NEVER in the client)
+
+| Variable | Purpose | Where |
+|---|---|---|
+| `OPENROUTER_API_KEY` | OpenRouter key for AI meal ideas | `supabase secrets set` only |
+| `OPENROUTER_MODEL` | Model id | optional, default `openrouter/auto` |
+| `sb_secret_*` | Supabase service-role key | Dashboard/CI only. NEVER in the APK, repo, or logs. |
+
+The AI feature calls `supabase/functions/ai-meal-idea`, which holds the
+OpenRouter key server-side. Client carries no AI secrets. Feature is gated
+behind the in-app AI-processing consent toggle and adult role; output is
+labeled AI-generated and never treated as allergy verification.

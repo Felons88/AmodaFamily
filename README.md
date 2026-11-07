@@ -11,15 +11,23 @@ A runnable app covering all 40 storyboard screens (6 onboarding, 14 adult, 6 kid
 - **Design:** token-based dark/light themes per `docs/design_system/DESIGN_SYSTEM.md`. No emojis as icons; recipe imagery renders as labeled placeholders / AI-illustration / verified-photo badges — never a wrong-dish image.
 - **Honest labeling:** all prices are labeled sample estimates (`sample_estimate`, region `US-DEMO`, confidence shown); SNAP eligibility is `verified`/`unverified`; demo checkout is a mock provider; demo data is marked as sample content.
 
-## AI (OpenRouter)
+## AI (OpenRouter via Edge Function)
 
-`lib/shared/ai.dart` — a consent-gated, adult-only OpenRouter adapter that asks for one meal idea using only verified-safe ingredient names. AI output is labeled AI-generated and never treated as allergy verification (the hard filter always decides safety). Configure at build time:
+`lib/shared/ai.dart` calls `supabase/functions/ai-meal-idea` — the OpenRouter key lives only in `supabase secrets` server-side; the APK carries no AI secrets. AI output is labeled AI-generated and never treated as allergy verification (the hard filter always decides safety). One-time deploy:
 
 ```sh
-flutter run --dart-define=OPENROUTER_API_KEY=sk-or-... --dart-define=OPENROUTER_MODEL=openrouter/auto
+supabase secrets set OPENROUTER_API_KEY=sk-or-...
+supabase functions deploy ai-meal-idea
 ```
 
-Unset key → the AI card reports "not configured" instead of failing. For production this call must move behind a Supabase Edge Function so the key never ships in the client.
+Build the client with only the publishable key:
+
+```sh
+flutter run --dart-define=SUPABASE_URL=https://sjxctvcneibdsqhwszeq.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=sb_publishable_...
+```
+
+Unset → the AI card reports "not configured" instead of failing.
 
 ## Auto-updates
 

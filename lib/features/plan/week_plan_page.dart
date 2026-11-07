@@ -276,7 +276,7 @@ class AiMealIdeaCard extends ConsumerStatefulWidget {
 }
 
 class _AiMealIdeaCardState extends ConsumerState<AiMealIdeaCard> {
-  final _client = OpenRouterClient();
+  final _client = AiMealIdeaClient();
   AiResult? _idea;
   bool _busy = false;
   String? _error;
@@ -304,13 +304,11 @@ class _AiMealIdeaCardState extends ConsumerState<AiMealIdeaCard> {
           .whereType<String>()
           .toSet()
           .toList();
-      final result = await _client.complete(
-        mealIdeaPrompt(
-          hardAllergens: allergens,
-          safeIngredientNames: safeNames,
-          servings: circle.activeMembers.length,
-          meal: MealType.dinner,
-        ),
+      final result = await _client.mealIdea(
+        hardAllergens: allergens,
+        safeIngredientNames: safeNames,
+        servings: circle.activeMembers.length,
+        meal: MealType.dinner,
       );
       if (mounted) setState(() => _idea = result);
     } on FcException catch (e) {

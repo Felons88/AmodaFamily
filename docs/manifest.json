@@ -1,0 +1,1718 @@
+{
+  "package": "Family Circle Autonomous Build Bible",
+  "version": "2.0",
+  "generated_at_utc": "2026-11-07",
+  "scope": "agent development contract; not implemented application",
+  "screen_count": 40,
+  "file_count_excluding_manifest_and_verification": 243,
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "0d7e79442bac576815972c54dd9b927f3ad898daa9f67c9a732e413db57562ae",
+      "bytes": 1829,
+      "category": "AGENTS.md",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "BUILD_BIBLE.md",
+      "sha256": "bbde689f0e8e546a6d69eb538e8a242bd6ecaa9464efdb001dbc49c81a4e55bb",
+      "bytes": 8735,
+      "category": "BUILD_BIBLE.md",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "COMPLETE_REQUIREMENTS_INDEX.md",
+      "sha256": "7aba078dc86a667b0f78786db0895c4bf4e11b95a44d3d2ec78c3f4ee43bfccc",
+      "bytes": 44486,
+      "category": "COMPLETE_REQUIREMENTS_INDEX.md",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "DECISIONS.md",
+      "sha256": "2f6112a56a87bd631171366c195e76f2f848ea4587859fe0feae17d8dac0683c",
+      "bytes": 1174,
+      "category": "DECISIONS.md",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "README.md",
+      "sha256": "31891644d05b0926032a4b00d008569ceaa637cd84bdfc49f0d824e5b7a3da28",
+      "bytes": 2345,
+      "category": "README.md",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/ACCESSIBILITY_ENGINEER.md",
+      "sha256": "8e23d8db2e3de015210dd3be7bb7275493230d2538789b3a809a4dbbea7ce7bc",
+      "bytes": 1267,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/ALLERGEN_SAFETY_ENGINEER.md",
+      "sha256": "821e572a017ee31059c2d89b1e5f57388379bf8894f38038d82ad2f112fd11de",
+      "bytes": 1271,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/DATA_ANALYTICS_ENGINEER.md",
+      "sha256": "ffc16aff1b02ae28db67f9a27389538a793182d743013320f62ac7fbfed8af1c",
+      "bytes": 1269,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/DESIGN_DIRECTOR.md",
+      "sha256": "f2a3450b7217743d47f1c579d653f818f914d0cf552e52cfe836e694b8a66bca",
+      "bytes": 1682,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/DEVOPS_RELEASE_ENGINEER.md",
+      "sha256": "0d1a97d8d840c0565dfe1a6e8abaf03c73c3d83bfcb7d3f5aa876cf48ab625e3",
+      "bytes": 1631,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/FLUTTER_ENGINEER.md",
+      "sha256": "52022bb7b6bd4ad146e76d8d6b15c4316099b8e9f742e9421d4b7763b29b856a",
+      "bytes": 1711,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/GAMEPLAY_ENGINEER.md",
+      "sha256": "9338dd6f09c94af0f7f0b7c6232d274577b61d7b2e932beb624c38a76de7cc7f",
+      "bytes": 1257,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/HOUSEHOLD_INTELLIGENCE_ARCHITECT.md",
+      "sha256": "51eae21160657cfc3626d30dc95c0f6bf80a8c787790b28e48545707068d6951",
+      "bytes": 1702,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/IMAGE_VALIDATION_ENGINEER.md",
+      "sha256": "40b415e59be1ef8a526feb8246021acb8b73eaace3c526f155991f68ab7c4a5a",
+      "bytes": 1273,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/INTEGRATION_ENGINEER.md",
+      "sha256": "89a8b25373e10a3738f7d42abb039100cb0c61595510a5f1ea3ae5d4b7f35a2b",
+      "bytes": 1263,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/MONETIZATION_ENGINEER.md",
+      "sha256": "c7be3c18c8125fe305634a0716f7e1e65b887a85ed5f80322ba99e8b2110be5e",
+      "bytes": 1265,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/NOTIFICATION_ENGINEER.md",
+      "sha256": "05f4ec6e76a2ebbb5d86dd95dee87c39ee41584f0bd2b7257fb342d657789d07",
+      "bytes": 1265,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/ORCHESTRATOR.md",
+      "sha256": "a7cf88ebc671307ac0317111467c523076332f93410843d1f9c0cae7d40cfb7d",
+      "bytes": 1872,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/PRIVACY_CHILD_SAFETY_REVIEWER.md",
+      "sha256": "c6d273cf6e7d2bc1b8ef2cfb673eb26dc626217d214ac74d58a66b70df250e14",
+      "bytes": 1281,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/PRODUCT_OWNER_PROXY.md",
+      "sha256": "16ea66b0ad8d58821d200458e2b831fd23f453c6632f086089945090ad5d2e97",
+      "bytes": 1261,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/QA_AUTOMATION_ENGINEER.md",
+      "sha256": "1a1e2299e38b9bd5b4199c25cfcb54b3fbcb3ff97bd1338bc7af5a32df68d5bc",
+      "bytes": 1654,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/RECIPE_CONTENT_CURATOR.md",
+      "sha256": "8fa20c413e550021403491ae69fb47b4af1cc2c97c61bcb4a6806166167f8242",
+      "bytes": 1656,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/SAFETY_SECURITY_REVIEWER.md",
+      "sha256": "49896a6b2863508e5b18ffdbd4ac4a55f0a99653f009b0a875be5c1f8a33dd23",
+      "bytes": 1688,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/SUBSCRIPTION_ENGINEER.md",
+      "sha256": "d1eebb6a8c7e351bf0debb4da4c25d2ae579f9c212cfde3dcd75872029aaf5d1",
+      "bytes": 1660,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "agents/SUPABASE_ENGINEER.md",
+      "sha256": "c5341660b2ef1a1857b12773869eba42a0cf1bdb736e57f95dae547d0032be92",
+      "bytes": 1663,
+      "category": "agents",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/API_CONTRACT.md",
+      "sha256": "dff85093eed792ab0a829d06a1c30153c340dff255703899fe4dbe05acfb5adc",
+      "bytes": 1338,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "1e4d561710bf5277e14e0f2facf3e96170d5cb8464998b8672b5c4d8c0bf461d",
+      "bytes": 2197,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/ASSET_PIPELINE.md",
+      "sha256": "46628bac12ee0bd66960069dc5b77fbfcdb75dc08ffa70776610b49a809dc72c",
+      "bytes": 1388,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/DATABASE.md",
+      "sha256": "c830b30e9171738a1903f102d6dea75823d1ee77102df498ffa9a669a08703d6",
+      "bytes": 3792,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/FLUTTER_STRUCTURE.md",
+      "sha256": "98ad67c82eddd3d0bc577c3dbf20b18a323fb5db1bf27e311f8ccd7b58be6a13",
+      "bytes": 1344,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/OBSERVABILITY.md",
+      "sha256": "702b62cd420d628c3bddb40017c851ca8fca379560c791fef7ad747bbcb256bc",
+      "bytes": 1341,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/OFFLINE_SYNC.md",
+      "sha256": "547eeb4b28914de1daf5dd245bf584a3d49c943844d750b0ef7d992e0b6c50f7",
+      "bytes": 1350,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "architecture/SUPABASE_DEPLOYMENT.md",
+      "sha256": "dc27cb43db1fa1d952910358f6f6a18dea9ddaa1a982c8006bc72cea1a41d346",
+      "bytes": 1325,
+      "category": "architecture",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/DOMAIN_MODEL.md",
+      "sha256": "8acc0b09fccee0f98ca99c4c8bf2273585ab2bf748ad19eacc9502ea4134168d",
+      "bytes": 1405,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/ENTITLEMENTS.md",
+      "sha256": "7cc3bc9c11affc8fde3b723f1b183cac9393d17620eab4db04c9351078d9b47f",
+      "bytes": 1375,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/ERROR_CODES.md",
+      "sha256": "714b93d43e859c1019d8101d7afc18359313bc91ab5889ba0fc89964aa27e29a",
+      "bytes": 1376,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/EVENT_TAXONOMY.md",
+      "sha256": "e3a6a507494b3ef56ee0079baf906d2a8cef3cea345f2f61a0055f521493734f",
+      "bytes": 1373,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/FOOD_AND_BUDGET_UNITS.md",
+      "sha256": "b1867458b25d26a943ad94a0fcf67ce25a4d00a88373eb9bd1b42856ab433ea3",
+      "bytes": 1336,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-billing-webhook.md",
+      "sha256": "f2a3522593a6b65a78fd3b85fd14818237963fbf368a168efdf8bc00cd1f3866",
+      "bytes": 1425,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-budget-cycles.md",
+      "sha256": "c23476b94e8cc076f19d653478022a2cec1a84d2feddcb058fced282bbe4436d",
+      "bytes": 1410,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-circles-circleid-members.md",
+      "sha256": "6718f1be992865165f735967ce47072c5e827a6cfa205ad67afba5d217925bdd",
+      "bytes": 1447,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-circles.md",
+      "sha256": "d57ef2a6ab3038ce89c45b6dd325425dbd34fd2da359cfd4037e0e6223ed66d1",
+      "bytes": 1419,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-entitlements-checkout.md",
+      "sha256": "3717e36640de6dbcb464db74595eeb73d6e9a23d04b318dc600da4d6c355ff1d",
+      "bytes": 1433,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-feedback.md",
+      "sha256": "b25966b03798e3bcefee7ce39308180f8d31907a7c47b8f34ef2ee546abae49d",
+      "bytes": 1424,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-pantry-adjust.md",
+      "sha256": "c4fbe430c57e110df44b0a0054b5b2cfb1eb1c9c4e0f8e2c6c63d68f52802ab3",
+      "bytes": 1403,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-plans-generate.md",
+      "sha256": "33862d724b7bf3b3d7d50c1888ef238f9a5c7f90ffe59cde744abc5e7bbe8cdd",
+      "bytes": 1461,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-plans-planid-approve.md",
+      "sha256": "01650921706138a5ac6f54c8d805c49a5345e3d556bd5fbce10fd6cfc20611bb",
+      "bytes": 1441,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-privacy-delete.md",
+      "sha256": "baf324d994e965598f1e039863ee54b58b1dfa3c91e145fc60fb8d131d662818",
+      "bytes": 1421,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-privacy-export.md",
+      "sha256": "e67d1a033fbfa68f68a55a02776c912357c2121df4149c1766b9d177ea0c8ec8",
+      "bytes": 1406,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-recipes.md",
+      "sha256": "8fa04d73459d45aa661a5e20b0a7633b36455050ad45a749f4a1f6896409c395",
+      "bytes": 1436,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-revenue-recommendations.md",
+      "sha256": "6bf6d4d20b6b969806b9f5e1fc5370ec27e997ae31eb648f73d883f767ca8f32",
+      "bytes": 1433,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-shopping-trips.md",
+      "sha256": "0a15a2ea71455711f517d37b24be18e7bceb8880aec00985faed2e7478d43f48",
+      "bytes": 1407,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-vote-rounds-id-vote.md",
+      "sha256": "1ca491a6d11a200d30616d83cbe796a342f6ba37594dee200e6d95302879332d",
+      "bytes": 1426,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/endpoints/v1-vote-rounds.md",
+      "sha256": "1900764d2c4497d173e76394aa63d9b570b52b084122e94cd0dd3ccae8860fb8",
+      "bytes": 1413,
+      "category": "contracts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "contracts/schemas/event.schema.json",
+      "sha256": "4b97062009daf475f3047f994ac2248ee2118358735b4cdfe93f5cf50dff2902",
+      "bytes": 889,
+      "category": "contracts",
+      "status": "starter_or_metadata"
+    },
+    {
+      "path": "contracts/schemas/recipe.schema.json",
+      "sha256": "d709210c2f6baf59364a8ffcc19ead4925612a9e3cfc95218f7e6ee712b1194b",
+      "bytes": 1648,
+      "category": "contracts",
+      "status": "starter_or_metadata"
+    },
+    {
+      "path": "database/migrations/0001_core.sql",
+      "sha256": "fc503ce493b10d16f41ee23cf277b5dbbd59c1140693b6e2ef7a1df970db054e",
+      "bytes": 9379,
+      "category": "database",
+      "status": "starter_or_metadata"
+    },
+    {
+      "path": "design_system/APP_DIRECTION_REFERENCE.png",
+      "sha256": "d5e1813661f8d977a24911e114d50945d0a469f94e510074f7fff95d5142959d",
+      "bytes": 2209896,
+      "category": "design_system",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "design_system/BUILD_BIBLE_OVERVIEW.png",
+      "sha256": "06dbb8721217d7e5e5236e3700b9b67d5d65c17ed4f3f757286a3b9bb670c359",
+      "bytes": 2413714,
+      "category": "design_system",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "design_system/DESIGN_SYSTEM.md",
+      "sha256": "ac2783460d0c7f5364c3ea72185bc5a3a5456843ceafdc0370a73272a6b75cd1",
+      "bytes": 2543,
+      "category": "design_system",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/GAME_ENGINE_CORE.md",
+      "sha256": "1716108fb8a6c13b48a37ca525a9ac0f04ff5b2b20d989b5d80faeed3e1a397b",
+      "bytes": 1322,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/GAME_REWARDS.md",
+      "sha256": "8fa5e374bcbf7e114815b4fc3845ce09d917c458d74a88ba912e5b5570cc7c8d",
+      "bytes": 1269,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/GAME_SCHEDULER.md",
+      "sha256": "3bd68d75fb582b8152bfd97ab37bb7561e70c4ccb84ab3c0706a3a7c36269613",
+      "bytes": 1331,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/budget-hero.md",
+      "sha256": "f8cf0aeb3c3e9f2c3d09dd7f3f229da8a34f076bb4614ecc07b1de1038bc5f14",
+      "bytes": 3469,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/build-a-meal.md",
+      "sha256": "5d76f3960928416f752a30ad3f07bd930a9e81b7ab7c5dc249c6bc20e9cf2d80",
+      "bytes": 3395,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/cooking-together.md",
+      "sha256": "ab8a310a3379b2bfe62077a6f1c24c2c5fdd3365c2e22e413cbbc17e6f387688",
+      "bytes": 3366,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/dinner-showdown.md",
+      "sha256": "54168ba10ca288c96269d2eacd8f128783261bc9a0dfd95928a243e781fd390d",
+      "bytes": 3454,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/family-food-quest.md",
+      "sha256": "d37610fdd5f143cd59fe4671d2db52f58866f04f941938e5130afc91573d7842",
+      "bytes": 3423,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/family-restaurant.md",
+      "sha256": "5e87c1b5870c69ecdc27742bf187b8e42c8b9b720402971945a076428bd9bce8",
+      "bytes": 3372,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/food-trivia.md",
+      "sha256": "6bbb978551b3d78a3ba9777e03b387a482f36d6ec0b449be1c23fd96296edb98",
+      "bytes": 3358,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/fridge-rescue.md",
+      "sha256": "f808b1769b7811a4f662cf746cf72e4e53f41fd2a9ed076881ce3f891bb26967",
+      "bytes": 3370,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/grocery-detective.md",
+      "sha256": "161666a80dd7bdaac550a1ca05bf2651d537cd9db97b8af17d383f50e1461c14",
+      "bytes": 3378,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/junior-chef.md",
+      "sha256": "f8238f7c03025396fa90faaae9cd1566662b1a3636a0b17a3ea0cfc46606d010",
+      "bytes": 3436,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/leftover-legends.md",
+      "sha256": "5d43302727ad5548057710e2cd5fd053c6a2a82b6b18e7e5c1cbf275ef4df82f",
+      "bytes": 3399,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/mystery-recipe.md",
+      "sha256": "b4584fcdbf2a3550949f60cb8acf80a338e9a1d1c292691e7bff371b9250d104",
+      "bytes": 3377,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/pantry-bingo.md",
+      "sha256": "e356feb0cf212f5fa8b623dba331a8427d2319eb3431de19621eebac6c62da9d",
+      "bytes": 3422,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/price-guess.md",
+      "sha256": "256f14cd1d93be92d640ce4ed02e36a434695c0214448b7d7441552cd4e1cec6",
+      "bytes": 3469,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/recipe-roulette.md",
+      "sha256": "e3b039697ccb1ecfd11061a6545682a559adea8dcc251c614085695050127b96",
+      "bytes": 3454,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "games/world-food.md",
+      "sha256": "741f41ff042a2170ed05e57f3dccfbc0c4a3c75114d0ae8ed4a7efc606285804",
+      "bytes": 3428,
+      "category": "games",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/ALGORITHM_REGISTRY.md",
+      "sha256": "b3d1fa021a9db63a9b52ef52fa8b02a3dbe3bef372b94f4d1fc917554b15c446",
+      "bytes": 1386,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/BASKET_OPTIMIZER.md",
+      "sha256": "867b0ab6fa905efa6a70739863cb0dc1f434f101cbbedb41f2e716705a21fe08",
+      "bytes": 1350,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/BEVERAGE_MODEL.md",
+      "sha256": "481c526b9e6047eee35d6c08fa429a71d330b132be02ccb118e8efb829c6a03f",
+      "bytes": 1289,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/CATALOG_DEDUP.md",
+      "sha256": "41a529c2b026e386f8fbfc2e72377b87111640be0e79e2337b93ce2401cf0204",
+      "bytes": 1304,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/CONSUMPTION_FORECAST.md",
+      "sha256": "77cf62fa3c750fb1cc07225a9964f3f07aa0f28e027e5511ab725f76fa1802a4",
+      "bytes": 1375,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/FEEDBACK_AND_NONVOTES.md",
+      "sha256": "47a2a944d9821cf3b2143947eebac180d67a8b03f465bf4d135bca5eb9e912bb",
+      "bytes": 1382,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/IMAGE_MATCH_VALIDATION.md",
+      "sha256": "483ac5607549d3a44d9fb82cc644ae536bf635d130b70e4d65c05783dbc846af",
+      "bytes": 1349,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/MEAL_PLAN_OPTIMIZER.md",
+      "sha256": "e13f4dd86af0c6e5ce6af7819288497a8c1d4a7b3a8566509999e9806cd565d0",
+      "bytes": 1364,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/NOTIFICATION_POLICY.md",
+      "sha256": "646fbfe02d72bb9cb397cbe3211227bd6cc17b54a3b616d7d3e31cf30eedaedd",
+      "bytes": 1290,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/PREFERENCE_LEARNING.md",
+      "sha256": "59904bb1b89de3271247258c71be71ac3185b03e6473b946165fccfd359ded0c",
+      "bytes": 1350,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/PSEUDOCODE_AND_GOLDEN_CASES.md",
+      "sha256": "fd9e847eee063121d514eca0a3468bd5a27fde46b1edb4e65b0289536f0cd4ac",
+      "bytes": 4145,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/RECIPE_RANKER.md",
+      "sha256": "b27a107708a4e9a105fc4695f6f6c50703b51fa9348472f38a6b38bc48453079",
+      "bytes": 1400,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/RECOMMENDER.md",
+      "sha256": "016d41f24d84a3d551240bd0baffad3ce3dcd5a565285a7a18266a5fbcb30ecc",
+      "bytes": 6022,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/SAFETY_CONSTRAINTS.md",
+      "sha256": "a3708b513ab8e4f60e39fd95a1a3340530dff33ef92e7f60d0b6b895373713bf",
+      "bytes": 1356,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "intelligence/VOTING_AND_FAIRNESS.md",
+      "sha256": "61927391a734a3b936106e504c80884cd6449db163935b422410756d229d129c",
+      "bytes": 1341,
+      "category": "intelligence",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "monetization/ADS_ENGINE.md",
+      "sha256": "2e69b33b96f878f97ba00a8ad64a2ee5248346c956a3592593d329e61e3cb066",
+      "bytes": 1437,
+      "category": "monetization",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "monetization/AFFILIATES.md",
+      "sha256": "1b51dca66ec3e5a5f4ea0f943a1ba4ed131df215e839dec6227536abab3dc5aa",
+      "bytes": 1292,
+      "category": "monetization",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "monetization/BILLING_LIFECYCLE.md",
+      "sha256": "fd998b2a9af2e0d048276aaa0db216817606db545ee1b9425e75473ff8c30433",
+      "bytes": 1354,
+      "category": "monetization",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "monetization/EXPERIMENTS.md",
+      "sha256": "3f1dbb2f00ec628a29531a3ad88fe70283bd22003a315539cdf3cf712ff842ee",
+      "bytes": 1285,
+      "category": "monetization",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "monetization/PRICING_ENGINE.md",
+      "sha256": "e9b5325c2233f8d723cd32907dc0f3327d75ef483ad29382c6e767516076fc4a",
+      "bytes": 1392,
+      "category": "monetization",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "monetization/UNIT_ECONOMICS.md",
+      "sha256": "320fcaa6b3282492a5ce494b6d1a4350f71cfcfd9fab10b1d7063ec296819930",
+      "bytes": 1385,
+      "category": "monetization",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "operations/20_DAY_EXECUTION.md",
+      "sha256": "171c8b36792ea58f793c03453ccc0a09b6fec99512328b71feb85c189486d694",
+      "bytes": 1344,
+      "category": "operations",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "operations/AGENT_HANDOFF.md",
+      "sha256": "11f3fe36171ba6ce8fa5c1432cdfdd94a1e9dafaaf992b9b677da6789cb1b3df",
+      "bytes": 1303,
+      "category": "operations",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "operations/CI_CD.md",
+      "sha256": "4db82f61e2fa62b8b65373263e1ab62c991f227a95034970831fcdf4dbb3990a",
+      "bytes": 1243,
+      "category": "operations",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "operations/ENVIRONMENT_VARIABLES.md",
+      "sha256": "fbf34b28fc53c557ede4a111275fcca3d33d4156b276ba77fb14c0b25ff3a77c",
+      "bytes": 1275,
+      "category": "operations",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "operations/INCIDENT_RESPONSE.md",
+      "sha256": "c011764355c469d5c5a50b3b7eb4c587d86f58bc45f4996224599e33a6c178e9",
+      "bytes": 1291,
+      "category": "operations",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "operations/RELEASE_CHECKLIST.md",
+      "sha256": "705a96bc5e6bbce11f1bdc314a6f4b2cba371e1c076039e795c0a7ad930732f9",
+      "bytes": 1264,
+      "category": "operations",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "orchestration/ADRS/ADR-001-initial-decisions.md",
+      "sha256": "422a7e935cb85943e1eebc4c0029a53f6feebd445ab0e7d4864047f58c4c5252",
+      "bytes": 642,
+      "category": "orchestration",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "orchestration/EXECUTION_RUNBOOK.md",
+      "sha256": "d7dd7dca41ec25d0670ecedcc58546432b3a271b3bd92cfcd3a7ab0b3aae0ac5",
+      "bytes": 1782,
+      "category": "orchestration",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "orchestration/TASK_BOARD.md",
+      "sha256": "bc7bf95f59a8822da9eb5dfec33276bd1f7dbf28a90aa6f8572efde1b319b559",
+      "bytes": 1698,
+      "category": "orchestration",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/ACCESSIBILITY.md",
+      "sha256": "8f6b93e115c544f810cba8439dc374b1cc0916ea538e361b2da1afbb4eed1844",
+      "bytes": 1287,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/ANALYTICS_AND_METRICS.md",
+      "sha256": "d786456a166971c6ba58249d14d92a58781f12a14b903543ce138a25c7ae1e64",
+      "bytes": 1362,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/COPY_AND_CONTENT.md",
+      "sha256": "c8f27c25858e4e0359099406318531fffd871680cc3bfceb83b996affb57c19b",
+      "bytes": 1290,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/FEATURE_FLAGS.md",
+      "sha256": "eeb4729bad7dd44163163a999efd7c3a2457757313bb7b845ce066b636ea12fa",
+      "bytes": 1264,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/JOURNEYS.md",
+      "sha256": "755d78406210d2a09d1fdbb87582b6d1ae8ca4a009b3b4cf86f04929bf12c034",
+      "bytes": 1304,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/LOCALIZATION.md",
+      "sha256": "fb46ceed42ce4d9fd291c8a8a5ca5fa048f9fd1515f8fbcc6cd26f9b031a9e3b",
+      "bytes": 1237,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/NOTIFICATIONS.md",
+      "sha256": "027daea0a745af6bd8952255accec3fc1d353099b4411e96d81bb66d1a7b27ed",
+      "bytes": 1312,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/ONBOARDING.md",
+      "sha256": "c516ff05be6b06169ffd163d2459a934cc15082ccf9a937c89fea073f89f720b",
+      "bytes": 1368,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/PERSONAS.md",
+      "sha256": "7b83a66b76bca5a7faba069fd3473a933e3f1877326e67dda40251b5b75e7072",
+      "bytes": 1324,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "product/VISION_AND_POSITIONING.md",
+      "sha256": "b6978f2c5f98923d7322afc8a0b9bb309ec95d810385bbf792e3c55a24e1b3b7",
+      "bytes": 1415,
+      "category": "product",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "prompts/CODEX_MASTER_PROMPT.md",
+      "sha256": "9c87e9d451d18f8577f6d08a5c6714e0e207d5db3e1ab70dd6bd23a90765d9e9",
+      "bytes": 1192,
+      "category": "prompts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "prompts/DESIGN_AGENT_PROMPT.md",
+      "sha256": "976786cb1b2157fe53a81e3d3fdcaae02c6b2e5b0c0044274e94b8e3e7416d4c",
+      "bytes": 901,
+      "category": "prompts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "prompts/DEVIN_MASTER_PROMPT.md",
+      "sha256": "84dbd38b51b1a00dec9ac25146faa9b012f0863a406ea257f9a0c4871b264b37",
+      "bytes": 1087,
+      "category": "prompts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "prompts/QA_AGENT_PROMPT.md",
+      "sha256": "04cc107ce5ad57cbebe712f1a27d48a550d54c7207175cfc792d1df678e41bac",
+      "bytes": 611,
+      "category": "prompts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "prompts/UNIFIED_AUTONOMOUS_START.md",
+      "sha256": "da1d87d96ebcf61eecd25c483a22c64771c4298a0f090fb4bcd3da9ca01db65d",
+      "bytes": 3417,
+      "category": "prompts",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/PERFORMANCE_SLOS.md",
+      "sha256": "c29fe1d07cab78bc687cfbfd380aadd28abe0520559dc301a020638db0ded73f",
+      "bytes": 1252,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/SECURITY_TEST_MATRIX.md",
+      "sha256": "b1790fc77be9bd5167c5e8850771feb49343bcb18fa48ba6725c16cee1216145",
+      "bytes": 1293,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/TEST_STRATEGY.md",
+      "sha256": "48c5bcb7fe24adc4d34f0b219be1dd4c179d9701d9bff0493d9f7acce7ed932c",
+      "bytes": 1347,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/USER_ACCEPTANCE.md",
+      "sha256": "3588e81644ece795b8f3f32b32d0df30a717466663a4a0971f5e0c7f7d65d10c",
+      "bytes": 1277,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/adult-entitlement.md",
+      "sha256": "132aecc346b2f6408ae21d90e21b8ba98c904fb249be6d9875648b81730e3819",
+      "bytes": 822,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/affiliate-safety.md",
+      "sha256": "6178aa60af10046e54926d9bc45c55c074c06c81a846d6303e25bdc8164f6b7e",
+      "bytes": 844,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/allergy-known.md",
+      "sha256": "29ba03cdbf9aaad653e8e7145fec9722a458f168b65b861452327fe13c9f992c",
+      "bytes": 829,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/allergy-unknown.md",
+      "sha256": "82132a0a5a4d2bf0fefa097b7544763229c168c5c3bfa500459450a5b96ec91b",
+      "bytes": 816,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/benefit-manual.md",
+      "sha256": "a81009277d881f8ec07a2c0d905257142adb364aac9d0ac34e4df4785465a88a",
+      "bytes": 829,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/budget-infeasible.md",
+      "sha256": "8cfb7dbeaf7b34963cbbc926f280a6e6db85b1398b77c1a9fd9d2776264094e2",
+      "bytes": 826,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/child-ad.md",
+      "sha256": "d0a36e4b3db336cabdf440c38239cf79ecad4c060144e301415cb0d8d91620af",
+      "bytes": 811,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/child-notification.md",
+      "sha256": "88ef61012409343d982e54f7b1401056abe141f379b082aa8df5d8a129f7b8c6",
+      "bytes": 817,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/child-paywall.md",
+      "sha256": "952cb2c3386eaddcc51050a344fea9a04420b967a45463f1f98991396a0877ad",
+      "bytes": 819,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/cross-circle.md",
+      "sha256": "10f998740693489f5946ac7b51ca60c4fb6ff966af93ac8198d16c8ce7d8f028",
+      "bytes": 812,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/duplicate-vote.md",
+      "sha256": "535b02be8b1a2e6d31b6061a58bb66f5732a780cd84a24e6b6e78d404071f57a",
+      "bytes": 810,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/expired-vote.md",
+      "sha256": "f53d65bfcb218a971d4e359f680ec5b8c186935706468aadaf61b67d8155cfd0",
+      "bytes": 793,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/food-expiry.md",
+      "sha256": "dc21649adf10c92c05af304dd2dbf5cadbe3a8d9e7238b4928773179b374b0c8",
+      "bytes": 830,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/image-protein.md",
+      "sha256": "b95e955575a2eecea7fc5f112b92decd4c6115a1349fd6463da115696c3739a0",
+      "bytes": 832,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/missing-photo.md",
+      "sha256": "8c10eac008c5fb4711009428fd01806362dd22ce93c48e8b30d470418e948c7f",
+      "bytes": 826,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/nonvote-neutral.md",
+      "sha256": "03ae7bf9f2f4e80b8812ac268966c9bd33ce0d4b0150c2388c0eaf9f20cc1d5b",
+      "bytes": 811,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/offline-conflict.md",
+      "sha256": "76054c7ed30af06bcdcb8465a9cf79cdbf5cfc26845b6ce744fb9001c523525a",
+      "bytes": 842,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/pantry-stock.md",
+      "sha256": "55ea358e6aeab627460c5114affaa2ca2613da4f8953dd0e7fcdccd1f129645a",
+      "bytes": 830,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/price-stale.md",
+      "sha256": "99feeed6697e74ca2b98b0d3225eb0afb44870f604e613adf8e1ec34de06bc58",
+      "bytes": 815,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/privacy-ad.md",
+      "sha256": "8f65adb9b22b504ae39183cb6687d49e4283fcff86d4984f786f88ab68c7a9fb",
+      "bytes": 827,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/privacy-delete.md",
+      "sha256": "74774df62ec11470b18d7ec7475a3e4d765f4d6aaeb814aa001cbd79896c999e",
+      "bytes": 813,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/purchase-double.md",
+      "sha256": "2f2d4b1c845fb1c001ade3ace67b5e06a51304207ab36b6b715c5aa3280fa0ae",
+      "bytes": 819,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "qa/fixtures/solo-game.md",
+      "sha256": "f22493c649220aacf5ba60340274b048b11f337118565f1ce4d56ef2d7fe6c76",
+      "bytes": 811,
+      "category": "qa",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "roadmap/20_DAY_PLAN.md",
+      "sha256": "499940613bd2639365cc14eef142e0f22b8c5e4c7e559161129f67f23d7fda44",
+      "bytes": 1660,
+      "category": "roadmap",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "security/ABUSE_CASES.md",
+      "sha256": "12fff1292293302495a8d6589b3ba327bd3006c3d4a27e0fabe04b58cfbda560",
+      "bytes": 1326,
+      "category": "security",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "security/CHILD_PRIVACY.md",
+      "sha256": "8e9a0a27bbd8c9b39b8a4902b6c6d359d30e7a4b65ec82b1265fa011d2b1ea51",
+      "bytes": 1367,
+      "category": "security",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "security/DATA_CLASSIFICATION.md",
+      "sha256": "3304cb33f4c33241d21a9a9e5c3c46c27d6a939e43cce04f497c0cbe7cda149c",
+      "bytes": 1339,
+      "category": "security",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "security/PRIVACY_RETENTION.md",
+      "sha256": "d584fee5e960e37286905d1e64967848ab640dedb9a3afc23aba27cc5df05918",
+      "bytes": 1364,
+      "category": "security",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "security/SECURITY_ARCHITECTURE.md",
+      "sha256": "f3e2e4b1cc43927abd4a4d65d352d1ad31ed269971878531209ffe536de46685",
+      "bytes": 1333,
+      "category": "security",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "security/THREAT_MODEL.md",
+      "sha256": "8885ac6e2a54af48a77c30fbf43aabccf31806ea2ba2f1b62d45c32dde0f9da2",
+      "bytes": 3613,
+      "category": "security",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/PNG_APPROVAL_STATUS.md",
+      "sha256": "30b3f8df324d8856503bd1b0b710e63b9dd6278e4c7d097555160cbf8121e546",
+      "bytes": 873,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/README.md",
+      "sha256": "a6ec059ad9c53a1c03b9eb59cdf51e51539f0594a32b9df304936da5617b7760",
+      "bytes": 631,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/SCREEN_INDEX.csv",
+      "sha256": "624ddc2676de2893e3c49d7e713e89f56a7e7eb318287b90aa61fbd0cf42fc0c",
+      "bytes": 6475,
+      "category": "storyboard",
+      "status": "starter_or_metadata"
+    },
+    {
+      "path": "storyboard/adult/ADULT-001-home.md",
+      "sha256": "ea6fe4a937c976c1ecc5810f1adc53fa777cd2869c8f4c4ac9ea6e7bce5def3a",
+      "bytes": 4267,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-001-home.png",
+      "sha256": "e9706572832904a2465e9b396ba2053f33cc66c2b60620bf29ea2aaf57ae707d",
+      "bytes": 115976,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-002-week-plan.md",
+      "sha256": "c72dcd37d4732ebbc414fdaa40b10e8ba2aa70b6d83ca0508edf0540f1340633",
+      "bytes": 4242,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-002-week-plan.png",
+      "sha256": "bbda1c1b323b1ff29d8c1aa0adfa64dc35dbf42ee81dc8368cbcd825a21f3d3b",
+      "bytes": 114506,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-003-recipe-detail.md",
+      "sha256": "ae93541e4f0c98ba2f0833f3d10fafdeefae00cceb709aef3d1a84e41c8a9232",
+      "bytes": 4302,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-003-recipe-detail.png",
+      "sha256": "ea51c4785c482344e77aff462caa375cff3ee90d310455945f143f6cda4a13ee",
+      "bytes": 134465,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-004-grocery-list.md",
+      "sha256": "88efc7ac6e4ae63e21f0adc5188c7ab107c0816afcf507b94f8ac7737feca7d6",
+      "bytes": 4281,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-004-grocery-list.png",
+      "sha256": "a17baf133281ffbbc9540fc38e87f6cd64b1ca644b9a67c8cbc3e7a98574934c",
+      "bytes": 105548,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-005-pantry-scanner.md",
+      "sha256": "bca749c809fd8c960dbeff890676fb497f34d9a690265733a6a9f6c3b6f970c1",
+      "bytes": 4261,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-005-pantry-scanner.png",
+      "sha256": "46c7ba3019b7a47f2fccb6a2127f121a8565a80d2c3ee217a31c7ddc32c54d86",
+      "bytes": 144283,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-006-drinks.md",
+      "sha256": "53a2e3d70c06514519fe466ce3ae8ce44922854552eb841f672a8ce49e32e678",
+      "bytes": 4229,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-006-drinks.png",
+      "sha256": "4512be4fdbee70f28ea6c3834bf91008e94f997863c2b1a1c2cfc7135508968d",
+      "bytes": 129175,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-007-circle-members.md",
+      "sha256": "5dc7fc4559e6a7d2c043ffc84a6532c3f5ea8d831d42af919022c6502d1df364",
+      "bytes": 4243,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-007-circle-members.png",
+      "sha256": "212da605f67f368f6076edf662e6bc325207dcb47cb7f6aa7214cb122d53670d",
+      "bytes": 128528,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-008-spending.md",
+      "sha256": "d9952940a344374ad8a5aa32080e9954e9c76bd5f654c4275a15932a5432b7c9",
+      "bytes": 4209,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-008-spending.png",
+      "sha256": "63fb0b791118d5c349900f6d69cc03f019cd6bf939c8d7afb08d49265378ca5d",
+      "bytes": 28822,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-009-shopping-calendar.md",
+      "sha256": "9dcc0e20036c2d23a65e458ec4fbc579ea1e2d0a6511e1ae882063cd70eb0269",
+      "bytes": 4225,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-009-shopping-calendar.png",
+      "sha256": "66cf82985afe2f6445238e70075859758c643d5b3b3c75463c5a237d983037f5",
+      "bytes": 30532,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-010-family-votes.md",
+      "sha256": "2072cc341942a6eb959241f4f2567dc592ce47deba3dac1f1c8f90e06a99d02a",
+      "bytes": 4192,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-010-family-votes.png",
+      "sha256": "79b8970b77462dc68d4e30ba2b862f6f73ab54f986cbcfcd3777c089d8c968ac",
+      "bytes": 29469,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-011-food-insights.md",
+      "sha256": "b2f4340fbe21de1b4b55676f7c4d31c19c24a05981a65907b7e78ad1feae0ca2",
+      "bytes": 4216,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-011-food-insights.png",
+      "sha256": "eba4adb092a7f344389159ce952c430f11770a02938bfd19ed701cf1adadb324",
+      "bytes": 28407,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-012-recipe-vault.md",
+      "sha256": "739cacab5dd028c4359ff8969c2d00796162c70b7f9807ba577d8c97546d461e",
+      "bytes": 4214,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-012-recipe-vault.png",
+      "sha256": "96194e766d0ab6aabca1488d8f4a398520cb0060b79ddcfeaac051d6e3400ff2",
+      "bytes": 29162,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-013-subscriptions.md",
+      "sha256": "cf894fb5daf64841f08b9960cc817aa3a226e8bb0c87017f76a51df52ed0d8a0",
+      "bytes": 4252,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-013-subscriptions.png",
+      "sha256": "12bad70aa99acaa52c2d5d59edfd59c5e85d4ae9f42df19e569929aa217e8d66",
+      "bytes": 132961,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-014-privacy-controls.md",
+      "sha256": "f57e918406844a5a9a34bd024feb959999d75120d78f0eaa04eec559ff01fb79",
+      "bytes": 4228,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/adult/ADULT-014-privacy-controls.png",
+      "sha256": "a952d2f03ffb11c0fb8734b5bd45d6062ef3c4998ff940048446ea9145fafa68",
+      "bytes": 30255,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-001-dinner-showdown.md",
+      "sha256": "ced7a1bd34352772542d65659b991e0d3efe3b2705ff059004246890eac783ef",
+      "bytes": 4232,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-001-dinner-showdown.png",
+      "sha256": "1e364c8bf6f2f3adf0d0c28fcefaa073be037ee444ea991a2f75b67002d91b8e",
+      "bytes": 160314,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-002-pantry-bingo.md",
+      "sha256": "edcddec4ef20e608e5f085831f5cf94f2f252c13c6c4f6da5cce83c2f275762b",
+      "bytes": 4222,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-002-pantry-bingo.png",
+      "sha256": "b9b13b204bbb888a9f8400c6b690ab7f1a1c9c66f9ddc4afbca8803f0ed0f6d8",
+      "bytes": 160168,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-003-recipe-roulette.md",
+      "sha256": "1131b4196957714cf2ced84bdc5f9d5e1c958c1e6911adacfc46474601aed3df",
+      "bytes": 4218,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-003-recipe-roulette.png",
+      "sha256": "49aaebab5bc5ba00b3c4c5727f53cd3dbf5d2fbdf7cb6009b89a077440199a96",
+      "bytes": 28818,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-004-price-guess.md",
+      "sha256": "e6ac128392e02ff2dac9024ea237d81cdea42130d5cc2e058fce6ef6cefa0e90",
+      "bytes": 4196,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-004-price-guess.png",
+      "sha256": "3e16ba8f4648b380a6aaf65f903b87d2e6bde245a618a575d339c513db237372",
+      "bytes": 28586,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-005-fridge-rescue.md",
+      "sha256": "1d56f4ac47cbd2710b1ed8be859c1a081f97fdf688fdc313e3984e15cdd4a64f",
+      "bytes": 4207,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-005-fridge-rescue.png",
+      "sha256": "0490a65837a27d5cf1637f9278cc04a0c1e58c5ded0203f7cc87e3de20a31cff",
+      "bytes": 29227,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-006-build-a-meal.md",
+      "sha256": "8716228855cb7615dbb0bd0dfbbefad3cdf9e7a3dd232d257e2e569733b45267",
+      "bytes": 4213,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-006-build-a-meal.png",
+      "sha256": "4742d0fef91b781271e880fd1dfccff74767649b1c341fef514dc69a697678d8",
+      "bytes": 28948,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-007-mystery-recipe.md",
+      "sha256": "79746ab5811b744850496f23294d3f7383042c05fd9b233c2470d054b6adfe76",
+      "bytes": 4182,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-007-mystery-recipe.png",
+      "sha256": "de52f7449ab41884ac13495023b9f6c50350a9597d5f1d0d41306e5f1412ce04",
+      "bytes": 29567,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-008-world-food.md",
+      "sha256": "273fc1f5273ceb26a73d81b7efe1e2901ac1862fa80c14cbdba1c1dfa50a35ae",
+      "bytes": 4181,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-008-world-food.png",
+      "sha256": "a121ba78649dc35e891ae4d82eecb9f9a2ba35b3503d819a7c083074d038e7b8",
+      "bytes": 28057,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-009-family-restaurant.md",
+      "sha256": "42110fcd5affbfd4cffb1810d5887434544a79dcf0e610bf2cfd80dedc790d74",
+      "bytes": 4234,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-009-family-restaurant.png",
+      "sha256": "3a9f5aae33e45e2055c80022fbe857922884d759c7a1a3786c464ff8cbc57d35",
+      "bytes": 29737,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-010-budget-hero.md",
+      "sha256": "39565b2be1b2348b4e36d66085d102b1a4526792c21d2b52116c7758a0808f10",
+      "bytes": 4204,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/games/GAME-010-budget-hero.png",
+      "sha256": "1f8f6987b49c0dd507b64c9227aa86d41a25755e9ae393b9464b5da02e1d2267",
+      "bytes": 28763,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-001-kids-home.md",
+      "sha256": "a0c08b82904789a17ddea23418fd82307db04c49dc13cdb10c240c681a3d4011",
+      "bytes": 4239,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-001-kids-home.png",
+      "sha256": "b36937e249c8d488eb48702f19b628ac45e41175811509bec60b81ddb3f77c7b",
+      "bytes": 171573,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-002-meal-voting.md",
+      "sha256": "efd6ae3940f22a28ad7def3ad0a28dbd9c0ca27afd2939ffd6dc1b567b5b2e34",
+      "bytes": 4185,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-002-meal-voting.png",
+      "sha256": "57be8be3d706830f26f015ac88bd9310f4f428e659049d0e116d102173ac84ee",
+      "bytes": 29354,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-003-food-quest.md",
+      "sha256": "79b01bcd3cc8b949f80b1513c939d3dc11134b937c6fbe209e9dec7d6bf927c1",
+      "bytes": 4183,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-003-food-quest.png",
+      "sha256": "5dc6479cb602fefdc173fb3aa844918c3e36839cbeacc8dd49aff4d9efd62360",
+      "bytes": 29172,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-004-badge-vault.md",
+      "sha256": "254b8b479e158b743c5e04053ea83fa90de7a8c0bd5a23b4971815d6102b46df",
+      "bytes": 4157,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-004-badge-vault.png",
+      "sha256": "dcd954e041fe0c558711b2f3bc103005005358c84a514d235abb46aa3e95debe",
+      "bytes": 29290,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-005-junior-chef.md",
+      "sha256": "b89b117bdc3711368ccc6bdfd865e59b6cca443e8d19fc2dc8635e8ffd6e60fd",
+      "bytes": 4164,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-005-junior-chef.png",
+      "sha256": "09f9d0c3bbc292d69ac829b56cbdc40c8aa51e89f004f7a5dc6e8f0480950335",
+      "bytes": 28400,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-006-food-passport.md",
+      "sha256": "779a19b41e29bc4399214c0ee0b9d3aae78dc6db81f73c8f3946b3f350748b5b",
+      "bytes": 4191,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/kids/KIDS-006-food-passport.png",
+      "sha256": "4581510e7aced85a3bcd29305398c604550242723c1d209b89f922de4db1b938",
+      "bytes": 29101,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-001-welcome.md",
+      "sha256": "d36262f99e798bfbb3ba75ad49d54a2817b3f49cf0574a1697336900f6d108a9",
+      "bytes": 4200,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-001-welcome.png",
+      "sha256": "ca59300e409148bac5a5e0a52d52841ca56bf24a2307ec73f51895dfda50ca36",
+      "bytes": 148231,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-002-account.md",
+      "sha256": "a65bda2f8572d00368e1e51c68db5ce772e633696d639803921c50749d945afd",
+      "bytes": 4160,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-002-account.png",
+      "sha256": "4d0a3463bb7ed774febc6487897d038837fd538a64431b1dcf94599a51d7c02b",
+      "bytes": 27801,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-003-household.md",
+      "sha256": "a3fc27ae910cba0909a1745c045934e3dfc55ea3b85447dd238b20dde1c9ad4c",
+      "bytes": 4247,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-003-household.png",
+      "sha256": "04437cec888d4cda13c72e2a4c92baab97a2d0b6fb599e0270dc5d52453333ec",
+      "bytes": 110298,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-004-food-needs.md",
+      "sha256": "d59ac9da29428531cd4d864738f86c9c6994ebe9f01f86c35e06faf8a3b2ab73",
+      "bytes": 4272,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-004-food-needs.png",
+      "sha256": "4c468191893bbb74b3935a9a3b6fd4bf90f7aac3dddf5cca5e131f3b5fba6015",
+      "bytes": 111060,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-005-budget-benefits.md",
+      "sha256": "b20541280ef4a2363feb3d5dbb26c4c479e6f3f7750d1f848da21fd4bd1d002b",
+      "bytes": 4256,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-005-budget-benefits.png",
+      "sha256": "a96bc8c048dad1a524b3964530a6542573f64bbedb60891e8b656724d57fd729",
+      "bytes": 106728,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-006-first-plan.md",
+      "sha256": "c18a2c803e1c4e3153a72e07272d5d3cd85cc55335e0b09ee8cac5f241275d58",
+      "bytes": 4210,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/onboarding/ONB-006-first-plan.png",
+      "sha256": "3d4bc17c611490bcd6e02eceac8240a21b029b8af7204395ae66c9a051bee26c",
+      "bytes": 27702,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-001-notifications.md",
+      "sha256": "a6d6cfce04b6e2e8f498c161289777fbdcd3b8056a7c8278a7b2a13584db9f20",
+      "bytes": 4218,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-001-notifications.png",
+      "sha256": "e71f284035fdc9905042c643a4ce53ae95c9a644a3b462952d38de7828735782",
+      "bytes": 28755,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-002-feedback.md",
+      "sha256": "a7cffd6c4e7ce72ac3ae49148d20af56df345f8199b521ffd0b2673fce4bc73a",
+      "bytes": 4179,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-002-feedback.png",
+      "sha256": "7d65927083f240c0122a24a2cfa300a3d51f43c213368900d1aa81ebaf767a11",
+      "bytes": 28627,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-003-shopping-review.md",
+      "sha256": "f8a93fba32e1fb5ba21704496a44d50f836a44322dfd6f1703eed9447b4b5380",
+      "bytes": 4205,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-003-shopping-review.png",
+      "sha256": "dcd78d01a098af7adc19e99473f644e980f0c1cd698dd1967db5759c5c4c94bc",
+      "bytes": 30475,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-004-offline-error.md",
+      "sha256": "92ed6187e333298022b803c832502ac0105b18eaffbb6db551485b2a6a924cba",
+      "bytes": 4212,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "storyboard/shared/SHARED-004-offline-error.png",
+      "sha256": "84cee86743c89e1c1d45d45895b59f39cc5348cae1431387396d571c4c52f268",
+      "bytes": 28295,
+      "category": "storyboard",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "testing/ACCEPTANCE.md",
+      "sha256": "5fb9f90c24b91804c973145def5b2d1326a3d3020b6e4096267f5207f2fba8f0",
+      "bytes": 2404,
+      "category": "testing",
+      "status": "reference_or_spec_not_implementation"
+    },
+    {
+      "path": "verify_package.py",
+      "sha256": "8efe1b4fd176c5b9e46a7767540bf9795b033e29d7a1a027c757fdab06e7aa1b",
+      "bytes": 897,
+      "category": "verify_package.py",
+      "status": "starter_or_metadata"
+    }
+  ],
+  "known_gates": [
+    "legal minors and ads",
+    "owner approves pricing",
+    "approved image licenses and high fidelity screens",
+    "production secrets",
+    "release QA"
+  ]
+}

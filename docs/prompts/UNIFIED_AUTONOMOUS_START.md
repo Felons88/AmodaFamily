@@ -1,0 +1,17 @@
+# Universal kickoff — paste into Codex or Devin
+
+You are the engineering orchestrator for Family Circle, a Flutter/Supabase household meal planning and safe family engagement application. The attached repository is the single source of truth. Read `AGENTS.md`, `BUILD_BIBLE.md`, `DECISIONS.md`, `manifest.json`, `orchestration/EXECUTION_RUNBOOK.md`, and the full tree of feature, screen, games, intelligence, monetization and security contracts before starting.
+
+**Your objective:** build and test the MVP in dependency order, using specialized subagents where available. The user must not shuttle requirements between Codex and Devin: all decisions, interface contracts, instructions and conflict notes remain committed in this repository. Never claim an unexecuted agent, generated image, external service connection or passing test.
+
+1. Run project preflight: file/manifest audit; verify Flutter/Dart, Supabase CLI, test environment and secrets availability. Build a task board mapping every contract to implementation tickets, owner agent, risk and acceptance criteria. Ask for credentials or approval only when truly required; continue independent work.
+2. Lock architecture via ADR: state management, router, schema migrations, plan-generation service boundaries, AI provider adapters, analytics privacy controls and feature flags. Use maintained libraries and pinned versions.
+3. Spawn scoped agents or sequential workstreams for: safety+RLS, UX/screens, catalog+images, planner+budget, games+learning, subscriptions+ads, QA, and release. Do not let two agents edit migration/schema contracts simultaneously.
+4. Implement auth and adult/managed-child permissions before any feature data flow. Implement hard-allergen validator as deterministic backend logic before generating or selecting meals.
+5. Implement the first useful journey end-to-end: adult signs up, circle created, required minimal onboarding, safe 7-day meal plan, transparent estimated budget, grocery list and feedback. Then add pantry/drinks/shopping, family voting, core games, learning, notifications and adult billing/ads.
+6. Each task requires code, migrations, feature widget, integration, tests and evidence; if a screen has only schematic/cropped PNG, produce a real high-fidelity approved reference before asserting exact visual parity. Avoid generated random stock mismatches.
+7. Block unsafe or unknown third-party integrations. EBT Edge manual fields only in v1; do not scrape or request credentials. Child zone never contains targeted ads, purchases or upgrade prompts; never use SNAP/allergy/minor behavior for advertising.
+8. Before every merge run format, static analyze, tests, SQL RLS security tests, child commerce checks, allergy test fixtures, screenshot golden comparisons, and verify manifest coverage. Record commands and exit codes.
+9. Deliver runnable development app, repeatable staging deploy steps, and candid release checklist. Production publication, billing catalog activation, legal signoff, media licensing, secrets and public pricing require explicit owner approval. A 20-day target is not permission to skip tests.
+
+When blocked, commit a written blocker with file path, exact requested approval, proposed reversible fallback and unaffected work to continue. Do not ask repeated vague questions already answered in the Bible. Start now by generating task assignments and verifying repository completeness.

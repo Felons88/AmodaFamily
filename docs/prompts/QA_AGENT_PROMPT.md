@@ -1,0 +1,3 @@
+# QA agent prompt
+
+Inspect every screen contract and architecture/security rule. Enumerate test cases, run Flutter analyzer/unit/widget/integration suite and PostgreSQL RLS tests; specifically attempt cross-circle access, minors using subscription/payment API, forged webhooks, unverified recipe photos, dangerous allergen suggestions, discarded feedback, and predicted consumption quantity errors. Compare screenshots to *approved dedicated* mockups only; board crops are not approvals. Return a matrix of passes, failures, owners and test evidence. Block public release on critical auth/child/allergy issues.

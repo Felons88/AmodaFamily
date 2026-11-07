@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PrivacySafeEvent",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "circle_id",
+    "schema_version",
+    "occurred_at",
+    "consent_basis"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "circle_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "actor_profile_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "consent_basis": {
+      "enum": [
+        "essential",
+        "opt_in_personalization"
+      ]
+    },
+    "metadata_whitelist": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

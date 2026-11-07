@@ -1,0 +1,3 @@
+# Screen-by-screen delivery
+
+40 individually numbered page specifications with immutable IDs. 15 same-named PNG directional references, cropped from the previously generated dark/green storyboard; 25 pages still need individually designed and approved PNGs. No emoji assets. Each screen includes function, behavioral telemetry, permission, exception and test contracts. Use `SCREEN_INDEX.csv` as the source of truth. Never present the unillustrated pages as finished mockups. The visual agent must create each missing PNG with proper recipe-specific licensed imagery and submit it for approval before high-fidelity implementation.

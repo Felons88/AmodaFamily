@@ -1,0 +1,3 @@
+# ADR-001 initial technical decisions
+
+Status: proposed pending implementation review. Choose Flutter current stable pinned by lockfile, Supabase Postgres/Auth/Storage/Edge Functions, PostgREST and typed DTOs, feature-first structure, server enforcement of allergen, age and entitlements. Prefer deterministic rules over opaque ML until sufficient quality signals. All currency integer cents, timezone aware, explicit data provenance. Alternative considered: full client-side inference, rejected because unsafe and difficult to audit. The final implementation must select one state manager and routing version and record those versions here.

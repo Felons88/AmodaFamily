@@ -15,7 +15,12 @@ import 'store.dart';
 
 export 'store.dart' show AppStore;
 
-final appStoreProvider = ChangeNotifierProvider<AppStore>((ref) => AppStore());
+final appStoreProvider = ChangeNotifierProvider<AppStore>((ref) {
+  final store = AppStore();
+  AppStore.instanceFromAuth = store;
+  store.restoreSupabaseSession();
+  return store;
+});
 
 String fmtCents(int cents) {
   final sign = cents < 0 ? '-' : '';

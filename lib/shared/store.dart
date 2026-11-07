@@ -205,6 +205,14 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Called once when the store is created — picks up any session that
+  /// already exists (e.g. app reopened after sign-in).
+  void restoreSupabaseSession() {
+    try {
+      syncSupabaseSession(Supabase.instance.client.auth.currentSession);
+    } catch (_) {}
+  }
+
   void syncSupabaseSession(Session? session) {
     final email = session?.user.email;
     if (email == null || email.isEmpty) return;

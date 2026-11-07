@@ -1,7 +1,7 @@
 {
-  "version": "0.1.0",
-  "build": 1,
+  "version": "0.1.1",
+  "build": 2,
   "apkUrl": "https://github.com/Felons88/AmodaFamily/releases/latest/download/app-release.apk",
-  "notes": "Initial release",
+  "notes": "Kinplora rebrand, UI overhaul, Google sign-in fix, auto-update",
   "mandatory": false
 }

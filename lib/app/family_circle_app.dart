@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../shared/updates.dart';
 import 'router.dart';
 import 'theme.dart';
 
@@ -16,8 +17,33 @@ class FamilyCircleApp extends ConsumerWidget {
       darkTheme: FamilyCircleTheme.dark,
       themeMode: ThemeMode.dark,
       routerConfig: ref.watch(appRouterProvider),
+      builder: (context, child) =>
+          _UpdateGate(child: child ?? const SizedBox.shrink()),
     );
   }
+}
+
+/// Runs the auto-update check once per app launch, on any screen.
+class _UpdateGate extends StatefulWidget {
+  const _UpdateGate({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_UpdateGate> createState() => _UpdateGateState();
+}
+
+class _UpdateGateState extends State<_UpdateGate> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UpdateChecker.promptIfAvailable(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// Bottom navigation shared by the five adult destinations.
@@ -75,12 +101,7 @@ class KidsNavBar extends StatelessWidget {
 
   static const _tabs = [
     (AppRoute.kidsHome, Icons.home_outlined, Icons.home, 'Home'),
-    (
-      AppRoute.kidsVote,
-      Icons.how_to_vote_outlined,
-      Icons.how_to_vote,
-      'Vote',
-    ),
+    (AppRoute.kidsVote, Icons.how_to_vote_outlined, Icons.how_to_vote, 'Vote'),
     (AppRoute.kidsQuest, Icons.flag_outlined, Icons.flag, 'Quest'),
     (
       AppRoute.kidsBadges,

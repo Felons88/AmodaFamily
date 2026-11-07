@@ -11,7 +11,6 @@ import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../shared/catalog.dart' as catalog;
 import '../../shared/models.dart';
-import '../../shared/updates.dart';
 import '../../shared/widgets.dart';
 
 class HomePage extends ConsumerWidget {
@@ -36,8 +35,18 @@ class HomePage extends ConsumerWidget {
         ? 'Good afternoon'
         : 'Good evening';
     final monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     final todaySlots =
         plan?.slots.where((s) => s.day == today.clamp(0, 6)).toList() ??
@@ -74,7 +83,6 @@ class HomePage extends ConsumerWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const _UpdateCheck(),
             const OfflineBanner(),
             const SizedBox(height: 16),
             // Hero greeting card
@@ -104,9 +112,7 @@ class HomePage extends ConsumerWidget {
                         children: [
                           Text(
                             greeting,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(color: scheme.primary),
                           ),
                           const SizedBox(height: 4),
@@ -187,14 +193,17 @@ class HomePage extends ConsumerWidget {
                       ),
                     if (todaySlots.isNotEmpty)
                       for (final s in todaySlots)
-                        _MealRow(slot: s, onTap: () {
-                          final r = catalog.recipes[s.recipeId];
-                          if (r != null) {
-                            context.push(
-                              '${AppRoute.recipeDetail.path}/${r.id}',
-                            );
-                          }
-                        }),
+                        _MealRow(
+                          slot: s,
+                          onTap: () {
+                            final r = catalog.recipes[s.recipeId];
+                            if (r != null) {
+                              context.push(
+                                '${AppRoute.recipeDetail.path}/${r.id}',
+                              );
+                            }
+                          },
+                        ),
                     if (todaySlots.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
@@ -280,8 +289,10 @@ class HomePage extends ConsumerWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: LinearProgressIndicator(
-                          value: (budget.spentCents / budget.totalCents)
-                              .clamp(0.0, 1.0),
+                          value: (budget.spentCents / budget.totalCents).clamp(
+                            0.0,
+                            1.0,
+                          ),
                           minHeight: 10,
                           backgroundColor: scheme.surfaceContainerHighest,
                         ),
@@ -336,10 +347,7 @@ class HomePage extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
                     ],
                   ),
                 ),
@@ -366,10 +374,7 @@ class HomePage extends ConsumerWidget {
                           subtitle: Text(
                             'Expires ${p.expiresAt!.month}/${p.expiresAt!.day} • ${fmtQty(p.quantity)}',
                           ),
-                          trailing: const Icon(
-                            Icons.chevron_right,
-                            size: 18,
-                          ),
+                          trailing: const Icon(Icons.chevron_right, size: 18),
                         ),
                     ],
                   ),
@@ -524,28 +529,6 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
-
-// Invisible widget that runs the auto-update check once per home mount.
-class _UpdateCheck extends StatefulWidget {
-  const _UpdateCheck();
-
-  @override
-  State<_UpdateCheck> createState() => _UpdateCheckState();
-}
-
-class _UpdateCheckState extends State<_UpdateCheck> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      UpdateChecker.promptIfAvailable(context);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => const SizedBox.shrink();
-}
-
 
 extension on HomePage {
   void _showProfilePicker(BuildContext context, WidgetRef ref) {

@@ -14,6 +14,8 @@ import 'package:family_circle_safety_engine/safety_engine.dart';
 import 'package:flutter/foundation.dart';
 
 import 'catalog.dart' as catalog;
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'errors.dart';
 import 'models.dart';
 
@@ -21,6 +23,9 @@ import 'models.dart';
 enum _QueueableAction { groceryCheck, pantryConfirm }
 
 class AppStore extends ChangeNotifier {
+  /// Set by the app shell once the store exists so Supabase auth events can
+  /// sync into it without a provider dependency.
+  static AppStore? instanceFromAuth;
   // ---------- session ----------
   String? _userEmail;
   Circle? _circle;
@@ -183,13 +188,29 @@ class AppStore extends ChangeNotifier {
   /// Google sign-in entry point. The local backend simulates the OAuth
   /// exchange; production swaps this for Supabase auth.signInWithOAuth —
   /// the flow is identical: no email/password, onboarding continues.
-  void signInWithGoogle({String? name}) {
+  Future<void> signInWithGoogle({String? name}) async {
+    try {
+      await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.google);
+      return; // session arrives via deep link -> syncSupabaseSession
+    } catch (_) {}
     _userEmail = 'google.user@gmail.com';
     _displayName = (name != null && name.trim().isNotEmpty)
         ? name.trim()
         : 'Google User';
     _googleAuth = true;
     emit('signed_in', meta: {'provider': 'google'});
+    notifyListeners();
+  }
+
+  void syncSupabaseSession(Session? session) {
+    final email = session?.user.email;
+    if (email == null || email.isEmpty) return;
+    final wasSignedOut = _userEmail == null;
+    _userEmail = email;
+    _displayName ??= session?.user.userMetadata?['full_name'] as String? ??
+        session?.user.userMetadata?['name'] as String?;
+    _googleAuth = true;
+    if (wasSignedOut) emit('signed_in', meta: {'provider': 'supabase'});
     notifyListeners();
   }
 

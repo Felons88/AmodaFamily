@@ -65,7 +65,7 @@ enum AppRoute {
   final String path;
 }
 
-const _publicPaths = {'/welcome', '/preview'};
+const _publicPaths = {'/welcome', '/preview', '/onboarding/account'};
 const _onboardingPaths = {
   '/onboarding/account',
   '/onboarding/household',

@@ -150,7 +150,17 @@ class AppStore extends ChangeNotifier {
 
   // ---------- auth & session ----------
 
-  void signIn(String email, String password, {bool create = false}) {
+  String? get displayName => _displayName;
+  String? _displayName;
+  bool _googleAuth = false;
+  bool get usedGoogleAuth => _googleAuth;
+
+  void signIn(
+    String email,
+    String password, {
+    bool create = false,
+    String? name,
+  }) {
     if (email.trim().isEmpty || !email.contains('@')) {
       throw const FcException(FcErrorCode.validation, 'Enter a valid email.');
     }
@@ -160,8 +170,26 @@ class AppStore extends ChangeNotifier {
         'Password needs at least 4 characters.',
       );
     }
+    if (create && (name == null || name.trim().isEmpty)) {
+      throw const FcException(FcErrorCode.validation, 'Enter your name.');
+    }
     _userEmail = email.trim();
+    _displayName = name?.trim();
+    _googleAuth = false;
     emit(create ? 'account_created' : 'signed_in');
+    notifyListeners();
+  }
+
+  /// Google sign-in entry point. The local backend simulates the OAuth
+  /// exchange; production swaps this for Supabase auth.signInWithOAuth —
+  /// the flow is identical: no email/password, onboarding continues.
+  void signInWithGoogle({String? name}) {
+    _userEmail = 'google.user@gmail.com';
+    _displayName = (name != null && name.trim().isNotEmpty)
+        ? name.trim()
+        : 'Google User';
+    _googleAuth = true;
+    emit('signed_in', meta: {'provider': 'google'});
     notifyListeners();
   }
 
@@ -174,6 +202,8 @@ class AppStore extends ChangeNotifier {
 
   void signOut() {
     _userEmail = null;
+    _displayName = null;
+    _googleAuth = false;
     _circle = null;
     _actorId = null;
     _plan = null;
@@ -230,7 +260,7 @@ class AppStore extends ChangeNotifier {
     }
     final owner = CircleMember(
       id: _nextId('m'),
-      name: _userEmail!.split('@').first,
+      name: _displayName ?? _userEmail!.split('@').first,
       role: MemberRole.owner,
       ageBand: AgeBand.adult,
       adultVerified: true,

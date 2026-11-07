@@ -20,70 +20,133 @@ void _showError(BuildContext context, Object error) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
-// ---------- ONB-001 Welcome ----------
+// ---------- ONB-001 Welcome / landing ----------
 
 class WelcomePage extends ConsumerWidget {
   const WelcomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              Semantics(
-                header: true,
-                child: Icon(
-                  Icons.dinner_dining,
-                  size: 72,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Branded hero backdrop — designed surface, not stock photography.
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF0D1A10),
+                  Color(0xFF10231A),
+                  Color(0xFF215C35),
+                ],
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Family Circle',
-                style: Theme.of(context).textTheme.displaySmall
-                    ?.copyWith(fontWeight: FontWeight.w700),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'A safe, affordable week of meals for your household — planned together.',
-                style: Theme.of(context).textTheme.bodyLarge
-                    ?.copyWith(color: FamilyCircleColors.muted),
-                textAlign: TextAlign.center,
-              ),
-              const Spacer(),
-              FilledButton(
-                onPressed: () => context.go(AppRoute.account.path),
-                child: const Text('Get started'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () => context.go(AppRoute.preview.path),
-                child: const Text('Preview sample meals'),
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () {
-                  ref.read(appStoreProvider).signInDemo();
-                },
-                child: const Text('Explore the demo household'),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Demo data is sample content, not real household data.',
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(color: FamilyCircleColors.muted),
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            top: -60,
+            right: -60,
+            child: CircleAvatar(
+              radius: 160,
+              backgroundColor: FamilyCircleColors.primary.withValues(
+                alpha: 0.10,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -80,
+            left: -40,
+            child: CircleAvatar(
+              radius: 200,
+              backgroundColor: FamilyCircleColors.primary.withValues(
+                alpha: 0.08,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Spacer(flex: 2),
+                  Icon(Icons.dinner_dining, size: 64, color: scheme.primary),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Family Circle',
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: FamilyCircleColors.text,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'We help households plan a safe, affordable week of meals — together. Allergy-checked plans, shared grocery lists, family votes and kid-safe games.',
+                    style: Theme.of(context).textTheme.bodyLarge
+                        ?.copyWith(color: FamilyCircleColors.muted),
+                  ),
+                  const SizedBox(height: 20),
+                  const Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      FcChip(
+                        'Allergy-safe plans',
+                        icon: Icons.verified_user_outlined,
+                      ),
+                      FcChip(
+                        'SNAP + cash budgets',
+                        icon: Icons.account_balance_wallet_outlined,
+                      ),
+                      FcChip('Kid-safe mode', icon: Icons.child_care_outlined),
+                    ],
+                  ),
+                  const Spacer(flex: 3),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text('Get started'),
+                    onPressed: () => context.go(AppRoute.account.path),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.g_mobiledata, size: 28),
+                    label: const Text('Continue with Google'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: FamilyCircleColors.text,
+                      side: const BorderSide(color: FamilyCircleColors.outline),
+                    ),
+                    onPressed: () {
+                      ref.read(appStoreProvider).signInWithGoogle();
+                      context.go(AppRoute.household.path);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () => context.go(AppRoute.preview.path),
+                        child: const Text('Preview meals'),
+                      ),
+                      Text(
+                        '•',
+                        style: TextStyle(color: scheme.onSurfaceVariant),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            ref.read(appStoreProvider).signInDemo(),
+                        child: const Text('Try demo'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -144,6 +207,7 @@ class AccountPage extends ConsumerStatefulWidget {
 }
 
 class _AccountPageState extends ConsumerState<AccountPage> {
+  final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _busy = false;
@@ -153,7 +217,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     try {
       ref
           .read(appStoreProvider)
-          .signIn(_email.text, _password.text, create: create);
+          .signIn(
+            _email.text,
+            _password.text,
+            create: create,
+            name: _name.text,
+          );
       if (mounted) context.go(AppRoute.household.path);
     } on FcException catch (e) {
       if (mounted) _showError(context, e);
@@ -165,7 +234,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return FcScaffold(
-      title: 'Your account',
+      title: 'Create your account',
       showBack: false,
       child: ListView(
         padding: const EdgeInsets.all(24),
@@ -175,6 +244,13 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 24),
+          TextField(
+            controller: _name,
+            textCapitalization: TextCapitalization.words,
+            autofillHints: const [AutofillHints.name],
+            decoration: const InputDecoration(labelText: 'Your name'),
+          ),
+          const SizedBox(height: 12),
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
@@ -193,14 +269,38 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             onPressed: _busy ? null : () => _submit(create: true),
             child: const Text('Create account'),
           ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: _busy ? null : () => _submit(create: false),
-            child: const Text('Sign in'),
+          const SizedBox(height: 16),
+          const Row(
+            children: [
+              Expanded(child: Divider()),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Text('or'),
+              ),
+              Expanded(child: Divider()),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.g_mobiledata, size: 28),
+            label: const Text('Sign up with Google'),
+            onPressed: _busy
+                ? null
+                : () {
+                    ref
+                        .read(appStoreProvider)
+                        .signInWithGoogle(name: _name.text);
+                    context.go(AppRoute.household.path);
+                  },
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: _busy ? null : () => _submit(create: false),
+            child: const Text('Already have an account? Sign in'),
+          ),
+          const SizedBox(height: 20),
           Text(
-            'Children never need accounts — adults add managed kid profiles later.',
+            'Kids never need accounts — adults add managed kid profiles next.',
             style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: FamilyCircleColors.muted),
           ),

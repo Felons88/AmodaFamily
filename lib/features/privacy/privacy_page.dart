@@ -26,6 +26,7 @@ class PrivacyPage extends ConsumerWidget {
         children: [
           const SectionHeader('Data choices'),
           SwitchListTile(
+            secondary: const Icon(Icons.insights_outlined),
             title: const Text('Usage analytics'),
             subtitle: const Text(
               'Privacy-minimized events that help the app work. Required for core features.',
@@ -34,6 +35,7 @@ class PrivacyPage extends ConsumerWidget {
             onChanged: (v) => store.setConsent(analytics: v),
           ),
           SwitchListTile(
+            secondary: const Icon(Icons.tune_outlined),
             title: const Text('Personalization'),
             subtitle: const Text(
               'Learn from your explicit choices to improve meal suggestions.',
@@ -42,6 +44,7 @@ class PrivacyPage extends ConsumerWidget {
             onChanged: (v) => store.setConsent(personalization: v),
           ),
           SwitchListTile(
+            secondary: const Icon(Icons.auto_awesome_outlined),
             title: const Text('AI processing'),
             subtitle: const Text(
               'Optional AI features. Hard allergy checks never rely on AI either way.',

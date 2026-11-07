@@ -51,6 +51,21 @@ class DrinksPage extends ConsumerWidget {
         children: [
           Row(
             children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: 0.14),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.local_drink_outlined,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   bev.name,
@@ -71,6 +86,9 @@ class DrinksPage extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             '~${profile.servingsPerDay.toStringAsFixed(1)} servings/day set • ${forecast.packsNeeded.toInt()} pack${forecast.packsNeeded == 1 ? '' : 's'} (${fmtQty(bev.packSize)}) for next trip',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 12),
           Row(

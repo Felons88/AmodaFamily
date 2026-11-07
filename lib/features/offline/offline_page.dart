@@ -62,17 +62,27 @@ class OfflineStatusPage extends ConsumerWidget {
               child: Text('Nothing waiting to sync.'),
             )
           else
-            for (final p in store.pending)
-              ListTile(
-                leading: const Icon(
-                  Icons.schedule_outlined,
-                  color: FamilyCircleColors.warning,
-                ),
-                title: Text(p.description),
-                subtitle: const Text(
-                  'Queued — will send on reconnect. Not done yet.',
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    for (final p in store.pending)
+                      ListTile(
+                        leading: const Icon(
+                          Icons.schedule_outlined,
+                          color: FamilyCircleColors.warning,
+                        ),
+                        title: Text(p.description),
+                        subtitle: const Text(
+                          'Queued — will send on reconnect. Not done yet.',
+                        ),
+                      ),
+                  ],
                 ),
               ),
+            ),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.all(16),

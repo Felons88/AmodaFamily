@@ -81,37 +81,60 @@ class RecipeDetailPage extends ConsumerWidget {
             ],
           ),
           const SectionHeader('Ingredients'),
-          for (final need in recipe.needs)
-            Builder(
-              builder: (context) {
-                final ing = catalog.ingredients[need.ingredientId];
-                final sub = recipe.substitutions[need.ingredientId];
-                return ListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  leading: const Icon(Icons.grass_outlined, size: 20),
-                  title: Text(ing?.name ?? need.ingredientId),
-                  subtitle: Text(
-                    [
-                      '$need.amount ${ing == null ? '' : switch (ing.stockUnit) {
-                              FoodUnit.grams => 'g',
-                              FoodUnit.milliliters => 'ml',
-                              FoodUnit.pieces => 'pc',
-                            }}',
-                      if (ing != null && ing.allergens.isNotEmpty)
-                        'contains ${ing.allergens.join(', ').replaceAll('_', ' ')}',
-                      if (sub != null)
-                        'swap: ${catalog.ingredients[sub]?.name ?? sub}',
-                    ].join(' • '),
-                  ),
-                );
-              },
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FcCard(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                children: [
+                  for (final need in recipe.needs)
+                    Builder(
+                      builder: (context) {
+                        final ing = catalog.ingredients[need.ingredientId];
+                        final sub = recipe.substitutions[need.ingredientId];
+                        return ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          leading: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.grass_outlined,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          title: Text(ing?.name ?? need.ingredientId),
+                          subtitle: Text(
+                            [
+                              '$need.amount ${ing == null ? '' : switch (ing.stockUnit) {
+                                      FoodUnit.grams => 'g',
+                                      FoodUnit.milliliters => 'ml',
+                                      FoodUnit.pieces => 'pc',
+                                    }}',
+                              if (ing != null && ing.allergens.isNotEmpty)
+                                'contains ${ing.allergens.join(', ').replaceAll('_', ' ')}',
+                              if (sub != null)
+                                'swap: ${catalog.ingredients[sub]?.name ?? sub}',
+                            ].join(' • '),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
             ),
+          ),
           if (recipe.needs.any(
             (n) => catalog.ingredients[n.ingredientId]?.isPackaged ?? false,
           ))
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
               child: Text(
                 'Packaged ingredients: labels checked at catalog review. Always recheck labels at home — formulations change.',
                 style: Theme.of(context).textTheme.bodySmall
@@ -119,16 +142,26 @@ class RecipeDetailPage extends ConsumerWidget {
               ),
             ),
           const SectionHeader('Instructions'),
-          for (var i = 0; i < recipe.steps.length; i++)
-            ListTile(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              leading: CircleAvatar(
-                radius: 12,
-                child: Text('${i + 1}', style: const TextStyle(fontSize: 12)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FcCard(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                children: [
+                  for (var i = 0; i < recipe.steps.length; i++)
+                    ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        radius: 12,
+                        child: Text('${i + 1}', style: const TextStyle(fontSize: 12)),
+                      ),
+                      title: Text(recipe.steps[i]),
+                    ),
+                ],
               ),
-              title: Text(recipe.steps[i]),
             ),
+          ),
           if (signal != null && signal.evidence.isNotEmpty && store.showPrices)
             Padding(
               padding: const EdgeInsets.all(16),

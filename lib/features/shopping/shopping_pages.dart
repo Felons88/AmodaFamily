@@ -44,22 +44,65 @@ class GroceryListPage extends ConsumerWidget {
           children: [
             const OfflineBanner(),
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '$remaining item${remaining == 1 ? '' : 's'} to buy',
-                      style: Theme.of(context).textTheme.titleMedium,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary
+                            .withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.shopping_basket_outlined,
+                        size: 22,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
-                  ),
-                  MoneyText(
-                    pricedTotal,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$remaining item${remaining == 1 ? '' : 's'} to buy',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          Text(
+                            items.isEmpty
+                                ? 'Your list is ready when a plan is approved'
+                                : '${items.where((g) => g.checked).length} already checked off',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Est. total',
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                        MoneyText(
+                          pricedTotal,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 8),
             if (items.isEmpty)
               const Expanded(
                 child: EmptyState(
@@ -76,11 +119,15 @@ class GroceryListPage extends ConsumerWidget {
                       CheckboxListTile(
                         value: g.checked,
                         onChanged: (_) => store.toggleGrocery(g.ingredientId),
+                        activeColor: Theme.of(context).colorScheme.primary,
                         title: Text(
                           g.name,
                           style: TextStyle(
                             decoration: g.checked
                                 ? TextDecoration.lineThrough
+                                : null,
+                            color: g.checked
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
                                 : null,
                           ),
                         ),
@@ -330,6 +377,8 @@ class SpendingPage extends ConsumerWidget {
 
   Widget _budgetRow(BuildContext context, String label, int total, int spent) {
     final frac = total <= 0 ? 0.0 : (spent / total).clamp(0.0, 1.0);
+    final over = spent > total && total > 0;
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -338,14 +387,26 @@ class SpendingPage extends ConsumerWidget {
             Expanded(
               child: Text(label, style: Theme.of(context).textTheme.titleSmall),
             ),
-            Text('${fmtCents(spent)} of ${fmtCents(total)}'),
+            Text(
+              '${fmtCents(spent)} of ${fmtCents(total)}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: over ? FamilyCircleColors.error : null,
+                fontWeight: over ? FontWeight.w600 : null,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
-        LinearProgressIndicator(
-          value: frac,
-          minHeight: 8,
-          borderRadius: BorderRadius.circular(4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: frac,
+            minHeight: 8,
+            backgroundColor: scheme.surfaceContainerHighest,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              over ? FamilyCircleColors.error : scheme.primary,
+            ),
+          ),
         ),
       ],
     );
@@ -383,21 +444,38 @@ class ShoppingCalendarPage extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            'How often do you shop?',
-            style: Theme.of(context).textTheme.titleMedium,
+          FcCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.event_repeat_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'How often do you shop?',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SegmentedButton<int>(
+                  segments: const [
+                    ButtonSegment(value: 3, label: Text('2x / week')),
+                    ButtonSegment(value: 7, label: Text('Weekly')),
+                    ButtonSegment(value: 14, label: Text('2 weeks')),
+                  ],
+                  selected: {store.shoppingIntervalDays},
+                  onSelectionChanged: (s) => store.setShoppingInterval(s.first),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          SegmentedButton<int>(
-            segments: const [
-              ButtonSegment(value: 3, label: Text('2x / week')),
-              ButtonSegment(value: 7, label: Text('Weekly')),
-              ButtonSegment(value: 14, label: Text('2 weeks')),
-            ],
-            selected: {store.shoppingIntervalDays},
-            onSelectionChanged: (s) => store.setShoppingInterval(s.first),
-          ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
           FcCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

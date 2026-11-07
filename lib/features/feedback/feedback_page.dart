@@ -73,7 +73,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           const SizedBox(height: 20),
           DropdownButtonFormField<String>(
             initialValue: _recipeId,
-            decoration: const InputDecoration(labelText: 'Meal'),
+            decoration: const InputDecoration(
+              labelText: 'Meal',
+              prefixIcon: Icon(Icons.restaurant_menu_outlined),
+            ),
             items: [
               for (final r in recipes)
                 DropdownMenuItem(value: r.id, child: Text(r.title)),
@@ -130,6 +133,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
             maxLines: 2,
             decoration: const InputDecoration(
               labelText: 'Anything else? (optional)',
+              prefixIcon: Icon(Icons.notes_outlined),
             ),
           ),
           const SizedBox(height: 24),

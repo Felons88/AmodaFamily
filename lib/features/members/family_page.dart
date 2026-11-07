@@ -53,27 +53,48 @@ class FamilyPage extends ConsumerWidget {
                   onTap: () => context.push(AppRoute.votes.path),
                 ),
             const SectionHeader('Members'),
-            for (final m in circle.activeMembers.take(4))
-              ListTile(
-                leading: MemberAvatar(name: m.name, minor: m.isMinor),
-                title: Text(m.name),
-                subtitle: Text(
-                  m.isMinor ? 'Kid • ${m.ageBand.label}' : m.role.name,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    for (final m in circle.activeMembers.take(4))
+                      ListTile(
+                        leading: MemberAvatar(name: m.name, minor: m.isMinor),
+                        title: Text(m.name),
+                        subtitle: Text(
+                          m.isMinor
+                              ? 'Kid • ${m.ageBand.label}'
+                              : m.role.name,
+                        ),
+                        dense: true,
+                      ),
+                    if (circle.activeMembers.length > 4)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '+${circle.activeMembers.length - 4} more',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                dense: true,
               ),
-            if (circle.activeMembers.length > 4)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  '+${circle.activeMembers.length - 4} more',
-                  style: Theme.of(context).textTheme.bodySmall,
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 24, top: 4),
+                child: TextButton.icon(
+                  icon: const Icon(Icons.settings_outlined, size: 18),
+                  label: const Text('Manage members'),
+                  onPressed: () => context.push(AppRoute.members.path),
                 ),
               ),
-            TextButton.icon(
-              icon: const Icon(Icons.settings_outlined, size: 18),
-              label: const Text('Manage members'),
-              onPressed: () => context.push(AppRoute.members.path),
             ),
             if (pendingApprovals.isNotEmpty) ...[
               const SectionHeader('Quest approvals'),

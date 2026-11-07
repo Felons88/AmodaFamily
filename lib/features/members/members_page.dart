@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme.dart';
 import '../../shared/catalog.dart' as catalog;
 import '../../shared/errors.dart';
 import '../../shared/models.dart';
@@ -57,14 +58,30 @@ class MembersPage extends ConsumerWidget {
 
   Widget _memberTile(BuildContext context, AppStore store, CircleMember m) {
     return ListTile(
-      leading: MemberAvatar(name: m.name, minor: m.isMinor),
+      leading: MemberAvatar(name: m.name, minor: m.isMinor, size: 40),
       title: Text(m.name),
-      subtitle: Text(
-        [
-          m.isMinor ? 'Kid • ages ${m.ageBand.label}' : m.role.name,
-          if (m.hardAllergens.isNotEmpty)
-            'allergies: ${m.hardAllergens.join(', ').replaceAll('_', ' ')}',
-        ].join(' • '),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            m.isMinor ? 'Kid • ages ${m.ageBand.label}' : m.role.name,
+          ),
+          if (m.hardAllergens.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                for (final a in m.hardAllergens)
+                  FcChip(
+                    a.replaceAll('_', ' '),
+                    icon: Icons.warning_amber_outlined,
+                    color: FamilyCircleColors.warning,
+                  ),
+              ],
+            ),
+          ],
+        ],
       ),
       trailing: m.role == MemberRole.owner
           ? const Padding(padding: EdgeInsets.all(8), child: FcChip('Owner'))

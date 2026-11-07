@@ -17,11 +17,31 @@ class MorePage extends ConsumerWidget {
     final store = ref.watch(appStoreProvider);
     final entries = [
       (
+        Icons.event_repeat_outlined,
+        'Shopping calendar',
+        'Trips & cadence',
+        AppRoute.calendar.path,
+      ),
+      (
+        Icons.add_shopping_cart_outlined,
+        'Grocery list',
+        'What to buy next trip',
+        AppRoute.shop.path,
+      ),
+      (
+        Icons.kitchen_outlined,
+        'Pantry',
+        'What you have on hand',
+        AppRoute.pantry.path,
+      ),
+      (
         Icons.local_drink_outlined,
         'Drinks',
         'Beverage profiles & forecast',
         AppRoute.drinks.path,
       ),
+    ];
+    final household = [
       (
         Icons.people_outline,
         'Members',
@@ -29,17 +49,19 @@ class MorePage extends ConsumerWidget {
         AppRoute.members.path,
       ),
       (
+        Icons.how_to_vote_outlined,
+        'Votes',
+        'Family ballots',
+        AppRoute.votes.path,
+      ),
+      (
         Icons.account_balance_wallet_outlined,
         'Spending',
         'Budget vs actuals',
         AppRoute.spending.path,
       ),
-      (
-        Icons.event_outlined,
-        'Shopping calendar',
-        'Trips & cadence',
-        AppRoute.calendar.path,
-      ),
+    ];
+    final personal = [
       (
         Icons.insights_outlined,
         'Food insights',
@@ -64,6 +86,8 @@ class MorePage extends ConsumerWidget {
         'Tell us about a meal',
         AppRoute.feedback.path,
       ),
+    ];
+    final system = [
       (
         Icons.cloud_off_outlined,
         'Offline & sync',
@@ -83,6 +107,30 @@ class MorePage extends ConsumerWidget {
         AppRoute.privacy.path,
       ),
     ];
+
+    Widget section(String title, List<(IconData, String, String, String)> items) =>
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionHeader(title),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < items.length; i++) ...[
+                      if (i > 0)
+                        const Divider(height: 1, indent: 68),
+                      _MoreTile(entry: items[i]),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+
     return Scaffold(
       appBar: AppBar(title: const Text('More')),
       bottomNavigationBar: const AdultNavBar(current: '/more'),
@@ -90,35 +138,75 @@ class MorePage extends ConsumerWidget {
         child: ListView(
           children: [
             const OfflineBanner(),
-            for (final e in entries)
-              ListTile(
-                leading: Icon(e.$1),
-                title: Text(e.$2),
-                subtitle: Text(e.$3),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push(e.$4),
+            section('Plan & shop', entries),
+            section('Household', household),
+            section('You', personal),
+            section('App', system),
+            const SectionHeader('Session'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FcCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      secondary: const Icon(Icons.wifi_off_outlined),
+                      title: const Text('Simulate offline'),
+                      subtitle: const Text(
+                        'Demo: test offline caching and queued changes',
+                      ),
+                      value: store.isOffline,
+                      onChanged: (v) => store.setOffline(v),
+                    ),
+                    const Divider(height: 1, indent: 68),
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('Sign out'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        store.signOut();
+                        context.go(AppRoute.welcome.path);
+                      },
+                    ),
+                  ],
+                ),
               ),
-            const Divider(height: 32),
-            SwitchListTile(
-              secondary: const Icon(Icons.wifi_off_outlined),
-              title: const Text('Simulate offline'),
-              subtitle: const Text(
-                'Demo: test offline caching and queued changes',
-              ),
-              value: store.isOffline,
-              onChanged: (v) => store.setOffline(v),
             ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Sign out'),
-              onTap: () {
-                store.signOut();
-                context.go(AppRoute.welcome.path);
-              },
-            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// One navigation row inside a grouped card on the More page.
+class _MoreTile extends StatelessWidget {
+  const _MoreTile({required this.entry});
+
+  final (IconData, String, String, String) entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ListTile(
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: scheme.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(entry.$1, size: 18, color: scheme.primary),
+      ),
+      title: Text(entry.$2),
+      subtitle: Text(entry.$3),
+      trailing: Icon(
+        Icons.chevron_right,
+        size: 18,
+        color: scheme.onSurfaceVariant,
+      ),
+      onTap: () => context.push(entry.$4),
     );
   }
 }

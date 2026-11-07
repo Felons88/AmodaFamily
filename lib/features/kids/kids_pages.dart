@@ -15,6 +15,88 @@ import '../../shared/errors.dart';
 import '../../shared/models.dart';
 import '../../shared/widgets.dart';
 
+// ---------- shared kid-mode visuals ----------
+
+/// Vivid accent palette for kid surfaces. Works in both themes because it is
+/// always rendered as a tint behind a themed icon/text.
+const _kidPalette = [
+  Color(0xFF7C6CF0), // violet
+  Color(0xFFFF8A5C), // coral orange
+  Color(0xFF42B6E8), // sky blue
+  Color(0xFFFFC94D), // sunny yellow
+  Color(0xFF9B7EDE), // lavender
+  Color(0xFF3ECF8E), // mint green
+  Color(0xFFFF7BA9), // bubblegum pink
+  Color(0xFF5AA9E6), // ocean blue
+];
+
+Color _kidAccent(String seed) {
+  var h = 0;
+  for (final c in seed.codeUnits) {
+    h = (h * 31 + c) & 0x7fffffff;
+  }
+  return _kidPalette[h % _kidPalette.length];
+}
+
+/// Rounded-square icon medallion used across kid cards.
+class _KidMedallion extends StatelessWidget {
+  const _KidMedallion({
+    required this.icon,
+    required this.accent,
+    this.size = 52,
+  });
+
+  final IconData icon;
+  final Color accent;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(size * 0.32),
+        border: Border.all(color: accent.withValues(alpha: 0.4)),
+      ),
+      child: Icon(icon, color: accent, size: size * 0.52),
+    );
+  }
+}
+
+/// Small playful section header with an accent dot.
+class _KidSectionHeader extends StatelessWidget {
+  const _KidSectionHeader(this.title, {required this.accent});
+
+  final String title;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+      child: Row(
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ---------- KIDS-001 Kids home ----------
 
 class KidsHomePage extends ConsumerWidget {
@@ -33,6 +115,51 @@ class KidsHomePage extends ConsumerWidget {
         ? null
         : catalog.recipes[todayDinner.recipeId];
 
+    final actions = [
+      (
+        Icons.how_to_vote_outlined,
+        'Vote for meals',
+        'Pick your favorite dinner',
+        AppRoute.kidsVote.path,
+        false,
+      ),
+      (
+        Icons.flag_outlined,
+        'Family quest',
+        'See this week\'s mission',
+        AppRoute.kidsQuest.path,
+        false,
+      ),
+      (
+        Icons.sports_esports_outlined,
+        'Games',
+        'Play safe family games',
+        AppRoute.games.path,
+        true,
+      ),
+      (
+        Icons.soup_kitchen_outlined,
+        'Junior Chef',
+        'Learn kitchen skills',
+        AppRoute.kidsChef.path,
+        true,
+      ),
+      (
+        Icons.public,
+        'Food Passport',
+        'Travel the world with food',
+        AppRoute.kidsPassport.path,
+        true,
+      ),
+      (
+        Icons.military_tech_outlined,
+        'My badges',
+        'See what you earned',
+        AppRoute.kidsBadges.path,
+        false,
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Hi ${actor?.name ?? 'friend'}!'),
@@ -49,16 +176,73 @@ class KidsHomePage extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Greeting hero — kid-mode framing.
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    FamilyCircleColors.primary.withValues(alpha: 0.22),
+                    FamilyCircleColors.primary.withValues(alpha: 0.06),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: FamilyCircleColors.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const _KidMedallion(
+                    icon: Icons.restaurant_menu_outlined,
+                    accent: FamilyCircleColors.primary,
+                    size: 56,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome to Kids Mode',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Fun, safe and only for you — no prices here!',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
             if (dinner != null)
               FcCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Tonight\'s dinner',
-                      style: Theme.of(context).textTheme.titleSmall,
+                    Row(
+                      children: [
+                        _KidMedallion(
+                          icon: Icons.dinner_dining_outlined,
+                          accent: _kidAccent(dinner.id),
+                          size: 36,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Tonight\'s dinner',
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     DishImage(image: dinner.image, height: 110),
                     const SizedBox(height: 8),
                     Text(
@@ -68,79 +252,31 @@ class KidsHomePage extends ConsumerWidget {
                   ],
                 ),
               ),
-            const SizedBox(height: 8),
-            _kidAction(
-              context,
-              Icons.how_to_vote_outlined,
-              'Vote for meals',
-              'Pick your favorite dinner',
-              () => context.go(AppRoute.kidsVote.path),
+            const _KidSectionHeader(
+              'What do you want to do?',
+              accent: FamilyCircleColors.primary,
             ),
-            _kidAction(
-              context,
-              Icons.flag_outlined,
-              'Family quest',
-              'See this week\'s mission',
-              () => context.go(AppRoute.kidsQuest.path),
-            ),
-            _kidAction(
-              context,
-              Icons.sports_esports_outlined,
-              'Games',
-              'Play safe family games',
-              () => context.push(AppRoute.games.path),
-            ),
-            _kidAction(
-              context,
-              Icons.soup_kitchen_outlined,
-              'Junior Chef',
-              'Learn kitchen skills',
-              () => context.push(AppRoute.kidsChef.path),
-            ),
-            _kidAction(
-              context,
-              Icons.public,
-              'Food Passport',
-              'Travel the world with food',
-              () => context.push(AppRoute.kidsPassport.path),
-            ),
-            _kidAction(
-              context,
-              Icons.military_tech_outlined,
-              'My badges',
-              'See what you earned',
-              () => context.go(AppRoute.kidsBadges.path),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _kidAction(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String subtitle,
-    VoidCallback onTap,
-  ) {
-    return FcCard(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.05,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                for (final a in actions)
+                  _KidActionCard(
+                    icon: a.$1,
+                    title: a.$2,
+                    subtitle: a.$3,
+                    accent: _kidAccent(a.$2),
+                    onTap: () => a.$5 ? context.push(a.$4) : context.go(a.$4),
+                  ),
               ],
             ),
-          ),
-          const Icon(Icons.chevron_right),
-        ],
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -177,6 +313,56 @@ class KidsHomePage extends ConsumerWidget {
   }
 }
 
+class _KidActionCard extends StatelessWidget {
+  const _KidActionCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _KidMedallion(icon: icon, accent: accent, size: 44),
+              const Spacer(),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: Theme.of(context).textTheme.labelSmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ---------- KIDS-002 Meal voting ----------
 
 class KidsVotePage extends ConsumerWidget {
@@ -207,6 +393,39 @@ class KidsVotePage extends ConsumerWidget {
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: FamilyCircleColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: FamilyCircleColors.primary.withValues(
+                          alpha: 0.35,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.touch_app_outlined,
+                          color: FamilyCircleColors.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Tap your favorite! You can change your pick until the vote closes.',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   for (final round in open) ...[
                     Builder(
                       builder: (context) {
@@ -217,14 +436,24 @@ class KidsVotePage extends ConsumerWidget {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              round.title,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Tap your favorite. You can change your pick until it closes.',
-                              style: Theme.of(context).textTheme.bodySmall,
+                            Row(
+                              children: [
+                                _KidMedallion(
+                                  icon: Icons.how_to_vote_outlined,
+                                  accent: _kidAccent(round.id),
+                                  size: 36,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    round.title,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 12),
                             for (final optionId in round.optionIds)
@@ -235,63 +464,125 @@ class KidsVotePage extends ConsumerWidget {
                                     return const SizedBox.shrink();
                                   }
                                   final selected = myVote == optionId;
-                                  return FcCard(
-                                    onTap: () {
-                                      try {
-                                        store.castVote(round.id, optionId);
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Vote counted! You can change it until it closes.',
-                                                ),
-                                              ),
-                                            );
-                                      } on FcException catch (e) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
+                                  final accent = _kidAccent(optionId);
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Card(
+                                      clipBehavior: Clip.antiAlias,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(18),
+                                        side: BorderSide(
+                                          color: selected
+                                              ? accent
+                                              : Theme.of(context)
+                                                    .colorScheme
+                                                    .outlineVariant
+                                                    .withValues(alpha: 0.5),
+                                          width: selected ? 2.5 : 1,
+                                        ),
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          try {
+                                            store.castVote(round.id, optionId);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Vote counted! You can change it until it closes.',
+                                                    ),
+                                                  ),
+                                                );
+                                          } on FcException catch (e) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               SnackBar(
                                                 content: Text(e.safeMessage),
                                               ),
                                             );
-                                      }
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                          }
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Row(
                                             children: [
-                                              DishImage(
-                                                image: recipe.image,
-                                                height: 90,
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    DishImage(
+                                                      image: recipe.image,
+                                                      height: 96,
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      recipe.title,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleSmall
+                                                          ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                recipe.title,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleSmall,
+                                              const SizedBox(width: 10),
+                                              Column(
+                                                children: [
+                                                  Container(
+                                                    width: 34,
+                                                    height: 34,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: selected
+                                                          ? accent
+                                                          : accent.withValues(
+                                                              alpha: 0.12,
+                                                            ),
+                                                      border: Border.all(
+                                                        color: accent
+                                                            .withValues(
+                                                              alpha: 0.6,
+                                                            ),
+                                                        width: 1.5,
+                                                      ),
+                                                    ),
+                                                    child: Icon(
+                                                      selected
+                                                          ? Icons.check
+                                                          : Icons
+                                                                .radio_button_unchecked,
+                                                      size: 18,
+                                                      color: selected
+                                                          ? Theme.of(context)
+                                                                .colorScheme
+                                                                .onPrimary
+                                                          : accent,
+                                                    ),
+                                                  ),
+                                                  if (selected) ...[
+                                                    const SizedBox(height: 6),
+                                                    FcChip(
+                                                      'YOUR PICK',
+                                                      icon: Icons.star,
+                                                      color: accent,
+                                                    ),
+                                                  ],
+                                                ],
                                               ),
                                             ],
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Icon(
-                                          selected
-                                              ? Icons.check_circle
-                                              : Icons.circle_outlined,
-                                          color: selected
-                                              ? FamilyCircleColors.primary
-                                              : FamilyCircleColors.muted,
-                                        ),
-                                      ],
+                                      ),
                                     ),
                                   );
                                 },
                               ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 18),
                           ],
                         );
                       },
@@ -314,6 +605,7 @@ class KidsQuestPage extends ConsumerWidget {
     final store = ref.watch(appStoreProvider);
     store.ensureQuest();
     final doneCount = store.quest.where((q) => q.done).length;
+    final progress = store.quest.isEmpty ? 0.0 : doneCount / store.quest.length;
     return Scaffold(
       appBar: AppBar(title: const Text('Family quest')),
       bottomNavigationBar: const KidsNavBar(current: '/kids/quest'),
@@ -321,57 +613,145 @@ class KidsQuestPage extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text(
-              'This week\'s mission',
-              style: Theme.of(context).textTheme.titleMedium,
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: FamilyCircleColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: FamilyCircleColors.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _KidMedallion(
+                        icon: Icons.flag_outlined,
+                        accent: FamilyCircleColors.primary,
+                        size: 40,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'This week\'s mission',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      FcChip(
+                        '$doneCount / ${store.quest.length}',
+                        icon: Icons.emoji_events_outlined,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 12,
+                      backgroundColor: FamilyCircleColors.primary.withValues(
+                        alpha: 0.15,
+                      ),
+                      valueColor: const AlwaysStoppedAnimation(
+                        FamilyCircleColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$doneCount of ${store.quest.length} done — no rush, there\'s no streak to lose.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              '$doneCount of ${store.quest.length} done — no rush, there\'s no streak to lose.',
-              style: Theme.of(context).textTheme.bodySmall,
+            const _KidSectionHeader(
+              'Mission steps',
+              accent: FamilyCircleColors.warning,
             ),
-            const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: store.quest.isEmpty ? 0 : doneCount / store.quest.length,
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            const SizedBox(height: 16),
             for (final q in store.quest)
-              FcCard(
-                child: Row(
-                  children: [
-                    Icon(
-                      q.done
-                          ? (q.adultApproved
-                                ? Icons.verified
-                                : Icons.check_circle)
-                          : Icons.circle_outlined,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: q.done
+                        ? FamilyCircleColors.primary.withValues(alpha: 0.08)
+                        : null,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
                       color: q.done
-                          ? FamilyCircleColors.primary
-                          : FamilyCircleColors.muted,
+                          ? FamilyCircleColors.primary.withValues(alpha: 0.4)
+                          : Theme.of(context).colorScheme.outlineVariant
+                                .withValues(alpha: 0.4),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(q.title),
-                          if (q.done && !q.adultApproved)
-                            Text(
-                              'Waiting for a grown-up to approve',
-                              style: Theme.of(context).textTheme.labelSmall
-                                  ?.copyWith(color: FamilyCircleColors.warning),
-                            ),
-                        ],
-                      ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: q.done
+                                ? FamilyCircleColors.primary.withValues(
+                                    alpha: 0.18,
+                                  )
+                                : Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest
+                                      .withValues(alpha: 0.5),
+                          ),
+                          child: Icon(
+                            q.done
+                                ? (q.adultApproved
+                                      ? Icons.verified
+                                      : Icons.check_circle)
+                                : Icons.radio_button_unchecked,
+                            size: 20,
+                            color: q.done
+                                ? FamilyCircleColors.primary
+                                : FamilyCircleColors.muted,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                q.title,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      fontWeight: q.done
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                    ),
+                              ),
+                              if (q.done && !q.adultApproved)
+                                Text(
+                                  'Waiting for a grown-up to approve',
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
+                                        color: FamilyCircleColors.warning,
+                                      ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (!q.done)
+                          FilledButton.tonalIcon(
+                            icon: const Icon(Icons.stars_outlined, size: 16),
+                            onPressed: () => store.completeQuestObjective(q.id),
+                            label: const Text('I did it'),
+                          ),
+                      ],
                     ),
-                    if (!q.done)
-                      FilledButton.tonal(
-                        onPressed: () => store.completeQuestObjective(q.id),
-                        child: const Text('I did it'),
-                      ),
-                  ],
+                  ),
                 ),
               ),
           ],
@@ -403,35 +783,63 @@ class KidsBadgesPage extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1.1,
+                  childAspectRatio: 0.95,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                 ),
                 itemCount: store.badges.length,
                 itemBuilder: (context, i) {
                   final b = store.badges[i];
-                  return FcCard(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          gameIcon(catalog.gameById(b.gameId).icon),
-                          size: 36,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          b.title,
-                          style: Theme.of(context).textTheme.titleSmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          b.description,
-                          style: Theme.of(context).textTheme.labelSmall,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                        ),
-                      ],
+                  final accent = _kidAccent('${b.gameId}-${b.id}');
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: accent.withValues(alpha: 0.35)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: accent.withValues(alpha: 0.2),
+                              border: Border.all(
+                                color: accent.withValues(alpha: 0.6),
+                                width: 2,
+                              ),
+                            ),
+                            child: Icon(
+                              gameIcon(catalog.gameById(b.gameId).icon),
+                              size: 28,
+                              color: accent,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            b.title,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            b.description,
+                            style: Theme.of(context).textTheme.labelSmall,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          FcChip('Earned', icon: Icons.star, color: accent),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -453,53 +861,135 @@ class KidsChefPage extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            'Kitchen skills, safest first. Steps marked with an adult badge always need a grown-up.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 16),
-          for (final lesson in catalog.chefLessons)
-            FcCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          lesson.title,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
-                      if (lesson.needsAdult)
-                        const FcChip(
-                          'With a grown-up',
-                          icon: Icons.family_restroom_outlined,
-                          color: FamilyCircleColors.warning,
-                        ),
-                    ],
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: FamilyCircleColors.warning.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: FamilyCircleColors.warning.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                const _KidMedallion(
+                  icon: Icons.soup_kitchen_outlined,
+                  accent: FamilyCircleColors.warning,
+                  size: 44,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Kitchen skills, safest first. Steps marked with an adult badge always need a grown-up.',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 8),
-                  for (var i = 0; i < lesson.steps.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
+                ),
+              ],
+            ),
+          ),
+          const _KidSectionHeader(
+            'Lessons',
+            accent: FamilyCircleColors.primary,
+          ),
+          for (var li = 0; li < catalog.chefLessons.length; li++)
+            Builder(
+              builder: (context) {
+                final lesson = catalog.chefLessons[li];
+                final accent = _kidAccent('lesson-$li');
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: accent.withValues(alpha: 0.3)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            radius: 10,
-                            child: Text(
-                              '${i + 1}',
-                              style: const TextStyle(fontSize: 11),
-                            ),
+                          Row(
+                            children: [
+                              _KidMedallion(
+                                icon: Icons.menu_book_outlined,
+                                accent: accent,
+                                size: 42,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Lesson ${li + 1}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(
+                                            color: accent,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                    ),
+                                    Text(
+                                      lesson.title,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (lesson.needsAdult)
+                                const FcChip(
+                                  'With a grown-up',
+                                  icon: Icons.family_restroom_outlined,
+                                  color: FamilyCircleColors.warning,
+                                ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(lesson.steps[i])),
+                          const SizedBox(height: 12),
+                          for (var i = 0; i < lesson.steps.length; i++)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: accent.withValues(alpha: 0.18),
+                                      border: Border.all(
+                                        color: accent.withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${i + 1}',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: accent,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(child: Text(lesson.steps[i])),
+                                ],
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                ],
-              ),
+                  ),
+                );
+              },
             ),
         ],
       ),
@@ -524,11 +1014,36 @@ class KidsPassportPage extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            'Explore how families eat around the world. Try a challenge only if you want to.',
-            style: Theme.of(context).textTheme.bodyMedium,
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _kidAccent('passport').withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _kidAccent('passport').withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                const _KidMedallion(
+                  icon: Icons.travel_explore_outlined,
+                  accent: Color(0xFF5AA9E6),
+                  size: 44,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Explore how families eat around the world. Try a challenge only if you want to.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const _KidSectionHeader(
+            'Stamp your passport',
+            accent: Color(0xFF5AA9E6),
+          ),
           for (var i = 0; i < catalog.passportStops.length; i++)
             Builder(
               builder: (context) {
@@ -536,63 +1051,125 @@ class KidsPassportPage extends ConsumerWidget {
                 final hasStamp = stamped.any(
                   (id) => id.contains('passport-$i'),
                 );
-                return FcCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                final accent = _kidAccent('stop-$i');
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: hasStamp ? accent.withValues(alpha: 0.1) : null,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: hasStamp
+                            ? accent.withValues(alpha: 0.5)
+                            : Theme.of(context).colorScheme.outlineVariant
+                                  .withValues(alpha: 0.4),
+                        width: hasStamp ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.public,
-                            color: Theme.of(context).colorScheme.primary,
+                          Row(
+                            children: [
+                              // Circular stamp visual.
+                              Container(
+                                width: 52,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: hasStamp
+                                      ? accent.withValues(alpha: 0.18)
+                                      : Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest
+                                            .withValues(alpha: 0.4),
+                                  border: Border.all(
+                                    color: hasStamp
+                                        ? accent
+                                        : Theme.of(context)
+                                              .colorScheme
+                                              .outlineVariant,
+                                    width: hasStamp ? 2.5 : 1,
+                                  ),
+                                ),
+                                child: Icon(
+                                  hasStamp ? Icons.verified : Icons.public,
+                                  color: hasStamp
+                                      ? accent
+                                      : FamilyCircleColors.muted,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  stop.name,
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                              if (hasStamp)
+                                FcChip(
+                                  'Stamp earned',
+                                  icon: Icons.verified,
+                                  color: accent,
+                                ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
+                          const SizedBox(height: 10),
+                          Text(
+                            stop.fact,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: accent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             child: Text(
-                              stop.name,
-                              style: Theme.of(context).textTheme.titleMedium,
+                              'Challenge: ${stop.challenge}',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ),
-                          if (hasStamp)
-                            const FcChip('Stamp earned', icon: Icons.verified),
+                          if (!hasStamp) ...[
+                            const SizedBox(height: 12),
+                            FilledButton.tonalIcon(
+                              icon: const Icon(Icons.stars_outlined, size: 18),
+                              label: const Text('Earn this stamp'),
+                              onPressed: () {
+                                final session = store.startGame('world-food');
+                                final badge = store.finishGame(
+                                  GameSession(
+                                    id: 'passport-$i-${session.id}',
+                                    gameId: 'world-food',
+                                    startedAt: DateTime.now(),
+                                  ),
+                                  rewardTitle: '${stop.name} Explorer',
+                                  rewardDescription:
+                                      'Learned about food from ${stop.name}.',
+                                );
+                                store.completeQuestObjective('q-passport');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Badge earned: ${badge.title}',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        stop.fact,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Challenge: ${stop.challenge}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 12),
-                      if (!hasStamp)
-                        FilledButton.tonalIcon(
-                          icon: const Icon(Icons.stars_outlined, size: 18),
-                          label: const Text('Earn this stamp'),
-                          onPressed: () {
-                            final session = store.startGame('world-food');
-                            final badge = store.finishGame(
-                              GameSession(
-                                id: 'passport-$i-${session.id}',
-                                gameId: 'world-food',
-                                startedAt: DateTime.now(),
-                              ),
-                              rewardTitle: '${stop.name} Explorer',
-                              rewardDescription:
-                                  'Learned about food from ${stop.name}.',
-                            );
-                            store.completeQuestObjective('q-passport');
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Badge earned: ${badge.title}'),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
+                    ),
                   ),
                 );
               },

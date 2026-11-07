@@ -45,6 +45,8 @@ class FcScaffold extends StatelessWidget {
     this.actions,
     this.fab,
     this.showBack = true,
+    this.bottomNavigationBar,
+    this.extendBody = false,
   });
 
   final String title;
@@ -52,6 +54,8 @@ class FcScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final Widget? fab;
   final bool showBack;
+  final Widget? bottomNavigationBar;
+  final bool extendBody;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +66,8 @@ class FcScaffold extends StatelessWidget {
         actions: actions,
       ),
       floatingActionButton: fab,
+      bottomNavigationBar: bottomNavigationBar,
+      extendBody: extendBody,
       body: SafeArea(
         child: Column(
           children: [
@@ -85,17 +91,38 @@ class OfflineBanner extends ConsumerWidget {
       liveRegion: true,
       child: Container(
         width: double.infinity,
-        color: FamilyCircleColors.warning.withValues(alpha: 0.16),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: FamilyCircleColors.warning.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: FamilyCircleColors.warning.withValues(alpha: 0.3),
+          ),
+        ),
         child: Row(
           children: [
-            const Icon(Icons.cloud_off, size: 18),
-            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: FamilyCircleColors.warning.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.cloud_off,
+                size: 16,
+                color: FamilyCircleColors.warning,
+              ),
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 store.pending.isEmpty
                     ? 'You are offline. Showing saved content.'
                     : 'Offline. ${store.pending.length} change(s) will send when you reconnect.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ),
           ],
@@ -113,21 +140,25 @@ class FcCard extends StatelessWidget {
     required this.child,
     this.onTap,
     this.padding = const EdgeInsets.all(16),
+    this.margin,
   });
 
   final Widget child;
   final VoidCallback? onTap;
   final EdgeInsets padding;
+  final EdgeInsets? margin;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final card = Card(
       clipBehavior: Clip.antiAlias,
+      margin: margin,
       child: InkWell(
         onTap: onTap,
         child: Padding(padding: padding, child: child),
       ),
     );
+    return card;
   }
 }
 
@@ -139,16 +170,53 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
       child: Row(
         children: [
+          Container(
+            width: 4,
+            height: 16,
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              color: scheme.primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           Expanded(
-            child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.4,
+                color: scheme.onSurface,
+              ),
+            ),
           ),
           ?trailing,
         ],
       ),
+    );
+  }
+}
+
+/// Alias kept for the Fc-prefixed component contract.
+class FcSection extends StatelessWidget {
+  const FcSection(this.title, {super.key, this.trailing, this.child});
+
+  final String title;
+  final Widget? trailing;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(title, trailing: trailing),
+        ?child,
+      ],
     );
   }
 }
@@ -170,8 +238,8 @@ class FcChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: c.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: c.withValues(alpha: 0.35)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: c.withValues(alpha: 0.28)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -180,14 +248,49 @@ class FcChip extends StatelessWidget {
               Icon(i, size: 14, color: c),
               const SizedBox(width: 4),
             ],
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: c,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+/// Pill-shaped primary action used across feature surfaces.
+class FcPrimaryButton extends StatelessWidget {
+  const FcPrimaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.expanded = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool expanded;
+
+  @override
+  Widget build(BuildContext context) {
+    final button = FilledButton.icon(
+      onPressed: onPressed,
+      icon: icon == null ? const SizedBox.shrink() : Icon(icon, size: 18),
+      label: Text(label),
+      style: expanded
+          ? FilledButton.styleFrom(minimumSize: const Size.fromHeight(50))
+          : null,
+    );
+    return expanded ? SizedBox(width: double.infinity, child: button) : button;
   }
 }
 
@@ -280,24 +383,42 @@ class DishImage extends StatelessWidget {
         height: height,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: FamilyCircleColors.surfaceElevated,
-          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              scheme.primary.withValues(alpha: 0.14),
+              scheme.surfaceContainerHigh.withValues(alpha: 0.5),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: scheme.outlineVariant.withValues(alpha: 0.4),
+            color: scheme.outlineVariant.withValues(alpha: 0.35),
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 36, color: scheme.primary),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: scheme.primary.withValues(alpha: 0.14),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 30, color: scheme.primary),
+            ),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 image.badge,
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(color: FamilyCircleColors.muted),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -327,32 +448,83 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 44, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: scheme.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: scheme.primary.withValues(alpha: 0.18),
+                ),
+              ),
+              child: Icon(icon, size: 40, color: scheme.primary),
+            ),
+            const SizedBox(height: 20),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 320),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
             ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 20),
-              FilledButton(onPressed: onAction, child: Text(actionLabel!)),
+              const SizedBox(height: 24),
+              FcPrimaryButton(
+                label: actionLabel!,
+                onPressed: onAction,
+                expanded: true,
+              ),
             ],
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Alias kept for the Fc-prefixed component contract.
+class FcEmptyState extends StatelessWidget {
+  const FcEmptyState({
+    super.key,
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+    this.icon = Icons.inbox_outlined,
+  });
+
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return EmptyState(
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      onAction: onAction,
+      icon: icon,
     );
   }
 }
@@ -394,10 +566,69 @@ class SkeletonList extends StatelessWidget {
           height: 84,
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: FamilyCircleColors.surfaceElevated.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(16),
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(18),
           ),
+          child: const _Shimmer(),
         ),
+      ),
+    );
+  }
+}
+
+/// Fc-prefixed alias for [SkeletonList].
+class FcLoadingState extends StatelessWidget {
+  const FcLoadingState({super.key, this.count = 4});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) => SkeletonList(count: count);
+}
+
+class _Shimmer extends StatefulWidget {
+  const _Shimmer();
+
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: AnimatedBuilder(
+        animation: _c,
+        builder: (context, _) {
+          final t = _c.value;
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment(-1 + 2 * t, 0),
+                end: Alignment(1 + 2 * t, 0),
+                colors: [
+                  Colors.transparent,
+                  scheme.onSurface.withValues(alpha: 0.06),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -420,16 +651,32 @@ class MemberAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return CircleAvatar(
-      radius: size / 2,
-      backgroundColor: minor
-          ? scheme.tertiary.withValues(alpha: 0.25)
-          : scheme.primary.withValues(alpha: 0.2),
-      child: Text(
-        name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-        style: TextStyle(
-          color: minor ? scheme.tertiary : scheme.primary,
-          fontWeight: FontWeight.w600,
+    final seed = name.isEmpty ? 0 : name.codeUnits.fold(0, (a, b) => a + b);
+    final base = minor ? scheme.tertiary : scheme.primary;
+    final angle = (seed % 4) * 0.5 - 0.5;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment(angle, -angle),
+          end: Alignment(-angle, angle),
+          colors: [
+            base.withValues(alpha: minor ? 0.5 : 0.85),
+            base.withValues(alpha: 0.35),
+          ],
+        ),
+        border: Border.all(color: base.withValues(alpha: 0.4), width: 1.5),
+      ),
+      child: Center(
+        child: Text(
+          name.isEmpty ? '?' : name.characters.first.toUpperCase(),
+          style: TextStyle(
+            color: minor ? scheme.tertiary : scheme.onPrimary,
+            fontWeight: FontWeight.w800,
+            fontSize: size * 0.42,
+          ),
         ),
       ),
     );

@@ -117,9 +117,31 @@ class SubscriptionsPage extends ConsumerWidget {
     String perks,
   ) {
     final current = store.entitlement.plan == plan;
+    final scheme = Theme.of(context).colorScheme;
     return FcCard(
       child: Row(
         children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: (current ? FamilyCircleColors.primary : scheme.primary)
+                  .withValues(alpha: 0.14),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              switch (plan) {
+                EntitlementPlan.free => Icons.eco_outlined,
+                EntitlementPlan.plus => Icons.star_outline,
+                EntitlementPlan.familyPro => Icons.workspace_premium_outlined,
+              },
+              size: 20,
+              color: current
+                  ? FamilyCircleColors.primary
+                  : scheme.primary,
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

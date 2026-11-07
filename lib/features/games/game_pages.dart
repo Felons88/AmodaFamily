@@ -15,6 +15,79 @@ import '../../shared/errors.dart';
 import '../../shared/models.dart';
 import '../../shared/widgets.dart';
 
+/// Vivid per-game accent colors. Always used as tints behind themed
+/// text/icons so light and dark themes both stay readable.
+const _gamePalette = [
+  Color(0xFF7C6CF0),
+  Color(0xFFFF8A5C),
+  Color(0xFF42B6E8),
+  Color(0xFFFFC94D),
+  Color(0xFF9B7EDE),
+  Color(0xFF3ECF8E),
+  Color(0xFFFF7BA9),
+  Color(0xFF5AA9E6),
+];
+
+Color _gameAccent(String seed) {
+  var h = 0;
+  for (final c in seed.codeUnits) {
+    h = (h * 31 + c) & 0x7fffffff;
+  }
+  return _gamePalette[h % _gamePalette.length];
+}
+
+/// Rounded-square medallion used in game lobby and results screens.
+class _GameMedallion extends StatelessWidget {
+  const _GameMedallion({
+    required this.icon,
+    required this.accent,
+    this.size = 72,
+  });
+
+  final IconData icon;
+  final Color accent;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(size * 0.3),
+        border: Border.all(color: accent.withValues(alpha: 0.45), width: 1.5),
+      ),
+      child: Icon(icon, color: accent, size: size * 0.5),
+    );
+  }
+}
+
+/// Playful confetti-ish strip of colored dots shown on the results screen.
+class _ConfettiDots extends StatelessWidget {
+  const _ConfettiDots();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var i = 0; i < _gamePalette.length; i++) ...[
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: _gamePalette[i],
+              shape: BoxShape.circle,
+            ),
+          ),
+          if (i < _gamePalette.length - 1) const SizedBox(width: 6),
+        ],
+      ],
+    );
+  }
+}
+
 class GamePage extends ConsumerWidget {
   const GamePage({super.key, required this.gameId});
 
@@ -104,24 +177,37 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
   }
 
   Widget lobby(String instructions) {
+    final accent = _gameAccent(def.id);
     return FcScaffold(
       title: def.title,
       child: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Icon(
-            gameIcon(def.icon),
-            size: 56,
-            color: Theme.of(context).colorScheme.primary,
-          ),
           const SizedBox(height: 16),
+          Center(
+            child: _GameMedallion(icon: gameIcon(def.icon), accent: accent),
+          ),
+          const SizedBox(height: 20),
           Text(
             def.title,
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
-          Text(instructions, textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: accent.withValues(alpha: 0.3)),
+            ),
+            child: Text(
+              instructions,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
           if (_startError != null) ...[
             const SizedBox(height: 16),
             Text(
@@ -130,10 +216,16 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
               textAlign: TextAlign.center,
             ),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           FilledButton.icon(
             icon: const Icon(Icons.play_arrow),
             label: const Text('Play'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(54),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
             onPressed: begin,
           ),
           const SizedBox(height: 8),
@@ -148,33 +240,50 @@ abstract class _GameState<T extends ConsumerStatefulWidget>
 
   Widget results(String summary) {
     final badge = _badge!;
+    final accent = _gameAccent(def.id);
     return FcScaffold(
       title: 'Nice one!',
       child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                gameIcon(def.icon),
-                size: 64,
-                color: Theme.of(context).colorScheme.primary,
+              const _ConfettiDots(),
+              const SizedBox(height: 20),
+              _GameMedallion(
+                icon: gameIcon(def.icon),
+                accent: accent,
+                size: 84,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 badge.title,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.w800),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(summary, textAlign: TextAlign.center),
-              const SizedBox(height: 8),
-              FcChip('Badge earned', icon: Icons.military_tech_outlined),
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: () => context.pop(),
-                child: const Text('Back to games'),
+              const SizedBox(height: 12),
+              FcChip(
+                'Badge earned',
+                icon: Icons.military_tech_outlined,
+                color: accent,
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(54),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () => context.pop(),
+                  child: const Text('Back to games'),
+                ),
               ),
             ],
           ),
@@ -249,15 +358,33 @@ class _ShowdownState extends _GameState<_ShowdownGame> {
     final (a, b) = _round == 2
         ? (_bracket[0], _bracket[1])
         : (_bracket[_round * 2], _bracket[_round * 2 + 1]);
+    final accent = _gameAccent(def.id);
     return FcScaffold(
       title: 'Dinner Showdown',
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            _round == 2 ? 'Final!' : 'Round ${_round + 1} of 3',
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: accent.withValues(alpha: 0.45)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.sports_mma_outlined, size: 18, color: accent),
+                  const SizedBox(width: 8),
+                  Text(
+                    _round == 2 ? 'Final!' : 'Round ${_round + 1} of 3',
+                    style: Theme.of(context).textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w800, color: accent),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           for (final r in [a, b])
@@ -331,60 +458,94 @@ class _BingoState extends _GameState<_BingoGame> {
         'Mark squares you can honestly check off. Any row, column or diagonal wins.',
       );
     }
+    final accent = _gameAccent(def.id);
     return FcScaffold(
       title: 'Pantry Bingo',
-      child: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 0.9,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-        ),
-        itemCount: 9,
-        itemBuilder: (context, i) {
-          final marked = _marked.contains(i);
-          return InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              setState(() => marked ? _marked.remove(i) : _marked.add(i));
-              if (_won) {
-                finish(
-                  score: 90,
-                  title: 'Bingo Champ',
-                  description: 'Completed a pantry bingo line.',
-                );
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: marked
-                    ? FamilyCircleColors.primary.withValues(alpha: 0.2)
-                    : FamilyCircleColors.surfaceElevated,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: marked
-                      ? FamilyCircleColors.primary
-                      : FamilyCircleColors.outline,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (marked)
-                    const Icon(Icons.check, color: FamilyCircleColors.primary),
-                  Text(
-                    _squares[i],
-                    style: Theme.of(context).textTheme.labelSmall,
-                    textAlign: TextAlign.center,
-                    maxLines: 4,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: _marked.length / 9,
+                      minHeight: 10,
+                      backgroundColor: accent.withValues(alpha: 0.15),
+                      valueColor: AlwaysStoppedAnimation(accent),
+                    ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                FcChip(
+                  '${_marked.length} marked',
+                  icon: Icons.grid_on,
+                  color: accent,
+                ),
+              ],
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 0.9,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: 9,
+              itemBuilder: (context, i) {
+                final marked = _marked.contains(i);
+                return InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    setState(() => marked ? _marked.remove(i) : _marked.add(i));
+                    if (_won) {
+                      finish(
+                        score: 90,
+                        title: 'Bingo Champ',
+                        description: 'Completed a pantry bingo line.',
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: marked
+                          ? FamilyCircleColors.primary.withValues(alpha: 0.2)
+                          : FamilyCircleColors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: marked
+                            ? FamilyCircleColors.primary
+                            : FamilyCircleColors.outline,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (marked)
+                          const Icon(
+                            Icons.check,
+                            color: FamilyCircleColors.primary,
+                          ),
+                        Text(
+                          _squares[i],
+                          style: Theme.of(context).textTheme.labelSmall,
+                          textAlign: TextAlign.center,
+                          maxLines: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -651,9 +812,20 @@ class _FridgeRescueState extends _GameState<_FridgeRescueGame> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            'Pick your rescue items:',
-            style: Theme.of(context).textTheme.titleSmall,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Pick your rescue items:',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+              FcChip(
+                '${_picked.length}/5 picked',
+                icon: Icons.kitchen_outlined,
+                color: _gameAccent(def.id),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -937,6 +1109,7 @@ class _MysteryState extends _GameState<_MysteryGame> {
         'Guess the dish! Reveal clues one at a time — fewer clues means a better guess.',
       );
     }
+    final accent = _gameAccent(def.id);
     return FcScaffold(
       title: 'Mystery Recipe',
       child: ListView(
@@ -945,7 +1118,18 @@ class _MysteryState extends _GameState<_MysteryGame> {
           for (var i = 0; i <= _clueIndex && i < _mystery.clues.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: FcCard(child: Text('Clue ${i + 1}: ${_mystery.clues[i]}')),
+              child: FcCard(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.lightbulb_outline, size: 20, color: accent),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text('Clue ${i + 1}: ${_mystery.clues[i]}'),
+                    ),
+                  ],
+                ),
+              ),
             ),
           if (_clueIndex < _mystery.clues.length - 1)
             TextButton.icon(
@@ -1018,39 +1202,52 @@ class _WorldFoodState extends _GameState<_WorldFoodGame> {
         padding: const EdgeInsets.all(16),
         children: [
           for (final stop in catalog.passportStops)
-            FcCard(
-              onTap: () {
-                _stop = stop;
-                finish(
-                  score: 60,
-                  title: '${stop.name} Explorer',
-                  description: 'Visited ${stop.name} in the food passport.',
-                );
-                ref.read(appStoreProvider).completeQuestObjective('q-passport');
-              },
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.public,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          stop.name,
-                          style: Theme.of(context).textTheme.titleSmall,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: FcCard(
+                onTap: () {
+                  _stop = stop;
+                  finish(
+                    score: 60,
+                    title: '${stop.name} Explorer',
+                    description: 'Visited ${stop.name} in the food passport.',
+                  );
+                  ref
+                      .read(appStoreProvider)
+                      .completeQuestObjective('q-passport');
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: _gameAccent(stop.name).withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _gameAccent(stop.name).withValues(alpha: 0.45),
                         ),
-                        Text(
-                          stop.fact,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+                      ),
+                      child: Icon(Icons.public, color: _gameAccent(stop.name)),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            stop.name,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          Text(
+                            stop.fact,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
         ],
@@ -1098,10 +1295,27 @@ class _RestaurantState extends _GameState<_RestaurantGame> {
             decoration: const InputDecoration(labelText: 'Restaurant name'),
           ),
           const SizedBox(height: 12),
-          Text(
-            'Pick 3 dishes (${_menu.length}/3):',
-            style: Theme.of(context).textTheme.titleSmall,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Pick 3 dishes (${_menu.length}/3):',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: _menu.length / 3,
+              minHeight: 8,
+              backgroundColor: _gameAccent(def.id).withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation(_gameAccent(def.id)),
+            ),
+          ),
+          const SizedBox(height: 8),
           for (final r in options)
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -1223,6 +1437,20 @@ class _BudgetHeroState extends _GameState<_BudgetHeroGame> {
               subtitle: Text(r.meal.label),
             ),
           const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: targetCents == 0 ? 0 : (cost / targetCents).clamp(0, 1),
+              minHeight: 10,
+              backgroundColor: _gameAccent(def.id).withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation(
+                cost <= targetCents
+                    ? FamilyCircleColors.primary
+                    : FamilyCircleColors.error,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           Text(
             minor
                 ? 'Sample cost: ${_picked.isEmpty ? 0 : (cost / 100).toStringAsFixed(0)} tokens'
@@ -1282,16 +1510,36 @@ class _TriviaState extends _GameState<_TriviaGame> {
       );
     }
     final q = catalog.triviaQuestions[_index];
+    final accent = _gameAccent(def.id);
+    final progress =
+        (_index + (_answered ? 1 : 0)) / catalog.triviaQuestions.length;
     return FcScaffold(
       title: 'Food Trivia',
       child: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Text(
-            'Question ${_index + 1} of ${catalog.triviaQuestions.length}',
-            style: Theme.of(context).textTheme.labelMedium,
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 10,
+                    backgroundColor: accent.withValues(alpha: 0.15),
+                    valueColor: AlwaysStoppedAnimation(accent),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              FcChip(
+                '${_index + 1}/${catalog.triviaQuestions.length}',
+                icon: Icons.quiz_outlined,
+                color: accent,
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(q.question, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 16),
           for (var i = 0; i < q.choices.length; i++)
@@ -1381,6 +1629,7 @@ class _JuniorChefState extends _GameState<_JuniorChefGame> {
       );
     }
     final lesson = catalog.chefLessons[_lesson];
+    final accent = _gameAccent(def.id);
     return FcScaffold(
       title: 'Junior Chef',
       child: ListView(
@@ -1400,6 +1649,28 @@ class _JuniorChefState extends _GameState<_JuniorChefGame> {
                   icon: Icons.family_restroom_outlined,
                   color: FamilyCircleColors.warning,
                 ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: _stepsDone.length / lesson.steps.length,
+                    minHeight: 8,
+                    backgroundColor: accent.withValues(alpha: 0.15),
+                    valueColor: AlwaysStoppedAnimation(accent),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              FcChip(
+                'Lesson ${_lesson + 1}/${catalog.chefLessons.length} • ${_stepsDone.length}/${lesson.steps.length}',
+                icon: Icons.restaurant_outlined,
+                color: accent,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -1496,6 +1767,29 @@ class _CookingTogetherState extends _GameState<_CookingTogetherGame> {
             'Steps marked "grown-up" can only be checked by an adult.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: _done.length / recipe.steps.length,
+                    minHeight: 8,
+                    backgroundColor: _gameAccent(def.id)
+                        .withValues(alpha: 0.15),
+                    valueColor: AlwaysStoppedAnimation(_gameAccent(def.id)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              FcChip(
+                '${_done.length}/${recipe.steps.length} steps',
+                icon: Icons.soup_kitchen_outlined,
+                color: _gameAccent(def.id),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           for (var i = 0; i < recipe.steps.length; i++)
             CheckboxListTile(
@@ -1565,7 +1859,21 @@ class _GroceryDetectiveState extends _GameState<_GroceryDetectiveGame> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Your cases:', style: Theme.of(context).textTheme.titleMedium),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Your cases:',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              FcChip(
+                '${_done.length}/${_tasks.length} solved',
+                icon: Icons.search,
+                color: _gameAccent(def.id),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           for (var i = 0; i < _tasks.length; i++)
             CheckboxListTile(
@@ -1697,11 +2005,37 @@ class _QuestState extends _GameState<_QuestGame> {
         'A weekly family mission: vote, check a grocery item, learn a skill. Grown-ups approve completions.',
       );
     }
+    final doneCount = store.quest.where((q) => q.done).length;
+    final accent = _gameAccent(def.id);
     return FcScaffold(
       title: 'Family Quest',
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: store.quest.isEmpty
+                        ? 0
+                        : doneCount / store.quest.length,
+                    minHeight: 10,
+                    backgroundColor: accent.withValues(alpha: 0.15),
+                    valueColor: AlwaysStoppedAnimation(accent),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              FcChip(
+                '$doneCount/${store.quest.length}',
+                icon: Icons.flag_outlined,
+                color: accent,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           for (final q in store.quest)
             ListTile(
               leading: Icon(

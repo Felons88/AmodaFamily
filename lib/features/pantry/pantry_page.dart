@@ -46,22 +46,48 @@ class PantryPage extends ConsumerWidget {
                     builder: (context) {
                       final ing = catalog.ingredients[p.ingredientId];
                       return ListTile(
-                        leading: Icon(
-                          p.confirmed
-                              ? Icons.check_circle_outline
-                              : Icons.help_outline,
-                          color: p.confirmed
-                              ? FamilyCircleColors.primary
-                              : FamilyCircleColors.warning,
+                        leading: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: (p.confirmed
+                                    ? FamilyCircleColors.primary
+                                    : FamilyCircleColors.warning)
+                                .withValues(alpha: 0.14),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            p.confirmed
+                                ? Icons.check_circle_outline
+                                : Icons.help_outline,
+                            size: 18,
+                            color: p.confirmed
+                                ? FamilyCircleColors.primary
+                                : FamilyCircleColors.warning,
+                          ),
                         ),
                         title: Text(ing?.name ?? p.ingredientId),
-                        subtitle: Text(
-                          [
-                            fmtQty(p.quantity),
-                            p.confirmed ? 'confirmed' : 'unconfirmed',
-                            if (p.expiresAt != null)
-                              'expires ${p.expiresAt!.month}/${p.expiresAt!.day}',
-                          ].join(' • '),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              [
+                                fmtQty(p.quantity),
+                                if (p.expiresAt != null)
+                                  'expires ${p.expiresAt!.month}/${p.expiresAt!.day}',
+                              ].join(' • '),
+                            ),
+                            const SizedBox(height: 4),
+                            FcChip(
+                              p.confirmed ? 'Confirmed' : 'Unconfirmed',
+                              icon: p.confirmed
+                                  ? Icons.verified_outlined
+                                  : Icons.help_outline,
+                              color: p.confirmed
+                                  ? FamilyCircleColors.primary
+                                  : FamilyCircleColors.warning,
+                            ),
+                          ],
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,

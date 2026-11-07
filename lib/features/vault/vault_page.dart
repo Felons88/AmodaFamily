@@ -42,10 +42,18 @@ class VaultPage extends ConsumerWidget {
                   final r = catalog.recipes[f.recipeId];
                   if (r == null) return const SizedBox.shrink();
                   return ListTile(
-                    leading: const Icon(
-                      Icons.favorite,
-                      color: FamilyCircleColors.error,
-                      size: 20,
+                    leading: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: FamilyCircleColors.error.withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.favorite,
+                        color: FamilyCircleColors.error,
+                        size: 18,
+                      ),
                     ),
                     title: Text(r.title),
                     subtitle: Text('${r.meal.label} • ${r.minutes} min'),

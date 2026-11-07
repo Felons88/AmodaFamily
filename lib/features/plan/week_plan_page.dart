@@ -78,88 +78,133 @@ class WeekPlanPage extends ConsumerWidget {
 
   Widget _plan(BuildContext context, AppStore store, WeekPlan plan) {
     final basket = plan.basket;
+    final scheme = Theme.of(context).colorScheme;
+    final isToday = DateTime.now().weekday - 1;
+    final approved = plan.status == PlanStatus.approved;
     return ListView(
       children: [
         const OfflineBanner(),
         Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      plan.status == PlanStatus.approved
-                          ? 'Approved plan'
-                          : 'Draft plan — review before approving',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  FcChip(
-                    plan.status == PlanStatus.approved ? 'Approved' : 'Draft',
-                    icon: plan.status == PlanStatus.approved
-                        ? Icons.check_circle_outline
-                        : Icons.edit_outlined,
-                    color: plan.status == PlanStatus.approved
-                        ? FamilyCircleColors.primary
-                        : FamilyCircleColors.warning,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              if (basket != null)
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: FcCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    if (store.showPrices)
-                      FcChip(
-                        'Est. ${fmtCents(basket.totalEstimateCents)}',
-                        icon: Icons.shopping_basket_outlined,
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: (approved
+                                ? FamilyCircleColors.primary
+                                : FamilyCircleColors.warning)
+                            .withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
                       ),
-                    if (basket.unknownPriceIngredientIds.isNotEmpty)
-                      FcChip(
-                        '${basket.unknownPriceIngredientIds.length} unpriced item(s)',
-                        icon: Icons.warning_amber_outlined,
-                        color: FamilyCircleColors.warning,
+                      child: Icon(
+                        approved
+                            ? Icons.check_circle_outline
+                            : Icons.edit_calendar_outlined,
+                        size: 18,
+                        color: approved
+                            ? FamilyCircleColors.primary
+                            : FamilyCircleColors.warning,
                       ),
-                    if (basket.eligibleBenefitEstimateCents > 0 &&
-                        store.showPrices)
-                      FcChip(
-                        'SNAP-eligible est. ${fmtCents(basket.eligibleBenefitEstimateCents)}',
-                        icon: Icons.check_circle_outline,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            approved ? 'Approved plan' : 'Draft plan',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          Text(
+                            approved
+                                ? 'Ready for the week'
+                                : 'Review before approving',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurfaceVariant),
+                          ),
+                        ],
                       ),
+                    ),
+                    FcChip(
+                      approved ? 'Approved' : 'Draft',
+                      icon: approved
+                          ? Icons.check_circle_outline
+                          : Icons.edit_outlined,
+                      color: approved
+                          ? FamilyCircleColors.primary
+                          : FamilyCircleColors.warning,
+                    ),
                   ],
                 ),
-              if (plan.status == PlanStatus.draft)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.check),
-                    label: const Text('Approve plan'),
-                    onPressed: () {
-                      try {
-                        store.approvePlan(plan.revision);
-                      } on FcException catch (e) {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text(e.safeMessage)));
-                      }
-                    },
+                const SizedBox(height: 12),
+                if (basket != null)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (store.showPrices)
+                        FcChip(
+                          'Est. ${fmtCents(basket.totalEstimateCents)}',
+                          icon: Icons.shopping_basket_outlined,
+                        ),
+                      if (basket.unknownPriceIngredientIds.isNotEmpty)
+                        FcChip(
+                          '${basket.unknownPriceIngredientIds.length} unpriced item(s)',
+                          icon: Icons.warning_amber_outlined,
+                          color: FamilyCircleColors.warning,
+                        ),
+                      if (basket.eligibleBenefitEstimateCents > 0 &&
+                          store.showPrices)
+                        FcChip(
+                          'SNAP-eligible est. ${fmtCents(basket.eligibleBenefitEstimateCents)}',
+                          icon: Icons.check_circle_outline,
+                        ),
+                    ],
                   ),
-                ),
-            ],
+                if (plan.status == PlanStatus.draft)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: FilledButton.icon(
+                      icon: const Icon(Icons.check),
+                      label: const Text('Approve plan'),
+                      onPressed: () {
+                        try {
+                          store.approvePlan(plan.revision);
+                        } on FcException catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.safeMessage)),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
+        const SizedBox(height: 8),
         for (var day = 0; day < 7; day++)
           FcCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _dayNames[day],
-                  style: Theme.of(context).textTheme.titleSmall,
+                Row(
+                  children: [
+                    Text(
+                      _dayNames[day],
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    if (day == isToday) ...[
+                      const SizedBox(width: 8),
+                      const FcChip('Today', color: FamilyCircleColors.primary),
+                    ],
+                  ],
                 ),
                 const Divider(height: 16),
                 for (final meal in MealType.values)
@@ -184,17 +229,43 @@ class WeekPlanPage extends ConsumerWidget {
         .where((s) => s.day == day && s.meal == meal)
         .firstOrNull;
     final recipe = slot == null ? null : catalog.recipes[slot.recipeId];
+    final scheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
-      leading: Icon(switch (meal) {
-        MealType.breakfast => Icons.wb_sunny_outlined,
-        MealType.lunch => Icons.lunch_dining_outlined,
-        MealType.dinner => Icons.nightlight_outlined,
-      }, size: 20),
-      title: Text(recipe?.title ?? 'Not filled'),
+      leading: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: (recipe == null
+                  ? FamilyCircleColors.muted
+                  : scheme.primary)
+              .withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          switch (meal) {
+            MealType.breakfast => Icons.wb_sunny_outlined,
+            MealType.lunch => Icons.lunch_dining_outlined,
+            MealType.dinner => Icons.nightlight_outlined,
+          },
+          size: 16,
+          color: recipe == null ? FamilyCircleColors.muted : scheme.primary,
+        ),
+      ),
+      title: Text(
+        recipe?.title ?? 'Not filled',
+        style: recipe == null
+            ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              )
+            : null,
+      ),
       subtitle: Text(
-        recipe == null ? meal.label : '${meal.label} • ${recipe.minutes} min',
+        recipe == null
+            ? meal.label
+            : '${meal.label} • ${recipe.minutes} min',
       ),
       onTap: recipe == null
           ? null
@@ -203,7 +274,11 @@ class WeekPlanPage extends ConsumerWidget {
           ? null
           : IconButton(
               tooltip: 'Swap ${meal.label}',
-              icon: const Icon(Icons.swap_horiz, size: 20),
+              icon: Icon(
+                Icons.swap_horiz,
+                size: 20,
+                color: scheme.onSurfaceVariant,
+              ),
               onPressed: () => _showSwapSheet(context, store, day, meal),
             ),
     );

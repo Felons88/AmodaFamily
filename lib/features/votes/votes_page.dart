@@ -104,6 +104,9 @@ class VotesPage extends ConsumerWidget {
                     .where((v) => v == optionId)
                     .length;
                 final selected = myVote == optionId;
+                final share = members.isEmpty
+                    ? 0.0
+                    : (votes / members.length).clamp(0.0, 1.0);
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(
@@ -121,7 +124,26 @@ class VotesPage extends ConsumerWidget {
                     }
                   },
                   title: Text(recipe?.title ?? optionId),
-                  subtitle: Text('$votes vote${votes == 1 ? '' : 's'}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('$votes vote${votes == 1 ? '' : 's'}'),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: share,
+                          minHeight: 4,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

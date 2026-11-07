@@ -59,13 +59,31 @@ class InsightsPage extends ConsumerWidget {
                                 recipe?.title ?? s.recipeId,
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
+                              FcChip(
+                                pct > 0
+                                    ? 'Likely liked'
+                                    : pct < 0
+                                    ? 'Likely disliked'
+                                    : 'Uncertain',
+                                icon: pct > 0
+                                    ? Icons.thumb_up_outlined
+                                    : pct < 0
+                                    ? Icons.thumb_down_outlined
+                                    : Icons.help_outline,
+                                color: pct > 0
+                                    ? FamilyCircleColors.primary
+                                    : pct < 0
+                                    ? FamilyCircleColors.error
+                                    : FamilyCircleColors.muted,
+                              ),
+                              const SizedBox(height: 6),
                               Text(
                                 pct > 0
-                                    ? 'Likely liked (+$pct) from ${s.evidence.length} action${s.evidence.length == 1 ? '' : 's'}'
+                                    ? '+$pct from ${s.evidence.length} action${s.evidence.length == 1 ? '' : 's'}'
                                     : pct < 0
-                                    ? 'Likely disliked ($pct) from ${s.evidence.length} action${s.evidence.length == 1 ? '' : 's'}'
-                                    : 'Neutral so far',
+                                    ? '$pct from ${s.evidence.length} action${s.evidence.length == 1 ? '' : 's'}'
+                                    : 'No strong signal yet',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               Text(

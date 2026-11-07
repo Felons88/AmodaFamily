@@ -24,33 +24,39 @@ class NotificationsPage extends ConsumerWidget {
         children: [
           const SectionHeader('Channels'),
           SwitchListTile(
+            secondary: const Icon(Icons.notifications_active_outlined),
             title: const Text('Push notifications'),
             value: prefs.pushEnabled,
             onChanged: (v) => save(prefs.copyWith(pushEnabled: v)),
           ),
           SwitchListTile(
+            secondary: const Icon(Icons.email_outlined),
             title: const Text('Email'),
             value: prefs.emailEnabled,
             onChanged: (v) => save(prefs.copyWith(emailEnabled: v)),
           ),
           const SectionHeader('What we can send'),
           SwitchListTile(
+            secondary: const Icon(Icons.shopping_cart_outlined),
             title: const Text('Shopping trip reminders'),
             value: prefs.tripReminders,
             onChanged: (v) => save(prefs.copyWith(tripReminders: v)),
           ),
           SwitchListTile(
+            secondary: const Icon(Icons.how_to_vote_outlined),
             title: const Text('Vote round reminders'),
             subtitle: const Text('Only for rounds an adult opened.'),
             value: prefs.voteReminders,
             onChanged: (v) => save(prefs.copyWith(voteReminders: v)),
           ),
           SwitchListTile(
+            secondary: const Icon(Icons.kitchen_outlined),
             title: const Text('Pantry expiry estimates'),
             value: prefs.pantryExpiry,
             onChanged: (v) => save(prefs.copyWith(pantryExpiry: v)),
           ),
           SwitchListTile(
+            secondary: const Icon(Icons.restaurant_outlined),
             title: const Text('Meal prep reminders'),
             value: prefs.mealPrep,
             onChanged: (v) => save(prefs.copyWith(mealPrep: v)),
@@ -71,6 +77,7 @@ class NotificationsPage extends ConsumerWidget {
           ),
           const Divider(height: 32),
           SwitchListTile(
+            secondary: const Icon(Icons.child_care_outlined),
             title: const Text('Kid reminders (parent-controlled)'),
             subtitle: const Text(
               'At most 1 per week, quest reminders only. Never engagement nudges.',

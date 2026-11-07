@@ -4,16 +4,16 @@
 begin;
 
 insert into auth.users (id, aud, role, email, encrypted_password,
-  email_confirmed_at, created_at, updated_at)
+  email_confirmed_at, raw_app_meta_data, created_at, updated_at)
 values
   ('10000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated',
-   'fc-test-a@example.invalid', '', now(), now(), now()),
+   'fc-test-a@example.invalid', '', now(), '{"adult_verified": true}', now(), now()),
   ('10000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated',
-   'fc-test-b@example.invalid', '', now(), now(), now()),
+   'fc-test-b@example.invalid', '', now(), '{"adult_verified": true}', now(), now()),
   ('10000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated',
-   'fc-test-c@example.invalid', '', now(), now(), now()),
+   'fc-test-c@example.invalid', '', now(), '{"adult_verified": true}', now(), now()),
   ('10000000-0000-4000-8000-000000000004', 'authenticated', 'authenticated',
-   'fc-test-invited@example.invalid', '', now(), now(), now());
+   'fc-test-invited@example.invalid', '', now(), '{}', now(), now());
 
 insert into public.circles (id, name, created_by) values
   ('20000000-0000-4000-8000-000000000001', 'Circle A',
@@ -138,6 +138,11 @@ begin
   if public.is_active_circle_adult('20000000-0000-4000-8000-000000000001') then
     raise exception 'invited member authorized';
   end if;
+  begin
+    perform public.create_circle('Forged adult');
+    raise exception 'unverified account created circle';
+  exception when insufficient_privilege then null;
+  end;
 end $$;
 reset role;
 

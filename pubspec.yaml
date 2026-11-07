@@ -35,7 +35,15 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^3.5.0
+  family_circle_safety_engine:
+    path: safety_engine
+  family_circle_planner_engine:
+    path: planner_engine
   go_router: ^18.1.3
+  supabase_flutter: ^2.18.3
+  http: ^1.6.0
+  package_info_plus: ^10.2.2
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

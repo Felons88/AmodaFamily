@@ -1,0 +1,7 @@
+{
+  "version": "0.1.0",
+  "build": 1,
+  "apkUrl": "https://github.com/Felons88/AmodaFamily/releases/latest/download/app-release.apk",
+  "notes": "Initial release",
+  "mandatory": false
+}

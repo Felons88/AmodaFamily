@@ -52,6 +52,11 @@ as $$
       and m.user_id = (select auth.uid())
       and m.status = 'active'
       and m.role in ('owner', 'admin', 'adult')
+      and exists (
+        select 1 from auth.users u
+        where u.id = m.user_id
+          and u.raw_app_meta_data ->> 'adult_verified' = 'true'
+      )
   );
 $$;
 
@@ -65,6 +70,13 @@ declare
 begin
   if v_actor is null then
     raise exception 'authentication required' using errcode = '28000';
+  end if;
+  if not exists (
+    select 1 from auth.users u
+    where u.id = v_actor
+      and u.raw_app_meta_data ->> 'adult_verified' = 'true'
+  ) then
+    raise exception 'verified adult authorization required' using errcode = '42501';
   end if;
   if p_name is null or length(btrim(p_name)) not between 1 and 80 then
     raise exception 'invalid circle name' using errcode = '22023';

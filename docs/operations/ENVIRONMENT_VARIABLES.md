@@ -19,3 +19,14 @@ Flutter public Supabase URL/anon key only; never include service role. Backend p
 - [ ] Staging behavior tested under degraded backend or no network.
 - [ ] Owner approval captured for external services, costs and new personal-data purposes.
 - [ ] No regression in safety, circle isolation or child commerce rules.
+
+## Client build-time defines (this build)
+
+| Variable | Purpose | Notes |
+|---|---|---|
+| `OPENROUTER_API_KEY` | OpenRouter API key for AI meal ideas | Dev-only via `--dart-define`; production must proxy through an Edge Function — key must never ship in a production client |
+| `OPENROUTER_BASE_URL` | API base | default `https://openrouter.ai/api/v1` |
+| `OPENROUTER_MODEL` | Model id | default `openrouter/auto` |
+| `UPDATE_MANIFEST_URL` | Auto-update manifest JSON | `{version, build, apkUrl, notes, mandatory}`; silent no-op when unset |
+
+AI feature is gated behind the in-app AI-processing consent toggle and adult role; output is labeled AI-generated and never treated as allergy verification.

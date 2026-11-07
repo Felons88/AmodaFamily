@@ -1,0 +1,9 @@
+name: family_circle_planner_engine
+description: Deterministic meal and basket planning foundation for Family Circle.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  family_circle_safety_engine:
+    path: ../safety_engine

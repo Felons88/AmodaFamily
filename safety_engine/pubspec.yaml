@@ -1,0 +1,6 @@
+name: family_circle_safety_engine
+description: Deterministic meal eligibility checks for Family Circle.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: '>=3.0.0 <4.0.0'

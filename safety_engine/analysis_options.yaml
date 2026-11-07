@@ -1,0 +1,4 @@
+linter:
+  rules:
+    - avoid_print
+    - avoid_relative_lib_imports

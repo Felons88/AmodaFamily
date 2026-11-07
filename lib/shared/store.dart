@@ -190,7 +190,10 @@ class AppStore extends ChangeNotifier {
   /// the flow is identical: no email/password, onboarding continues.
   Future<void> signInWithGoogle({String? name}) async {
     try {
-      await Supabase.instance.client.auth.signInWithOAuth(OAuthProvider.google);
+      await Supabase.instance.client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'com.example.family_circle://login-callback',
+      );
       return; // session arrives via deep link -> syncSupabaseSession
     } catch (_) {}
     _userEmail = 'google.user@gmail.com';

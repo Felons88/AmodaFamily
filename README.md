@@ -1,6 +1,6 @@
-# Family Circle
+# Kinplora
 
-Flutter client for the Family Circle household meal planner. The product contracts and implementation plan are in [`docs/`](docs/README.md).
+Flutter client for the Kinplora household meal planner. The product contracts and implementation plan are in [`docs/`](docs/README.md).
 
 ## What is implemented
 

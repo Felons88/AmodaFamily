@@ -76,7 +76,7 @@ class UpdateChecker {
       barrierDismissible: !update.mandatory,
       builder: (dialogContext) => AlertDialog(
         title: Text('Update available: ${update.version}'),
-        content: Text(update.notes?.isNotEmpty == true ? update.notes! : 'A newer version of Family Circle is ready.'),
+        content: Text(update.notes?.isNotEmpty == true ? update.notes! : 'A newer version of Kinplora is ready.'),
         actions: [
           if (!update.mandatory)
             TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Later')),

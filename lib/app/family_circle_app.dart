@@ -11,7 +11,7 @@ class FamilyCircleApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      title: 'Family Circle',
+      title: 'Kinplora',
       theme: FamilyCircleTheme.light,
       darkTheme: FamilyCircleTheme.dark,
       themeMode: ThemeMode.dark,

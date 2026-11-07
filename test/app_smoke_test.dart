@@ -9,7 +9,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: FamilyCircleApp()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Family Circle'), findsWidgets);
+    expect(find.text('Kinplora'), findsWidgets);
     expect(find.byType(WelcomePage), findsOneWidget);
     expect(find.byType(MaterialApp), findsOneWidget);
   });

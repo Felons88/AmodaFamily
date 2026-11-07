@@ -6,8 +6,11 @@ library;
 
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -15,13 +18,28 @@ import 'catalog.dart' as catalog;
 import 'models.dart';
 import 'store.dart';
 
+/// FCM background isolate entry point — notification messages are posted to
+/// the system tray by the plugin automatically; data-only messages are
+/// acknowledged here for future handling.
+@pragma('vm:entry-point')
+Future<void> fcmBackgroundHandler(RemoteMessage message) async {
+  try {
+    await Firebase.initializeApp();
+  } catch (_) {}
+}
+
 class NotificationService {
   NotificationService._();
 
   static final _plugin = FlutterLocalNotificationsPlugin();
   static bool _ready = false;
+  static FirebaseMessaging? _messaging;
+
+  /// Latest FCM registration token, if Firebase initialized.
+  static String? pushToken;
 
   static const _channelId = 'kinplora_reminders';
+  static const _pushChannelId = 'kinplora_push';
 
   /// Call once at startup (main). Safe on non-Android platforms.
   static Future<void> init() async {
@@ -31,6 +49,60 @@ class NotificationService {
       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
       await _plugin.initialize(const InitializationSettings(android: android));
       _ready = true;
+    } catch (_) {}
+    _initPush();
+  }
+
+  /// Wires Firebase Cloud Messaging: foreground messages are re-posted as
+  /// local notifications; the registration token is fetched so it can be
+  /// registered server-side in [sync].
+  static void _initPush() {
+    if (kIsWeb || !defaultTargetPlatformIsAndroid()) return;
+    try {
+      if (Firebase.apps.isEmpty) return;
+      _messaging = FirebaseMessaging.instance;
+      FirebaseMessaging.onMessage.listen(_showForegroundMessage);
+      unawaited(_registerForPush());
+    } catch (_) {}
+  }
+
+  static bool defaultTargetPlatformIsAndroid() {
+    try {
+      return defaultTargetPlatform == TargetPlatform.android;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> _registerForPush() async {
+    try {
+      final messaging = _messaging;
+      if (messaging == null) return;
+      messaging.onRegistered.listen((token) => pushToken = token);
+      await messaging.requestPermission();
+      await messaging.register();
+    } catch (_) {}
+  }
+
+  static Future<void> _showForegroundMessage(RemoteMessage message) async {
+    if (!_ready) return;
+    final n = message.notification;
+    final title = n?.title ?? message.data['title'] as String? ?? 'Kinplora';
+    final body = n?.body ?? message.data['body'] as String? ?? '';
+    try {
+      await _plugin.show(
+        message.hashCode,
+        title,
+        body,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            _pushChannelId,
+            'Updates',
+            channelDescription: 'Family updates and reminders',
+            importance: Importance.high,
+          ),
+        ),
+      );
     } catch (_) {}
   }
 
@@ -63,6 +135,7 @@ class NotificationService {
     if (!_ready || kIsWeb) return;
     final prefs = store.notifPrefs;
     try {
+      await _registerPushToken(store);
       await _plugin.cancelAll();
       if (!prefs.pushEnabled || !store.isSignedIn) return;
       if (!await _permissionGranted()) {
@@ -154,6 +227,24 @@ class NotificationService {
           schedule(at, 'Dinner tonight: $recipe', 'From this week\'s plan.');
         }
       }
+    } catch (_) {}
+  }
+
+  /// Upserts the FCM token into `push_tokens` so a server-side sender can
+  /// reach this device. No-op when signed out, offline of Supabase, or
+  /// Firebase is unavailable.
+  static Future<void> _registerPushToken(AppStore store) async {
+    final token = pushToken;
+    final uid = store.supabaseUserId;
+    if (token == null || token.isEmpty || uid == null) return;
+    if (!Supabase.instance.isInitialized) return;
+    try {
+      await Supabase.instance.client.from('push_tokens').upsert({
+        'user_id': uid,
+        'token': token,
+        'platform': 'android',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      });
     } catch (_) {}
   }
 

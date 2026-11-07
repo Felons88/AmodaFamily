@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "218665848947",
+    "project_id": "kinplora",
+    "storage_bucket": "kinplora.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:218665848947:android:aa8c8aba5068fe07b41a06",
+        "android_client_info": {
+          "package_name": "com.amoda.kinplora"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvy9YKsP0JhAuR3Ea-2cY8-bvC8aSa8cs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -86,12 +86,12 @@ class NotificationsPage extends ConsumerWidget {
                   onChanged: (v) => save(prefs.copyWith(pushEnabled: v)),
                 ),
                 divider(),
-                SwitchListTile(
-                  secondary: const Icon(Icons.email_outlined),
-                  title: const Text('Email'),
-                  subtitle: const Text('Weekly plan and spending summaries'),
-                  value: prefs.emailEnabled,
-                  onChanged: (v) => save(prefs.copyWith(emailEnabled: v)),
+                const SwitchListTile(
+                  secondary: Icon(Icons.email_outlined),
+                  title: Text('Email'),
+                  subtitle: Text('Not available yet — push covers reminders'),
+                  value: false,
+                  onChanged: null,
                 ),
               ],
             ),

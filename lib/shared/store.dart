@@ -205,6 +205,7 @@ class AppStore extends ChangeNotifier {
 
   String? get displayName => _displayName;
   String? get userEmail => _userEmail;
+  String? get supabaseUserId => _supabaseUserId;
   String? _displayName;
   bool _googleAuth = false;
   bool get usedGoogleAuth => _googleAuth;

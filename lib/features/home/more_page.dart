@@ -80,6 +80,12 @@ class MorePage extends ConsumerWidget {
     ];
     final personal = [
       (
+        Icons.manage_accounts_outlined,
+        'Account',
+        'Name, sign-in & session',
+        AppRoute.accountSettings.path,
+      ),
+      (
         Icons.insights_outlined,
         'Food insights',
         'Learned tastes & corrections',

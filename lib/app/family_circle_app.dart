@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../shared/notifications.dart';
 import '../shared/updates.dart';
+import '../shared/widgets.dart';
 import 'router.dart';
 import 'theme.dart';
 
@@ -23,27 +27,47 @@ class FamilyCircleApp extends ConsumerWidget {
   }
 }
 
-/// Runs the auto-update check once per app launch, on any screen.
-class _UpdateGate extends StatefulWidget {
+/// Runs the auto-update check once per app launch, on any screen, and
+/// keeps the local notification schedule in sync with app state.
+class _UpdateGate extends ConsumerStatefulWidget {
   const _UpdateGate({required this.child});
 
   final Widget child;
 
   @override
-  State<_UpdateGate> createState() => _UpdateGateState();
+  ConsumerState<_UpdateGate> createState() => _UpdateGateState();
 }
 
-class _UpdateGateState extends State<_UpdateGate> {
+class _UpdateGateState extends ConsumerState<_UpdateGate> {
+  Timer? _notifDebounce;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       UpdateChecker.promptIfAvailable(context);
+      _syncNotifications();
+    });
+  }
+
+  void _syncNotifications() {
+    _notifDebounce?.cancel();
+    _notifDebounce = Timer(const Duration(seconds: 2), () {
+      unawaited(NotificationService.sync(ref.read(appStoreProvider)));
     });
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    ref.listen(appStoreProvider, (_, _) => _syncNotifications());
+    return widget.child;
+  }
+
+  @override
+  void dispose() {
+    _notifDebounce?.cancel();
+    super.dispose();
+  }
 }
 
 /// Bottom navigation shared by the five adult destinations.

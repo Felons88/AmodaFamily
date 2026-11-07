@@ -1083,6 +1083,8 @@ class KidsChefPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.watch(appStoreProvider);
+    final done = store.chefLessonsDone;
     return FcScaffold(
       title: 'Junior Chef',
       child: ListView(
@@ -1122,6 +1124,7 @@ class KidsChefPage extends ConsumerWidget {
             Builder(
               builder: (context) {
                 final lesson = catalog.chefLessons[li];
+                final isDone = done.contains(li);
                 final accent = _kidAccent('lesson-$li');
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -1176,8 +1179,28 @@ class KidsChefPage extends ConsumerWidget {
                                   icon: Icons.family_restroom_outlined,
                                   color: FamilyCircleColors.warning,
                                 ),
+                              if (isDone)
+                                const FcChip(
+                                  'Done',
+                                  icon: Icons.check_circle_outline,
+                                  color: FamilyCircleColors.primary,
+                                ),
                             ],
                           ),
+                          if (!isDone) ...[
+                            const SizedBox(height: 10),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: FilledButton.tonalIcon(
+                                icon: const Icon(
+                                  Icons.check_circle_outline,
+                                  size: 18,
+                                ),
+                                label: const Text('Mark as done'),
+                                onPressed: () => store.completeChefLesson(li),
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 12),
                           for (var i = 0; i < lesson.steps.length; i++)
                             Padding(

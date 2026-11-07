@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/family_circle_app.dart';
+import 'shared/notifications.dart';
 import 'shared/store.dart';
 
 const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
@@ -10,6 +11,7 @@ const _supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
   if (_supabaseUrl.isNotEmpty && _supabaseAnonKey.isNotEmpty) {
     try {
       await Supabase.initialize(

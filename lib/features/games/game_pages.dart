@@ -1780,6 +1780,7 @@ class _JuniorChefState extends _GameState<_JuniorChefGame> {
           FilledButton(
             onPressed: _stepsDone.length == lesson.steps.length
                 ? () {
+                    ref.read(appStoreProvider).completeChefLesson(_lesson);
                     if (_lesson + 1 >= catalog.chefLessons.length) {
                       ref
                           .read(appStoreProvider)

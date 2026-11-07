@@ -72,6 +72,32 @@ class AppStore extends ChangeNotifier {
   int _serial = 0;
   int _shoppingIntervalDays = 7;
 
+  /// Prices learned from confirmed trips (actual spend per pack). These
+  /// replace the labeled sample estimates for ingredients the household
+  /// has actually bought — real data beats catalog samples over time.
+  Map<String, PriceOffer> _priceMemory = {};
+  Map<String, PriceOffer> get priceMemory => Map.unmodifiable(_priceMemory);
+
+  /// Junior-chef lesson indexes completed by the household.
+  Set<int> _chefDone = {};
+  Set<int> get chefLessonsDone => Set.unmodifiable(_chefDone);
+
+  void completeChefLesson(int index) {
+    _requireCircle();
+    if (_chefDone.contains(index)) return;
+    _chefDone = {..._chefDone, index};
+    emit('chef_lesson_done', objectType: 'lesson', objectId: '$index');
+    notifyListeners();
+  }
+
+  /// Offers used for estimates: sample catalog offers except where the
+  /// household has a learned actual price for that ingredient.
+  List<PriceOffer> get _offers => [
+    for (final o in catalog.priceOffers)
+      if (!_priceMemory.containsKey(o.ingredientId)) o,
+    ..._priceMemory.values,
+  ];
+
   String _nextId(String prefix) => '$prefix-${++_serial}';
 
   // ---------- getters ----------
@@ -178,6 +204,7 @@ class AppStore extends ChangeNotifier {
   // ---------- auth & session ----------
 
   String? get displayName => _displayName;
+  String? get userEmail => _userEmail;
   String? _displayName;
   bool _googleAuth = false;
   bool get usedGoogleAuth => _googleAuth;
@@ -354,11 +381,24 @@ class AppStore extends ChangeNotifier {
     _favorites = [];
     _vault = {};
     _quest = [];
+    _chefDone = {};
+    _priceMemory = {};
     _budget = const BudgetCycle();
     _consent = const ConsentFlags();
     _notifPrefs = const NotificationPrefs();
     _offline = false;
     _lastSavedAt = null;
+  }
+
+  /// Updates the signed-in adult's display name (account settings).
+  void updateDisplayName(String name) {
+    _requireAuth();
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      throw const FcException(FcErrorCode.validation, 'Enter your name.');
+    }
+    _displayName = trimmed;
+    notifyListeners();
   }
 
   void switchActor(String memberId) {
@@ -667,7 +707,7 @@ class AppStore extends ChangeNotifier {
           final candidate = estimateBasket(
             needs: [...needs, ..._needsFor(option)],
             pantry: _pantryStock(),
-            offers: catalog.priceOffers,
+            offers: _offers,
             asOf: now,
           );
           if (!candidate.hasCompleteEstimate) {
@@ -764,7 +804,7 @@ class AppStore extends ChangeNotifier {
       basket: estimateBasket(
         needs: needs,
         pantry: _pantryStock(),
-        offers: catalog.priceOffers,
+        offers: _offers,
         asOf: DateTime.now(),
       ),
     );
@@ -857,7 +897,8 @@ class AppStore extends ChangeNotifier {
       spentSnapCents: _budget.spentSnapCents + snap,
       spentCashCents: _budget.spentCashCents + cash,
     );
-    // Purchased items move into confirmed pantry stock.
+    // Purchased items move into confirmed pantry stock, and their actual
+    // prices are learned so future estimates use real household data.
     for (final line in _groceryList.where((g) => g.checked && g.priced)) {
       final ing = catalog.ingredients[line.ingredientId];
       if (ing == null) continue;
@@ -867,6 +908,23 @@ class AppStore extends ChangeNotifier {
         FoodQuantity(packAmount, ing.stockUnit),
         confirmed: true,
       );
+      final actual =
+          actualCentsByIngredient[line.ingredientId] ?? line.estimatedCents!;
+      if (line.packs > 0) {
+        _priceMemory = {
+          ..._priceMemory,
+          line.ingredientId: PriceOffer(
+            ingredientId: line.ingredientId,
+            packSize: line.offer!.packSize,
+            estimatedCents: (actual / line.packs).round(),
+            source: 'household_actual',
+            observedAt: DateTime.now(),
+            region: line.offer!.region,
+            confidence: 0.85,
+            benefitEligibility: line.offer!.benefitEligibility,
+          ),
+        };
+      }
     }
     _groceryList = [for (final g in _groceryList) g.copyWith(checked: false)];
     emit('purchase_confirmed', objectType: 'trip', objectId: trip.id);
@@ -1742,6 +1800,10 @@ class AppStore extends ChangeNotifier {
     'favorites': [for (final f in _favorites) favJson(f)],
     'vault': {for (final e in _vault.entries) e.key: vaultJson(e.value)},
     'quest': [for (final q in _quest) questJson(q)],
+    'priceMemory': {
+      for (final e in _priceMemory.entries) e.key: offerJson(e.value),
+    },
+    'chefDone': _chefDone.toList()..sort(),
   };
 
   /// Restores state from a snapshot map. Does not notify — caller does.
@@ -1825,6 +1887,13 @@ class AppStore extends ChangeNotifier {
       for (final q in (j['quest'] as List? ?? []))
         questFrom(q as Map<String, dynamic>),
     ];
+    _priceMemory = {
+      for (final e in ((j['priceMemory'] as Map?) ?? {}).entries)
+        e.key as String: offerFrom(e.value as Map<String, dynamic>),
+    };
+    _chefDone = {
+      for (final i in (j['chefDone'] as List? ?? [])) (i as num).toInt(),
+    };
     _lastSavedAt = DateTime.tryParse(j['_savedAt'] as String? ?? '');
   }
 }

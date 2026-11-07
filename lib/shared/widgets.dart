@@ -325,13 +325,24 @@ class EstimateBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final date =
         '${offer.observedAt.year}-${offer.observedAt.month.toString().padLeft(2, '0')}-${offer.observedAt.day.toString().padLeft(2, '0')}';
+    final sourceLabel = switch (offer.source) {
+      'household_actual' => 'Your last purchase',
+      'sample_estimate' => 'Sample estimate',
+      _ => offer.source,
+    };
     return Tooltip(
       message:
-          'Source: ${offer.source} • Region: ${offer.region}\nObserved: $date • Confidence: ${(offer.confidence * 100).round()}%',
+          'Source: $sourceLabel • Region: ${offer.region}\nObserved: $date • Confidence: ${(offer.confidence * 100).round()}%',
       child: FcChip(
-        'Estimate • ${(offer.confidence * 100).round()}% confident',
-        icon: Icons.info_outline,
-        color: FamilyCircleColors.warning,
+        offer.source == 'household_actual'
+            ? 'Your price • ${(offer.confidence * 100).round()}% confident'
+            : 'Estimate • ${(offer.confidence * 100).round()}% confident',
+        icon: offer.source == 'household_actual'
+            ? Icons.receipt_long_outlined
+            : Icons.info_outline,
+        color: offer.source == 'household_actual'
+            ? FamilyCircleColors.primary
+            : FamilyCircleColors.warning,
       ),
     );
   }

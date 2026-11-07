@@ -9,6 +9,7 @@ import '../features/home/home_page.dart';
 import '../features/home/more_page.dart';
 import '../features/insights/insights_page.dart';
 import '../features/kids/kids_pages.dart';
+import '../features/members/account_settings_page.dart';
 import '../features/members/family_page.dart';
 import '../features/members/members_page.dart';
 import '../features/notifications/notifications_page.dart';
@@ -42,6 +43,7 @@ enum AppRoute {
   pantry('/pantry'),
   drinks('/drinks'),
   members('/members'),
+  accountSettings('/account-settings'),
   spending('/spending'),
   calendar('/calendar'),
   votes('/votes'),
@@ -180,6 +182,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoute.members.path,
         builder: (c, s) => const MembersPage(),
+      ),
+      GoRoute(
+        path: AppRoute.accountSettings.path,
+        builder: (c, s) => const AccountSettingsPage(),
       ),
       GoRoute(
         path: AppRoute.spending.path,

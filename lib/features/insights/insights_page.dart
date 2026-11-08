@@ -5,7 +5,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme.dart';
 import '../../shared/catalog.dart' as catalog;
 import '../../shared/models.dart';
 import '../../shared/widgets.dart';
@@ -73,9 +72,9 @@ class InsightsPage extends ConsumerWidget {
                   final recipe = catalog.recipes[s.recipeId];
                   final pct = (s.score * 100).round();
                   final tone = pct > 0
-                      ? FamilyCircleColors.primary
+                      ? Theme.of(context).colorScheme.primary
                       : pct < 0
-                      ? FamilyCircleColors.error
+                      ? Theme.of(context).colorScheme.error
                       : Theme.of(context).colorScheme.onSurfaceVariant;
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),

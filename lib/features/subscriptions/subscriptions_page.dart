@@ -75,10 +75,10 @@ class SubscriptionsPage extends ConsumerWidget {
                                 ? Icons.verified_outlined
                                 : Icons.error_outline),
                       color: ent.plan == EntitlementPlan.free
-                          ? FamilyCircleColors.primary
+                          ? Theme.of(context).colorScheme.primary
                           : (ent.verified
-                                ? FamilyCircleColors.primary
-                                : FamilyCircleColors.warning),
+                                ? Theme.of(context).colorScheme.primary
+                                : context.kcWarning),
                     ),
                   ],
                 ),
@@ -177,15 +177,14 @@ class SubscriptionsPage extends ConsumerWidget {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: (current ? FamilyCircleColors.primary : scheme.primary)
-                    .withValues(alpha: .14),
+                color: scheme.primary.withValues(alpha: .14),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Icon(switch (plan) {
                 EntitlementPlan.free => Icons.eco_outlined,
                 EntitlementPlan.plus => Icons.star_outline,
                 EntitlementPlan.familyPro => Icons.workspace_premium_outlined,
-              }, color: current ? FamilyCircleColors.primary : scheme.primary),
+              }, color: scheme.primary),
             ),
             const SizedBox(width: 14),
             Expanded(

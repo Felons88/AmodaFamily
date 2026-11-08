@@ -364,6 +364,14 @@ class KidsHomePage extends ConsumerWidget {
               'Grown-ups only',
               style: Theme.of(sheetContext).textTheme.titleMedium,
             ),
+            if (adults.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Text(
+                  'No grown-ups are set up in this household yet.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
             for (final a in adults)
               ListTile(
                 leading: MemberAvatar(name: a.name),
@@ -374,6 +382,11 @@ class KidsHomePage extends ConsumerWidget {
                   context.go(AppRoute.home.path);
                 },
               ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: const Text('Not now'),
+              onTap: () => Navigator.of(sheetContext).pop(),
+            ),
             const SizedBox(height: 16),
           ],
         ),
@@ -1087,6 +1100,7 @@ class KidsChefPage extends ConsumerWidget {
     final done = store.chefLessonsDone;
     return FcScaffold(
       title: 'Junior Chef',
+      bottomNavigationBar: const KidsNavBar(current: '/kids/chef'),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -1256,12 +1270,15 @@ class KidsPassportPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final store = ref.watch(appStoreProvider);
-    final stamped = store.badges
+    // Stamps are identified by the reward title awarded per stop
+    // ('<stop name> Explorer'), not the generated badge id.
+    final stampedTitles = store.badges
         .where((b) => b.gameId == 'world-food')
-        .map((b) => b.id)
+        .map((b) => b.title)
         .toSet();
     return FcScaffold(
       title: 'Food Passport',
+      bottomNavigationBar: const KidsNavBar(current: '/kids/passport'),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -1299,8 +1316,8 @@ class KidsPassportPage extends ConsumerWidget {
             Builder(
               builder: (context) {
                 final stop = catalog.passportStops[i];
-                final hasStamp = stamped.any(
-                  (id) => id.contains('passport-$i'),
+                final hasStamp = stampedTitles.contains(
+                  '${stop.name} Explorer',
                 );
                 final accent = _kidAccent('stop-$i');
                 return Padding(

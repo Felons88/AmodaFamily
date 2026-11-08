@@ -639,9 +639,10 @@ class _RouletteState extends _GameState<_RouletteGame> {
       _picked = null;
     });
     await Future<void>.delayed(const Duration(milliseconds: 900));
+    if (!mounted) return;
     setState(() {
       _spinning = false;
-      _picked = _pool[Random().nextInt(_pool.length)];
+      _picked = _pool.isEmpty ? null : _pool[Random().nextInt(_pool.length)];
     });
   }
 
@@ -751,9 +752,14 @@ class _PriceGuessState extends _GameState<_PriceGuessGame> {
 
   @override
   Widget build(BuildContext context) {
+    final isMinor = ref.watch(appStoreProvider).actorIsMinor;
     if (finished) {
+      final guess = int.tryParse(_guess.text.trim()) ?? 0;
+      // Minors never see dollar amounts — scores are reported in tokens.
       return results(
-        'You guessed ${fmtCents(int.tryParse(_guess.text.trim()) ?? 0)} — the sample total was ${fmtCents(_actualCents!)}.',
+        isMinor
+            ? 'You guessed $guess tokens — the basket came to ${(_actualCents! / 100).round()} tokens.'
+            : 'You guessed ${fmtCents(guess * 100)} — the sample total was ${fmtCents(_actualCents!)}.',
       );
     }
     if (!playing) {
@@ -771,7 +777,6 @@ class _PriceGuessState extends _GameState<_PriceGuessGame> {
         'A small shopping basket is shown with sample prices. Guess the total, then compare — no wrong answers, just practice.',
       );
     }
-    final isMinor = ref.watch(appStoreProvider).actorIsMinor;
     _actualCents = _basket.fold<int>(0, (s, o) => s + o.estimatedCents);
     return FcScaffold(
       title: 'Guess the Price',
@@ -809,7 +814,8 @@ class _PriceGuessState extends _GameState<_PriceGuessGame> {
             onPressed: () {
               final guess = int.tryParse(_guess.text.trim());
               if (guess == null) return;
-              final cents = isMinor ? guess : (guess * 100);
+              // One token = $1 for kids, so token guesses score on the same scale.
+              final cents = guess * 100;
               final diff = (cents - _actualCents!).abs();
               final score = (100 - (diff / _actualCents! * 100).round()).clamp(
                 0,
@@ -909,6 +915,7 @@ class _FridgeRescueState extends _GameState<_FridgeRescueGame> {
             children: [
               for (final p in pantry)
                 FilterChip(
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
                   label: Text(
                     catalog.ingredients[p.ingredientId]?.name ?? p.ingredientId,
                   ),
@@ -1171,6 +1178,15 @@ class _MysteryState extends _GameState<_MysteryGame> {
         );
       }
       _mystery = candidates[Random().nextInt(candidates.length)];
+      final mysteryRecipe = catalog.recipes[_mystery.recipeId];
+      if (mysteryRecipe == null) {
+        return const Scaffold(
+          body: EmptyState(
+            title: 'No safe mystery',
+            message: 'All mystery answers are filtered by household allergies.',
+          ),
+        );
+      }
       final others =
           catalog.recipes.values
               .where(
@@ -1178,8 +1194,7 @@ class _MysteryState extends _GameState<_MysteryGame> {
               )
               .toList()
             ..shuffle();
-      _choices = [catalog.recipes[_mystery.recipeId]!, ...others.take(3)]
-        ..shuffle();
+      _choices = [mysteryRecipe, ...others.take(3)]..shuffle();
       return lobby(
         'Guess the dish! Reveal clues one at a time — fewer clues means a better guess.',
       );
@@ -1426,6 +1441,13 @@ class _RestaurantState extends _GameState<_RestaurantGame> {
                       );
                     } on FcException {
                       // Vote quota may be exhausted; the draft still counts.
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Vote limit reached — your menu is saved as a draft.',
+                          ),
+                        ),
+                      );
                     }
                     finish(
                       score: 70,
@@ -1848,8 +1870,17 @@ class _CookingTogetherState extends _GameState<_CookingTogetherGame> {
         'Cook a safe recipe as a team. Steps are shared — adults always handle heat and knives.',
       );
     }
-    _recipe ??= store.eligibleRecipes(meal: MealType.dinner).first;
-    final recipe = _recipe!;
+    _recipe ??= store.eligibleRecipes(meal: MealType.dinner).firstOrNull;
+    final recipe = _recipe;
+    if (recipe == null) {
+      return const FcScaffold(
+        title: 'Cooking Together',
+        child: EmptyState(
+          title: 'No safe recipe',
+          message: 'No allergy-checked dinner is available to cook together.',
+        ),
+      );
+    }
     return FcScaffold(
       title: 'Cooking Together',
       child: ListView(

@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/theme.dart';
 import '../../shared/errors.dart';
 import '../../shared/widgets.dart';
 
@@ -140,12 +139,13 @@ class PrivacyPage extends ConsumerWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: FamilyCircleColors.error.withValues(alpha: .13),
+                    color: Theme.of(context).colorScheme.error
+                        .withValues(alpha: .13),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.delete_forever_outlined,
-                    color: FamilyCircleColors.error,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
                 title: const Text('Delete household'),

@@ -5,7 +5,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme.dart';
 import '../../shared/catalog.dart' as catalog;
 import '../../shared/errors.dart';
 import '../../shared/models.dart';
@@ -262,7 +261,7 @@ class VotesPage extends ConsumerWidget {
             decoration: BoxDecoration(
               color:
                   (closed
-                          ? FamilyCircleColors.primary
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant)
                       .withValues(alpha: .14),
               shape: BoxShape.circle,
@@ -270,7 +269,7 @@ class VotesPage extends ConsumerWidget {
             child: Icon(
               closed ? Icons.check_circle_outline : Icons.timer_off_outlined,
               color: closed
-                  ? FamilyCircleColors.primary
+                  ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),

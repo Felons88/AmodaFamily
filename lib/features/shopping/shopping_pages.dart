@@ -398,12 +398,9 @@ class _GroceryTile extends StatelessWidget {
                 ),
               )
             else if (!item.priced)
-              const Tooltip(
+              Tooltip(
                 message: 'Price estimate unavailable',
-                child: Icon(
-                  Icons.help_outline,
-                  color: FamilyCircleColors.warning,
-                ),
+                child: Icon(Icons.help_outline, color: context.kcWarning),
               ),
           ],
         ),
@@ -631,7 +628,7 @@ class _TripReviewPageState extends ConsumerState<TripReviewPage> {
                       Icon(
                         Icons.verified_outlined,
                         size: 16,
-                        color: FamilyCircleColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -663,12 +660,12 @@ class _TripReviewPageState extends ConsumerState<TripReviewPage> {
                                     .round(),
                           };
                           store.confirmTrip(actuals);
-                          context.pop();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Trip confirmed. Pantry updated.'),
                             ),
                           );
+                          if (context.mounted) context.pop();
                         } on FcException catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(e.safeMessage)),
@@ -770,8 +767,8 @@ class SpendingPage extends ConsumerWidget {
                       color:
                           budget.spentCents > budget.totalCents &&
                               budget.totalCents > 0
-                          ? FamilyCircleColors.error
-                          : FamilyCircleColors.primary,
+                          ? Theme.of(context).colorScheme.error
+                          : Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),
@@ -915,6 +912,18 @@ class SpendingPage extends ConsumerWidget {
               final snapCents = cents(snap.text);
               final dayText = deposit.text.trim();
               final day = dayText.isEmpty ? null : int.tryParse(dayText);
+              if (cashCents < 0 ||
+                  snapCents < 0 ||
+                  (day != null && (day < 1 || day > 31))) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Enter amounts of zero or more and a deposit day between 1 and 31.',
+                    ),
+                  ),
+                );
+                return;
+              }
               try {
                 store.setBudget(
                   cashCents: cashCents,
@@ -931,7 +940,11 @@ class SpendingPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ).whenComplete(() {
+      cash.dispose();
+      snap.dispose();
+      deposit.dispose();
+    });
   }
 
   Widget _tripTile(BuildContext context, ShoppingTrip t) {
@@ -983,7 +996,7 @@ class SpendingPage extends ConsumerWidget {
             Text(
               '${fmtCents(spent)} of ${fmtCents(total)}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: over ? FamilyCircleColors.error : null,
+                color: over ? scheme.error : null,
                 fontWeight: over ? FontWeight.w700 : null,
               ),
             ),
@@ -997,7 +1010,7 @@ class SpendingPage extends ConsumerWidget {
             minHeight: 9,
             backgroundColor: scheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(
-              over ? FamilyCircleColors.error : scheme.primary,
+              over ? scheme.error : scheme.primary,
             ),
           ),
         ),
@@ -1129,14 +1142,13 @@ class ShoppingCalendarPage extends ConsumerWidget {
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                        color: FamilyCircleColors.tertiary.withValues(
-                          alpha: .12,
-                        ),
+                        color: Theme.of(context).colorScheme.tertiary
+                            .withValues(alpha: .12),
                         borderRadius: BorderRadius.circular(11),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.payments_outlined,
-                        color: FamilyCircleColors.tertiary,
+                        color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                     title: const Text('Next benefit deposit (manual)'),
@@ -1162,9 +1174,9 @@ class ShoppingCalendarPage extends ConsumerWidget {
                   children: [
                     for (var i = 0; i < perishables.length; i++) ...[
                       ListTile(
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.schedule_outlined,
-                          color: FamilyCircleColors.warning,
+                          color: context.kcWarning,
                         ),
                         title: Text(
                           catalog

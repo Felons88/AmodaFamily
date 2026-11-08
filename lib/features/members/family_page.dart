@@ -21,7 +21,10 @@ class FamilyPage extends ConsumerWidget {
     final circle = store.circle;
     if (circle == null) return const Scaffold(body: SkeletonList());
     final openVotes = store.voteRounds
-        .where((v) => v.status == VoteRoundStatus.open)
+        .where(
+          (v) =>
+              v.status == VoteRoundStatus.open && !v.isExpired(DateTime.now()),
+        )
         .toList();
     final pendingApprovals = store.quest
         .where((q) => q.done && !q.adultApproved)
@@ -130,9 +133,9 @@ class FamilyPage extends ConsumerWidget {
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 14,
                           ),
-                          leading: const Icon(
+                          leading: Icon(
                             Icons.flag_outlined,
-                            color: FamilyCircleColors.warning,
+                            color: context.kcWarning,
                           ),
                           title: Text(pendingApprovals[i].title),
                           subtitle: const Text('A kid marked this done'),
@@ -180,16 +183,27 @@ class FamilyPage extends ConsumerWidget {
                 ),
               ),
             ),
-            for (final m in circle.minors)
-              ListTile(
-                leading: MemberAvatar(name: m.name, minor: true),
-                title: Text('Open ${m.name}\'s view'),
-                subtitle: Text('Ages ${m.ageBand.label} • safe mode'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  store.switchActor(m.id);
-                  context.go(AppRoute.kidsHome.path);
-                },
+            if (circle.minors.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: FcCard(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
+                    children: [
+                      for (final m in circle.minors)
+                        ListTile(
+                          leading: MemberAvatar(name: m.name, minor: true),
+                          title: Text('Open ${m.name}\'s view'),
+                          subtitle: Text('Ages ${m.ageBand.label} • safe mode'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            store.switchActor(m.id);
+                            context.go(AppRoute.kidsHome.path);
+                          },
+                        ),
+                    ],
+                  ),
+                ),
               ),
           ],
         ),

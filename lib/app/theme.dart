@@ -49,6 +49,21 @@ abstract final class FamilyCircleColors {
   static const lightExpired = Color(0xFFD94F3C);
 }
 
+/// Brightness-aware semantic colors for accents that have no ColorScheme
+/// slot (warning / freshness). Use these instead of the raw dark-theme
+/// [FamilyCircleColors] constants, which are unreadable on cream surfaces.
+extension FamilyCircleAdaptiveColors on BuildContext {
+  bool get _isDark => Theme.of(this).brightness == Brightness.dark;
+
+  Color get kcWarning => _isDark
+      ? FamilyCircleColors.warning
+      : FamilyCircleColors.lightExpiringSoon;
+  Color get kcFresh =>
+      _isDark ? FamilyCircleColors.fresh : FamilyCircleColors.lightFresh;
+  Color get kcExpired =>
+      _isDark ? FamilyCircleColors.expired : FamilyCircleColors.lightExpired;
+}
+
 abstract final class FamilyCircleTheme {
   static ThemeData get dark {
     final scheme =

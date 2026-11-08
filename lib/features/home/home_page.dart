@@ -646,12 +646,12 @@ class _ExpiringCard extends StatelessWidget {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: FamilyCircleColors.warning.withValues(alpha: 0.16),
+                    color: context.kcWarning.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.schedule_outlined,
-                    color: FamilyCircleColors.warning,
+                    color: context.kcWarning,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -681,11 +681,7 @@ class _ExpiringCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.circle,
-                      size: 8,
-                      color: FamilyCircleColors.warning,
-                    ),
+                    Icon(Icons.circle, size: 8, color: context.kcWarning),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -763,7 +759,7 @@ class _BudgetCard extends StatelessWidget {
                 Text(
                   fmtCents(budget.remainingCents),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: over ? FamilyCircleColors.error : scheme.primary,
+                    color: over ? scheme.error : scheme.primary,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -777,7 +773,7 @@ class _BudgetCard extends StatelessWidget {
                 minHeight: 10,
                 backgroundColor: scheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  over ? FamilyCircleColors.error : scheme.primary,
+                  over ? scheme.error : scheme.primary,
                 ),
               ),
             ),
@@ -814,12 +810,13 @@ class _VoteCta extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: FamilyCircleColors.tertiary.withValues(alpha: 0.16),
+                color: Theme.of(context).colorScheme.tertiary
+                    .withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.how_to_vote_outlined,
-                color: FamilyCircleColors.tertiary,
+                color: Theme.of(context).colorScheme.tertiary,
               ),
             ),
             const SizedBox(width: 12),
@@ -912,9 +909,9 @@ extension on HomePage {
                   m.isMinor ? 'Kid mode — no prices or purchases' : 'Adult',
                 ),
                 trailing: store.actor?.id == m.id
-                    ? const Icon(
+                    ? Icon(
                         Icons.check_circle,
-                        color: FamilyCircleColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                       )
                     : null,
                 onTap: () {

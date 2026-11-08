@@ -273,14 +273,14 @@ class _HeroBenefit extends StatelessWidget {
                   title,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: Colors.white.withValues(alpha: 0.8),
                     height: 1.3,
                   ),
                 ),
@@ -395,11 +395,18 @@ class _HeroMedallion extends StatelessWidget {
 
 // ---------- ONB-001 Welcome / landing ----------
 
-class WelcomePage extends ConsumerWidget {
+class WelcomePage extends ConsumerStatefulWidget {
   const WelcomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends ConsumerState<WelcomePage> {
+  bool _googleBusy = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -502,13 +509,11 @@ class WelcomePage extends ConsumerWidget {
                                 const SizedBox(width: 10),
                                 Text(
                                   'Kinplora',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 17,
                                     letterSpacing: 0.2,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -517,9 +522,7 @@ class WelcomePage extends ConsumerWidget {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    color: Colors.white.withValues(alpha: 0.75),
                                   ),
                                 ),
                               ],
@@ -538,9 +541,7 @@ class WelcomePage extends ConsumerWidget {
                               style: Theme.of(context).textTheme.displaySmall
                                   ?.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface,
+                                    color: Colors.white,
                                     height: 1.12,
                                     letterSpacing: -0.4,
                                   ),
@@ -550,9 +551,7 @@ class WelcomePage extends ConsumerWidget {
                               'Allergy-checked plans, shared grocery lists, family votes and kid-safe games — built for real households.',
                               style: Theme.of(context).textTheme.bodyLarge
                                   ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    color: Colors.white.withValues(alpha: 0.85),
                                     height: 1.45,
                                   ),
                             ),
@@ -625,26 +624,34 @@ class WelcomePage extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              onPressed: () async {
-                                try {
-                                  await ref
-                                      .read(appStoreProvider)
-                                      .signInWithGoogle();
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Finish sign-in in your browser — you will return automatically.',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } on FcException catch (e) {
-                                  if (context.mounted) {
-                                    _showError(context, e);
-                                  }
-                                }
-                              },
+                              onPressed: _googleBusy
+                                  ? null
+                                  : () async {
+                                      setState(() => _googleBusy = true);
+                                      try {
+                                        await ref
+                                            .read(appStoreProvider)
+                                            .signInWithGoogle();
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Finish sign-in in your browser — you will return automatically.',
+                                                  ),
+                                                ),
+                                              );
+                                        }
+                                      } on FcException catch (e) {
+                                        if (context.mounted) {
+                                          _showError(context, e);
+                                        }
+                                      } finally {
+                                        if (mounted) {
+                                          setState(() => _googleBusy = false);
+                                        }
+                                      }
+                                    },
                             ),
                             const SizedBox(height: 14),
                             Text(
@@ -652,10 +659,7 @@ class WelcomePage extends ConsumerWidget {
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant
-                                        .withValues(alpha: 0.85),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                   ),
                             ),
                             const SizedBox(height: 8),
@@ -667,32 +671,23 @@ class WelcomePage extends ConsumerWidget {
                                       context.go(AppRoute.preview.path),
                                   child: Text(
                                     'Preview meals',
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
                                     ),
                                   ),
                                 ),
                                 Text(
                                   '•',
                                   style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant
-                                        .withValues(alpha: 0.6),
+                                    color: Colors.white.withValues(alpha: 0.6),
                                   ),
                                 ),
                                 TextButton(
                                   onPressed: () =>
                                       ref.read(appStoreProvider).signInDemo(),
-                                  child: Text(
+                                  child: const Text(
                                     'Try demo',
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                    ),
+                                    style: TextStyle(color: Colors.white70),
                                   ),
                                 ),
                               ],
@@ -1292,10 +1287,10 @@ class _FoodNeedsPageState extends ConsumerState<FoodNeedsPage> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: FamilyCircleColors.warning.withValues(alpha: 0.12),
+                color: context.kcWarning.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: FamilyCircleColors.warning.withValues(alpha: 0.3),
+                  color: context.kcWarning.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -1304,13 +1299,13 @@ class _FoodNeedsPageState extends ConsumerState<FoodNeedsPage> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: FamilyCircleColors.warning.withValues(alpha: 0.18),
+                      color: context.kcWarning.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.warning_amber_outlined,
                       size: 16,
-                      color: FamilyCircleColors.warning,
+                      color: context.kcWarning,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -1366,7 +1361,7 @@ class _FoodNeedsPageState extends ConsumerState<FoodNeedsPage> {
                                   : Icons.warning_amber_outlined,
                               color: count == 0
                                   ? scheme.primary
-                                  : FamilyCircleColors.warning,
+                                  : context.kcWarning,
                             );
                           },
                         ),
@@ -1387,6 +1382,8 @@ class _FoodNeedsPageState extends ConsumerState<FoodNeedsPage> {
                                   (_selections[m.id] ?? m.hardAllergens)
                                       .contains(key);
                               return FilterChip(
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.padded,
                                 label: Text(key.replaceAll('_', ' ')),
                                 selected: selected,
                                 showCheckmark: true,
@@ -1489,10 +1486,10 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: FamilyCircleColors.warning.withValues(alpha: 0.12),
+                color: context.kcWarning.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: FamilyCircleColors.warning.withValues(alpha: 0.3),
+                  color: context.kcWarning.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -1501,13 +1498,13 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: FamilyCircleColors.warning.withValues(alpha: 0.18),
+                      color: context.kcWarning.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.privacy_tip_outlined,
                       size: 16,
-                      color: FamilyCircleColors.warning,
+                      color: context.kcWarning,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -1576,11 +1573,32 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
               icon: const Icon(Icons.arrow_forward),
               label: const Text('See my first plan'),
               onPressed: () {
+                // Empty fields mean $0 / no deposit day; non-empty text must
+                // parse to a valid non-negative amount / day 1-31.
+                final badAmount = [_cash.text, _snap.text].any(
+                  (t) =>
+                      t.trim().isNotEmpty &&
+                      (_cents(t) == null || _cents(t)! < 0),
+                );
+                final dayText = _depositDay.text.trim();
+                final day = dayText.isEmpty ? null : int.tryParse(dayText);
+                if (badAmount ||
+                    (_depositDay.text.trim().isNotEmpty && day == null) ||
+                    (day != null && (day < 1 || day > 31))) {
+                  _showError(
+                    context,
+                    const FcException(
+                      FcErrorCode.validation,
+                      'Enter dollar amounts of 0 or more, and a deposit day between 1 and 31.',
+                    ),
+                  );
+                  return;
+                }
                 try {
                   store.setBudget(
                     cashCents: _cents(_cash.text) ?? 0,
                     snapCents: _cents(_snap.text) ?? 0,
-                    depositDay: int.tryParse(_depositDay.text.trim()),
+                    depositDay: day,
                   );
                   context.go(AppRoute.firstPlan.path);
                 } on FcException catch (e) {
@@ -1830,10 +1848,10 @@ class _FirstPlanPageState extends ConsumerState<FirstPlanPage> {
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(width: 8),
-                        const FcChip(
+                        FcChip(
                           'Sample estimate',
                           icon: Icons.info_outline,
-                          color: FamilyCircleColors.warning,
+                          color: context.kcWarning,
                         ),
                       ],
                     ),

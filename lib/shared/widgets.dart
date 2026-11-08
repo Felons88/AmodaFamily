@@ -91,6 +91,7 @@ class OfflineBanner extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final store = ref.watch(appStoreProvider);
     if (!store.isOffline) return const SizedBox.shrink();
+    final warn = context.kcWarning;
     return Semantics(
       liveRegion: true,
       child: Container(
@@ -98,25 +99,19 @@ class OfflineBanner extends ConsumerWidget {
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: FamilyCircleColors.warning.withValues(alpha: 0.14),
+          color: warn.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: FamilyCircleColors.warning.withValues(alpha: 0.3),
-          ),
+          border: Border.all(color: warn.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: FamilyCircleColors.warning.withValues(alpha: 0.2),
+                color: warn.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.cloud_off,
-                size: 16,
-                color: FamilyCircleColors.warning,
-              ),
+              child: Icon(Icons.cloud_off, size: 16, color: warn),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -341,8 +336,8 @@ class EstimateBadge extends StatelessWidget {
             ? Icons.receipt_long_outlined
             : Icons.info_outline,
         color: offer.source == 'household_actual'
-            ? FamilyCircleColors.primary
-            : FamilyCircleColors.warning,
+            ? Theme.of(context).colorScheme.primary
+            : context.kcWarning,
       ),
     );
   }
@@ -355,20 +350,21 @@ class SnapBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return switch (eligibility) {
       BenefitEligibility.eligible => const FcChip(
         'SNAP eligible (verified)',
         icon: Icons.check_circle_outline,
       ),
-      BenefitEligibility.ineligible => const FcChip(
+      BenefitEligibility.ineligible => FcChip(
         'Not SNAP eligible',
         icon: Icons.block,
-        color: FamilyCircleColors.muted,
+        color: scheme.onSurfaceVariant,
       ),
-      BenefitEligibility.unknown => const FcChip(
+      BenefitEligibility.unknown => FcChip(
         'SNAP eligibility unverified',
         icon: Icons.help_outline,
-        color: FamilyCircleColors.warning,
+        color: context.kcWarning,
       ),
     };
   }

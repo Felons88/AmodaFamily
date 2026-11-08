@@ -5,7 +5,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme.dart';
 import '../../shared/models.dart';
 import '../../shared/notifications.dart';
 import '../../shared/widgets.dart';
@@ -164,12 +163,13 @@ class NotificationsPage extends ConsumerWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: FamilyCircleColors.tertiary.withValues(alpha: .13),
+                  color: Theme.of(context).colorScheme.tertiary
+                      .withValues(alpha: .13),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.bedtime_outlined,
-                  color: FamilyCircleColors.tertiary,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
               title: Text(

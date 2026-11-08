@@ -207,14 +207,13 @@ class MorePage extends ConsumerWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: FamilyCircleColors.error.withValues(
-                            alpha: .12,
-                          ),
+                          color: Theme.of(context).colorScheme.error
+                              .withValues(alpha: .12),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.logout,
-                          color: FamilyCircleColors.error,
+                          color: Theme.of(context).colorScheme.error,
                           size: 19,
                         ),
                       ),
@@ -296,15 +295,13 @@ class _ProfileSummary extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: FamilyCircleColors.warning.withValues(
-                          alpha: .15,
-                        ),
+                        color: context.kcWarning.withValues(alpha: .15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         'Demo household — sample data',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: FamilyCircleColors.warning,
+                          color: context.kcWarning,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

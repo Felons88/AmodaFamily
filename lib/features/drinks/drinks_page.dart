@@ -125,8 +125,8 @@ class DrinksPage extends ConsumerWidget {
                     ? Icons.check_circle_outline
                     : Icons.help_outline,
                 color: forecast.confident
-                    ? FamilyCircleColors.primary
-                    : FamilyCircleColors.warning,
+                    ? Theme.of(context).colorScheme.primary
+                    : context.kcWarning,
               ),
             ],
           ),
@@ -234,7 +234,10 @@ class DrinksPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ).whenComplete(() {
+      servings.dispose();
+      onHand.dispose();
+    });
   }
 
   void _logCheckin(
@@ -279,7 +282,7 @@ class DrinksPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ).whenComplete(rate.dispose);
   }
 }
 

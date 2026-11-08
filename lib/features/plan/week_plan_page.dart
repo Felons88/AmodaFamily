@@ -120,20 +120,15 @@ class WeekPlanPage extends ConsumerWidget {
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color:
-                            (approved
-                                    ? FamilyCircleColors.primary
-                                    : FamilyCircleColors.warning)
-                                .withValues(alpha: 0.16),
+                        color: (approved ? scheme.primary : context.kcWarning)
+                            .withValues(alpha: 0.16),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         approved
                             ? Icons.verified_outlined
                             : Icons.edit_calendar_outlined,
-                        color: approved
-                            ? FamilyCircleColors.primary
-                            : FamilyCircleColors.warning,
+                        color: approved ? scheme.primary : context.kcWarning,
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -162,9 +157,7 @@ class WeekPlanPage extends ConsumerWidget {
                       icon: approved
                           ? Icons.check_circle_outline
                           : Icons.edit_outlined,
-                      color: approved
-                          ? FamilyCircleColors.primary
-                          : FamilyCircleColors.warning,
+                      color: approved ? scheme.primary : context.kcWarning,
                     ),
                   ],
                 ),
@@ -204,7 +197,7 @@ class WeekPlanPage extends ConsumerWidget {
                         FcChip(
                           '${basket.unknownPriceIngredientIds.length} unpriced item(s)',
                           icon: Icons.warning_amber_outlined,
-                          color: FamilyCircleColors.warning,
+                          color: context.kcWarning,
                         ),
                       if (basket.eligibleBenefitEstimateCents > 0 &&
                           store.showPrices)
@@ -283,36 +276,46 @@ class WeekPlanPage extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                  itemCount: options.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final r = options[index];
-                    return Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: ListTile(
-                        leading: _MiniDishIcon(image: r.image),
-                        title: Text(r.title),
-                        subtitle: Text(
-                          '${r.minutes} min • serves ${r.servings} • ${r.cuisine}',
+                child: options.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Text(
+                            'No allergy-safe options for this meal yet — adjust member allergies or try another meal.',
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        trailing: const Icon(Icons.swap_horiz),
-                        onTap: () {
-                          try {
-                            store.swapSlot(day, meal, r.id);
-                            Navigator.of(sheetContext).pop();
-                          } on FcException catch (e) {
-                            Navigator.of(sheetContext).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(e.safeMessage)),
-                            );
-                          }
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                        itemCount: options.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          final r = options[index];
+                          return Card(
+                            clipBehavior: Clip.antiAlias,
+                            child: ListTile(
+                              leading: _MiniDishIcon(image: r.image),
+                              title: Text(r.title),
+                              subtitle: Text(
+                                '${r.minutes} min • serves ${r.servings} • ${r.cuisine}',
+                              ),
+                              trailing: const Icon(Icons.swap_horiz),
+                              onTap: () {
+                                try {
+                                  store.swapSlot(day, meal, r.id);
+                                  Navigator.of(sheetContext).pop();
+                                } on FcException catch (e) {
+                                  Navigator.of(sheetContext).pop();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(e.safeMessage)),
+                                  );
+                                }
+                              },
+                            ),
+                          );
                         },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
@@ -517,8 +520,7 @@ class _DaySection extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (isToday)
-                  const FcChip('Today', color: FamilyCircleColors.primary),
+                if (isToday) FcChip('Today', color: scheme.primary),
               ],
             ),
             const SizedBox(height: 10),
@@ -777,10 +779,10 @@ class _AiMealIdeaCardState extends ConsumerState<AiMealIdeaCard> {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
               ),
-              const FcChip(
+              FcChip(
                 'AI-generated',
                 icon: Icons.auto_awesome,
-                color: FamilyCircleColors.warning,
+                color: context.kcWarning,
               ),
             ],
           ),
@@ -795,13 +797,13 @@ class _AiMealIdeaCardState extends ConsumerState<AiMealIdeaCard> {
             Text(
               'Model: ${_idea!.model} • Idea only — always re-check safety before cooking.',
               style: Theme.of(context).textTheme.labelSmall
-                  ?.copyWith(color: FamilyCircleColors.warning),
+                  ?.copyWith(color: context.kcWarning),
             ),
           ],
           if (_error != null)
             Text(
               _error!,
-              style: const TextStyle(color: FamilyCircleColors.error),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           const SizedBox(height: 12),
           FilledButton.tonalIcon(

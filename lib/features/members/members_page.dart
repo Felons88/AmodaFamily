@@ -140,7 +140,7 @@ class MembersPage extends ConsumerWidget {
                   FcChip(
                     a.replaceAll('_', ' '),
                     icon: Icons.warning_amber_outlined,
-                    color: FamilyCircleColors.warning,
+                    color: context.kcWarning,
                   ),
               ],
             ),

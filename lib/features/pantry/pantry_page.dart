@@ -194,7 +194,10 @@ class PantryPage extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ).whenComplete(() {
+      amount.dispose();
+      days.dispose();
+    });
   }
 
   void _showAdjustSheet(BuildContext context, AppStore store, PantryItem item) {
@@ -242,7 +245,7 @@ class PantryPage extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ).whenComplete(controller.dispose);
   }
 }
 
@@ -279,7 +282,7 @@ class _PantrySummary extends StatelessWidget {
               icon: Icons.schedule_outlined,
               value: '$expiring',
               label: 'expiring soon',
-              color: expiring > 0 ? FamilyCircleColors.warning : null,
+              color: expiring > 0 ? context.kcWarning : null,
             ),
           ],
         ),
@@ -345,10 +348,10 @@ class _PantryTile extends StatelessWidget {
     final expiryColor = days == null
         ? scheme.onSurfaceVariant
         : days < 0 || days <= 2
-        ? FamilyCircleColors.error
+        ? context.kcExpired
         : days <= 7
-        ? FamilyCircleColors.warning
-        : FamilyCircleColors.primary;
+        ? context.kcWarning
+        : context.kcFresh;
     final expiryLabel = days == null
         ? 'No date'
         : days < 0
@@ -363,19 +366,14 @@ class _PantryTile extends StatelessWidget {
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color:
-              (item.confirmed
-                      ? FamilyCircleColors.primary
-                      : FamilyCircleColors.warning)
-                  .withValues(alpha: .13),
+          color: (item.confirmed ? scheme.primary : context.kcWarning)
+              .withValues(alpha: .13),
           borderRadius: BorderRadius.circular(13),
         ),
         child: Icon(
           item.confirmed ? Icons.check_circle_outline : Icons.help_outline,
           size: 21,
-          color: item.confirmed
-              ? FamilyCircleColors.primary
-              : FamilyCircleColors.warning,
+          color: item.confirmed ? scheme.primary : context.kcWarning,
         ),
       ),
       title: Text(
@@ -404,9 +402,7 @@ class _PantryTile extends StatelessWidget {
               _Badge(label: expiryLabel, color: expiryColor),
               _Badge(
                 label: item.confirmed ? 'Confirmed' : 'Unconfirmed',
-                color: item.confirmed
-                    ? FamilyCircleColors.primary
-                    : FamilyCircleColors.warning,
+                color: item.confirmed ? scheme.primary : context.kcWarning,
                 icon: item.confirmed
                     ? Icons.verified_outlined
                     : Icons.help_outline,

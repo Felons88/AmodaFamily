@@ -15,9 +15,7 @@ class OfflineStatusPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final store = ref.watch(appStoreProvider);
     final scheme = Theme.of(context).colorScheme;
-    final offlineColor = store.isOffline
-        ? FamilyCircleColors.warning
-        : FamilyCircleColors.primary;
+    final offlineColor = store.isOffline ? context.kcWarning : scheme.primary;
     return FcScaffold(
       title: 'Offline & sync',
       child: ListView(
@@ -87,9 +85,9 @@ class OfflineStatusPage extends ConsumerWidget {
                   children: [
                     for (var i = 0; i < store.pending.length; i++) ...[
                       ListTile(
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.schedule_outlined,
-                          color: FamilyCircleColors.warning,
+                          color: context.kcWarning,
                         ),
                         title: Text(store.pending[i].description),
                         subtitle: const Text(

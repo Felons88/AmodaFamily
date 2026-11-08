@@ -43,6 +43,12 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   }
 
   @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final store = ref.watch(appStoreProvider);
     final recipes = store.eligibleRecipes();

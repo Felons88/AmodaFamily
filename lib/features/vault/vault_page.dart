@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/router.dart';
-import '../../app/theme.dart';
 import '../../shared/catalog.dart' as catalog;
 import '../../shared/models.dart';
 import '../../shared/widgets.dart';
@@ -92,12 +91,12 @@ class VaultPage extends ConsumerWidget {
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: FamilyCircleColors.error.withValues(alpha: .13),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: .13),
           borderRadius: BorderRadius.circular(13),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.favorite,
-          color: FamilyCircleColors.error,
+          color: Theme.of(context).colorScheme.error,
           size: 20,
         ),
       ),
@@ -164,7 +163,7 @@ class VaultPage extends ConsumerWidget {
                   },
                   color: entry.shareStatus == ShareStatus.privateOnly
                       ? Theme.of(context).colorScheme.onSurfaceVariant
-                      : FamilyCircleColors.primary,
+                      : Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),

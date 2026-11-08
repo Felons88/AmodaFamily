@@ -40,7 +40,7 @@ class RecipeDetailPage extends ConsumerWidget {
           tooltip: favorite ? 'Remove from favorites' : 'Save to favorites',
           icon: Icon(
             favorite ? Icons.favorite : Icons.favorite_border,
-            color: favorite ? FamilyCircleColors.error : null,
+            color: favorite ? Theme.of(context).colorScheme.error : null,
           ),
           onPressed: () => store.toggleFavorite(recipe.id),
         ),
@@ -157,7 +157,7 @@ class RecipeDetailPage extends ConsumerWidget {
               child: Text(
                 'Packaged ingredients: labels checked at catalog review. Always recheck labels at home — formulations change.',
                 style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: FamilyCircleColors.warning),
+                    ?.copyWith(color: context.kcWarning),
               ),
             ),
           const SectionHeader('Instructions'),
@@ -234,9 +234,7 @@ class _EligibilityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = eligible
-        ? FamilyCircleColors.primary
-        : FamilyCircleColors.error;
+    final color = eligible ? scheme.primary : scheme.error;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

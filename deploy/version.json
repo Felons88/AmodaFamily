@@ -1,7 +1,7 @@
 {
-  "version": "0.7.0",
-  "build": 9,
+  "version": "0.8.0",
+  "build": 10,
   "apkUrl": "https://github.com/Felons88/AmodaFamily/releases/latest/download/app-release.apk",
-  "notes": "Kinplora 0.7.0",
+  "notes": "Kinplora 0.8.0",
   "mandatory": false
 }

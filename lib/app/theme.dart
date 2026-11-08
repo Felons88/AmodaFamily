@@ -1,52 +1,51 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens for the Kinplora warm food-app palette.
-/// Cream surfaces, deep forest green primary, terracotta/amber accents,
-/// sage secondary — light theme feels like a modern pantry app, dark theme
-/// is a warm charcoal rather than cold black-green.
+/// Design tokens for the Kinplora storyboard palette (docs/design_system).
+/// Charcoal surfaces + fresh-green accent dark theme; a green-forward light
+/// variant per the spec's light-mode requirement.
 abstract final class FamilyCircleColors {
-  // ---- Dark theme (warm charcoal) ----
-  static const background = Color(0xFF1C1917);
-  static const surface = Color(0xFF26221E);
-  static const surfaceElevated = Color(0xFF2E2924);
-  static const surfaceHighest = Color(0xFF38322C);
-  static const card = Color(0xFF23201B);
-  static const primary = Color(0xFF9CCB8E);
-  static const primaryDark = Color(0xFF2F6B3F);
-  static const primaryContainer = Color(0xFF2E4A34);
-  static const onPrimaryContainer = Color(0xFFC9E8CE);
-  static const tertiary = Color(0xFFE0815A);
-  static const sage = Color(0xFF9DB5A0);
-  static const text = Color(0xFFFAF4EC);
-  static const muted = Color(0xFFC4BCAE);
-  static const warning = Color(0xFFE8B45C);
-  static const error = Color(0xFFE86A5A);
-  static const outline = Color(0xFF4A4238);
+  // ---- Dark theme (storyboard spec: charcoal + fresh green) ----
+  static const background = Color(0xFF101411);
+  static const surface = Color(0xFF1B211D);
+  static const surfaceElevated = Color(0xFF252D27);
+  static const surfaceHighest = Color(0xFF2E372F);
+  static const card = Color(0xFF1B211D);
+  static const primary = Color(0xFF65D36E);
+  static const primaryDark = Color(0xFF215C35);
+  static const primaryContainer = Color(0xFF1E3A24);
+  static const onPrimaryContainer = Color(0xFFB9F0C0);
+  static const tertiary = Color(0xFFEAB65F);
+  static const sage = Color(0xFF8FA696);
+  static const text = Color(0xFFF5F7F2);
+  static const muted = Color(0xFFB6C2B9);
+  static const warning = Color(0xFFEAB65F);
+  static const error = Color(0xFFFF746C);
+  static const outline = Color(0xFF38443C);
 
   // ---- Freshness tokens (dark) ----
-  static const fresh = Color(0xFF7FC98B);
-  static const expiringSoon = Color(0xFFE8B45C);
-  static const expired = Color(0xFFE86A5A);
+  static const fresh = Color(0xFF65D36E);
+  static const expiringSoon = Color(0xFFEAB65F);
+  static const expired = Color(0xFFFF746C);
 
-  // ---- Light theme (warm cream) ----
-  static const lightBackground = Color(0xFFFAF4EA);
-  static const lightSurface = Color(0xFFFFFDF8);
-  static const lightSurfaceElevated = Color(0xFFF3EAD9);
-  static const lightSurfaceHighest = Color(0xFFEBDDC4);
-  static const lightCard = Color(0xFFFFFDF8);
-  static const lightText = Color(0xFF2B241B);
-  static const lightMuted = Color(0xFF7C7263);
-  static const lightOutline = Color(0xFFE3D6C2);
-  static const lightPrimary = Color(0xFF2F6B3F);
-  static const lightPrimaryContainer = Color(0xFFD9EBD8);
-  static const lightOnPrimaryContainer = Color(0xFF14301C);
-  static const lightTertiary = Color(0xFFB85C38);
-  static const lightSage = Color(0xFF6E8A66);
+  // ---- Light theme (green-forward equivalent of the dark board) ----
+  static const lightBackground = Color(0xFFF7F9F5);
+  static const lightSurface = Color(0xFFFFFFFF);
+  static const lightSurfaceElevated = Color(0xFFEEF2EB);
+  static const lightSurfaceHighest = Color(0xFFE2E9DF);
+  static const lightCard = Color(0xFFFFFFFF);
+  static const lightText = Color(0xFF141A15);
+  static const lightMuted = Color(0xFF5A6B5E);
+  static const lightOutline = Color(0xFFD3DCD2);
+  static const lightPrimary = Color(0xFF2F7A45);
+  static const lightPrimaryContainer = Color(0xFFDCEFE0);
+  static const lightOnPrimaryContainer = Color(0xFF0F2E1A);
+  static const lightTertiary = Color(0xFF9A6A12);
+  static const lightSage = Color(0xFF5E7567);
 
   // ---- Freshness tokens (light) ----
-  static const lightFresh = Color(0xFF3E9B5F);
-  static const lightExpiringSoon = Color(0xFFD9822B);
-  static const lightExpired = Color(0xFFD94F3C);
+  static const lightFresh = Color(0xFF2E7D43);
+  static const lightExpiringSoon = Color(0xFFB97E18);
+  static const lightExpired = Color(0xFFC0392B);
 }
 
 /// Brightness-aware semantic colors for accents that have no ColorScheme
@@ -74,7 +73,7 @@ abstract final class FamilyCircleTheme {
           error: FamilyCircleColors.error,
         ).copyWith(
           primary: FamilyCircleColors.primary,
-          onPrimary: const Color(0xFF1C1917),
+          onPrimary: const Color(0xFF101411),
           primaryContainer: FamilyCircleColors.primaryContainer,
           onPrimaryContainer: FamilyCircleColors.onPrimaryContainer,
           secondary: FamilyCircleColors.tertiary,
@@ -100,7 +99,7 @@ abstract final class FamilyCircleTheme {
           seedColor: FamilyCircleColors.lightPrimary,
           brightness: Brightness.light,
           surface: FamilyCircleColors.lightSurface,
-          error: const Color(0xFFB3261E),
+          error: FamilyCircleColors.lightExpired,
         ).copyWith(
           primary: FamilyCircleColors.lightPrimary,
           onPrimary: Colors.white,

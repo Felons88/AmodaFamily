@@ -22,13 +22,13 @@ void _showError(BuildContext context, Object error) {
 
 // ---------- shared onboarding chrome ----------
 
-/// Warm palette used across the onboarding surfaces: deep herb green,
-/// terracotta and marigold — appetizing without leaving the token system.
+/// Palette used across onboarding surfaces: deep charcoal-green hero,
+/// fresh-green accents and marigold highlights per the storyboard spec.
 abstract final class _Warm {
-  static const deepGreen = Color(0xFF173B26);
-  static const leafGreen = Color(0xFF2E5638);
-  static const terracotta = Color(0xFFB4642F);
-  static const clay = Color(0xFFC96F4A);
+  static const deepGreen = Color(0xFF0C1F14);
+  static const leafGreen = Color(0xFF1C4A2E);
+  static const terracotta = Color(0xFFB97E18);
+  static const clay = Color(0xFF8A6A24);
   static const marigold = Color(0xFFE8A04C);
 }
 

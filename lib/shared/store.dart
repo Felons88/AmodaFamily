@@ -82,6 +82,94 @@ class AppStore extends ChangeNotifier {
   Set<int> _chefDone = {};
   Set<int> get chefLessonsDone => Set.unmodifiable(_chefDone);
 
+  // ---- onboarding personalization (storyboard flow) ----
+  String? _firstName;
+  String? _lastName;
+  String? _dietaryStyle;
+  List<String> _foodsLiked = const [];
+  List<String> _foodsAvoided = const [];
+  final Set<String> _goals = {};
+  bool _expMealPlanning = true;
+  bool _expGroceryBudget = true;
+  bool _expRewards = true;
+  bool _expFamilyGames = true;
+  bool _expSnapEbt = false;
+  bool _rewardsEnrolled = false;
+  int _rewardPoints = 0;
+  String _planChoice = 'free';
+
+  String? get firstName => _firstName;
+  String? get lastName => _lastName;
+  String? get dietaryStyle => _dietaryStyle;
+  List<String> get foodsLiked => List.unmodifiable(_foodsLiked);
+  List<String> get foodsAvoided => List.unmodifiable(_foodsAvoided);
+  Set<String> get goals => Set.unmodifiable(_goals);
+  bool get expMealPlanning => _expMealPlanning;
+  bool get expGroceryBudget => _expGroceryBudget;
+  bool get expRewards => _expRewards;
+  bool get expFamilyGames => _expFamilyGames;
+  bool get expSnapEbt => _expSnapEbt;
+  bool get rewardsEnrolled => _rewardsEnrolled;
+  int get rewardPoints => _rewardPoints;
+  String get planChoice => _planChoice;
+
+  void saveProfile(String firstName, String lastName) {
+    _requireAuth();
+    _firstName = firstName.trim();
+    _lastName = lastName.trim();
+    _displayName = '$_firstName $_lastName'.trim();
+    if (_displayName!.isEmpty) _displayName = null;
+    notifyListeners();
+  }
+
+  void setDietaryStyle(String? style) {
+    _requireAuth();
+    _dietaryStyle = style;
+    notifyListeners();
+  }
+
+  void setFoodLists({List<String>? liked, List<String>? avoided}) {
+    _requireAuth();
+    if (liked != null) _foodsLiked = liked;
+    if (avoided != null) _foodsAvoided = avoided;
+    notifyListeners();
+  }
+
+  void setGoal(String id, bool on) {
+    _requireAuth();
+    on ? _goals.add(id) : _goals.remove(id);
+    notifyListeners();
+  }
+
+  void setExperienceToggle(String key, bool on) {
+    _requireAuth();
+    switch (key) {
+      case 'mealPlanning':
+        _expMealPlanning = on;
+      case 'groceryBudget':
+        _expGroceryBudget = on;
+      case 'rewards':
+        _expRewards = on;
+      case 'familyGames':
+        _expFamilyGames = on;
+      case 'snapEbt':
+        _expSnapEbt = on;
+    }
+    notifyListeners();
+  }
+
+  void setRewardsEnrolled(bool on) {
+    _requireAuth();
+    _rewardsEnrolled = on;
+    notifyListeners();
+  }
+
+  void setPlanChoice(String choice) {
+    _requireAuth();
+    _planChoice = choice;
+    notifyListeners();
+  }
+
   void completeChefLesson(int index) {
     _requireCircle();
     if (_chefDone.contains(index)) return;
@@ -1805,6 +1893,24 @@ class AppStore extends ChangeNotifier {
       for (final e in _priceMemory.entries) e.key: offerJson(e.value),
     },
     'chefDone': _chefDone.toList()..sort(),
+    'onb': {
+      'fn': _firstName,
+      'ln': _lastName,
+      'ds': _dietaryStyle,
+      'fl': _foodsLiked,
+      'fa': _foodsAvoided,
+      'goals': _goals.toList(),
+      'exp': {
+        'mp': _expMealPlanning,
+        'gb': _expGroceryBudget,
+        're': _expRewards,
+        'fg': _expFamilyGames,
+        'se': _expSnapEbt,
+      },
+      're': _rewardsEnrolled,
+      'rp': _rewardPoints,
+      'pc': _planChoice,
+    },
   };
 
   /// Restores state from a snapshot map. Does not notify — caller does.
@@ -1895,6 +2001,28 @@ class AppStore extends ChangeNotifier {
     _chefDone = {
       for (final i in (j['chefDone'] as List? ?? [])) (i as num).toInt(),
     };
+    final onb = j['onb'] as Map?;
+    if (onb != null) {
+      _firstName = onb['fn'] as String?;
+      _lastName = onb['ln'] as String?;
+      _dietaryStyle = onb['ds'] as String?;
+      _foodsLiked = [for (final s in (onb['fl'] as List? ?? [])) s as String];
+      _foodsAvoided = [for (final s in (onb['fa'] as List? ?? [])) s as String];
+      _goals
+        ..clear()
+        ..addAll([for (final s in (onb['goals'] as List? ?? [])) s as String]);
+      final exp = onb['exp'] as Map?;
+      if (exp != null) {
+        _expMealPlanning = exp['mp'] as bool? ?? true;
+        _expGroceryBudget = exp['gb'] as bool? ?? true;
+        _expRewards = exp['re'] as bool? ?? true;
+        _expFamilyGames = exp['fg'] as bool? ?? true;
+        _expSnapEbt = exp['se'] as bool? ?? false;
+      }
+      _rewardsEnrolled = onb['re'] as bool? ?? false;
+      _rewardPoints = onb['rp'] as int? ?? 0;
+      _planChoice = onb['pc'] as String? ?? 'free';
+    }
     _lastSavedAt = DateTime.tryParse(j['_savedAt'] as String? ?? '');
   }
 }

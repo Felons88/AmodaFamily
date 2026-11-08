@@ -37,7 +37,7 @@ class _StepProgress extends StatelessWidget {
   const _StepProgress({required this.step});
 
   final int step;
-  static const int _total = 6;
+  static const int _total = 13;
 
   @override
   Widget build(BuildContext context) {
@@ -834,7 +834,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             create: create,
             name: _name.text,
           );
-      if (mounted) context.go(AppRoute.household.path);
+      if (mounted) context.go(AppRoute.profile.path);
     } on FcException catch (e) {
       if (mounted) _showError(context, e);
     } finally {
@@ -1026,7 +1026,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     final circle = store.circle;
     return _StepScaffold(
       title: 'Your household',
-      step: 3,
+      step: 4,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
         children: [
@@ -1272,7 +1272,7 @@ class _FoodNeedsPageState extends ConsumerState<FoodNeedsPage> {
     final members = store.circle?.activeMembers ?? [];
     return _StepScaffold(
       title: 'Food needs',
-      step: 4,
+      step: 5,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
         children: [
@@ -1432,7 +1432,7 @@ class _FoodNeedsPageState extends ConsumerState<FoodNeedsPage> {
                   for (final entry in _selections.entries) {
                     store.setMemberAllergens(entry.key, entry.value);
                   }
-                  context.go(AppRoute.budget.path);
+                  context.go(AppRoute.experience.path);
                 } on FcException catch (e) {
                   _showError(context, e);
                 }
@@ -1471,7 +1471,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
     final store = ref.read(appStoreProvider);
     return _StepScaffold(
       title: 'Budget & benefits',
-      step: 5,
+      step: 8,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
         children: [
@@ -1600,7 +1600,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
                     snapCents: _cents(_snap.text) ?? 0,
                     depositDay: day,
                   );
-                  context.go(AppRoute.firstPlan.path);
+                  context.go(AppRoute.goals.path);
                 } on FcException catch (e) {
                   _showError(context, e);
                 }
@@ -1610,7 +1610,7 @@ class _BudgetPageState extends ConsumerState<BudgetPage> {
           const SizedBox(height: 8),
           Center(
             child: TextButton(
-              onPressed: () => context.go(AppRoute.firstPlan.path),
+              onPressed: () => context.go(AppRoute.goals.path),
               child: const Text('Skip for now'),
             ),
           ),
@@ -1638,7 +1638,7 @@ class _FirstPlanPageState extends ConsumerState<FirstPlanPage> {
     final plan = store.plan;
     return _StepScaffold(
       title: 'Your first week',
-      step: 6,
+      step: 12,
       child: plan == null
           ? _buildGenerate(context, store)
           : _buildPlan(context, store, plan),
@@ -1927,7 +1927,7 @@ class _FirstPlanPageState extends ConsumerState<FirstPlanPage> {
           onPressed: () {
             try {
               store.approvePlan(plan.revision);
-              context.go(AppRoute.home.path);
+              context.go(AppRoute.complete.path);
             } on FcException catch (e) {
               _showError(context, e);
             }
@@ -1941,6 +1941,742 @@ class _FirstPlanPageState extends ConsumerState<FirstPlanPage> {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+}
+
+// ---------- Storyboard: Complete Your Profile (step 3) ----------
+
+class ProfileSetupPage extends ConsumerStatefulWidget {
+  const ProfileSetupPage({super.key});
+
+  @override
+  ConsumerState<ProfileSetupPage> createState() => _ProfileSetupPageState();
+}
+
+class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
+  late final TextEditingController _first;
+  late final TextEditingController _last;
+
+  @override
+  void initState() {
+    super.initState();
+    final store = ref.read(appStoreProvider);
+    final name = store.displayName ?? '';
+    _first = TextEditingController(
+      text: store.firstName ?? name.split(' ').first,
+    );
+    _last = TextEditingController(
+      text:
+          store.lastName ??
+          (name.contains(' ') ? name.split(' ').sublist(1).join(' ') : ''),
+    );
+  }
+
+  @override
+  void dispose() {
+    _first.dispose();
+    _last.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = ref.watch(appStoreProvider);
+    return _StepScaffold(
+      title: 'Your profile',
+      step: 3,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        children: [
+          const _StepHeader(
+            icon: Icons.person_outline,
+            title: 'Complete your profile',
+            subtitle: 'Confirm your name — filled in from your sign-in where available.',
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 80),
+            child: _FieldCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _first,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'First name',
+                      prefixIcon: Icon(Icons.badge_outlined),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _last,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'Last name',
+                      prefixIcon: Icon(Icons.badge_outlined),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    initialValue: store.userEmail ?? '',
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.mail_outline),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 160),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text('Continue'),
+              onPressed: () {
+                try {
+                  store.saveProfile(_first.text, _last.text);
+                  context.go(AppRoute.household.path);
+                } on FcException catch (e) {
+                  _showError(context, e);
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Storyboard: Choose Your Experience + food prefs (step 6) ----------
+
+class ExperiencePage extends ConsumerStatefulWidget {
+  const ExperiencePage({super.key});
+
+  @override
+  ConsumerState<ExperiencePage> createState() => _ExperiencePageState();
+}
+
+class _ExperiencePageState extends ConsumerState<ExperiencePage> {
+  late final TextEditingController _liked;
+  late final TextEditingController _avoided;
+  String? _style;
+
+  @override
+  void initState() {
+    super.initState();
+    final store = ref.read(appStoreProvider);
+    _style = store.dietaryStyle;
+    _liked = TextEditingController(text: store.foodsLiked.join(', '));
+    _avoided = TextEditingController(text: store.foodsAvoided.join(', '));
+  }
+
+  @override
+  void dispose() {
+    _liked.dispose();
+    _avoided.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = ref.watch(appStoreProvider);
+    final scheme = Theme.of(context).colorScheme;
+    const styles = [
+      ('balanced', 'Balanced'),
+      ('low_carb', 'Low-carb'),
+      ('vegetarian', 'Vegetarian'),
+      ('high_protein', 'High-protein'),
+      ('budget', 'Budget-friendly'),
+    ];
+    const toggles = [
+      (
+        'mealPlanning',
+        'Meal Planning & Recipes',
+        Icons.restaurant_menu_outlined,
+      ),
+      (
+        'groceryBudget',
+        'Grocery Lists & Budgeting',
+        Icons.shopping_cart_outlined,
+      ),
+      ('rewards', 'Rewards (scan receipts)', Icons.star_outline),
+      (
+        'familyGames',
+        'Family Games & Challenges',
+        Icons.sports_esports_outlined,
+      ),
+      ('snapEbt', 'SNAP / EBT Tools', Icons.credit_card_outlined),
+    ];
+    bool valueOf(String k) => switch (k) {
+      'mealPlanning' => store.expMealPlanning,
+      'groceryBudget' => store.expGroceryBudget,
+      'rewards' => store.expRewards,
+      'familyGames' => store.expFamilyGames,
+      'snapEbt' => store.expSnapEbt,
+      _ => true,
+    };
+    List<String> split(String s) => [
+      for (final p in s.split(','))
+        if (p.trim().isNotEmpty) p.trim(),
+    ];
+    return _StepScaffold(
+      title: 'Your experience',
+      step: 6,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        children: [
+          const _StepHeader(
+            icon: Icons.tune_outlined,
+            title: 'Food & lifestyle',
+            subtitle: 'Dietary style, what everyone likes to eat, and the features your household will use. You can change these anytime.',
+          ),
+          const SizedBox(height: 20),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 80),
+            child: _FieldCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DropdownButtonFormField<String>(
+                    initialValue: _style,
+                    decoration: const InputDecoration(
+                      labelText: 'Dietary style',
+                      prefixIcon: Icon(Icons.spa_outlined),
+                    ),
+                    items: [
+                      for (final s in styles)
+                        DropdownMenuItem(value: s.$1, child: Text(s.$2)),
+                    ],
+                    onChanged: (v) => setState(() => _style = v),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _liked,
+                    decoration: const InputDecoration(
+                      labelText: 'Foods we like (optional)',
+                      hintText: 'e.g. pasta, tacos, smoothies',
+                      prefixIcon: Icon(Icons.favorite_border),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _avoided,
+                    decoration: const InputDecoration(
+                      labelText: 'Foods to avoid (optional)',
+                      hintText: 'e.g. cilantro, mushrooms',
+                      prefixIcon: Icon(Icons.block_outlined),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 160),
+            child: FcCard(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Column(
+                children: [
+                  for (final t in toggles) ...[
+                    SwitchListTile(
+                      secondary: Icon(t.$3, color: scheme.primary),
+                      title: Text(t.$2),
+                      value: valueOf(t.$1),
+                      onChanged: (v) => store.setExperienceToggle(t.$1, v),
+                    ),
+                    if (t != toggles.last)
+                      Divider(
+                        height: 1,
+                        indent: 68,
+                        color: scheme.outlineVariant.withValues(alpha: .45),
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 240),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text('Continue'),
+              onPressed: () {
+                store.setDietaryStyle(_style);
+                store.setFoodLists(
+                  liked: split(_liked.text),
+                  avoided: split(_avoided.text),
+                );
+                context.go(AppRoute.connect.path);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Storyboard: Connect & Save (step 7, optional) ----------
+
+class ConnectAccountsPage extends ConsumerWidget {
+  const ConnectAccountsPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.watch(appStoreProvider);
+    final scheme = Theme.of(context).colorScheme;
+    return _StepScaffold(
+      title: 'Connect & save',
+      step: 7,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        children: [
+          const _StepHeader(
+            icon: Icons.link_outlined,
+            title: 'Connect & save',
+            subtitle: 'Optional — link grocery and rewards accounts to unlock savings. Everything here is manual until an integration exists.',
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 80),
+            child: _FieldCard(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.storefront_outlined),
+                    title: const Text('Link a grocery account'),
+                    subtitle: const Text(
+                      'Walmart, Instacart and more — coming soon',
+                    ),
+                    trailing: FcChip('Soon', color: scheme.onSurfaceVariant),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Grocery account linking is not available yet.',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1, indent: 68),
+                  ListTile(
+                    leading: const Icon(Icons.star_border),
+                    title: const Text('Link a rewards account'),
+                    subtitle: const Text(
+                      'Fetch, store loyalty cards — coming soon',
+                    ),
+                    trailing: FcChip('Soon', color: scheme.onSurfaceVariant),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Rewards account linking is not available yet.',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1, indent: 68),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.credit_card_outlined),
+                    title: const Text('Use SNAP / EBT benefits'),
+                    subtitle: const Text(
+                      'Manual entries only — never asks for card credentials',
+                    ),
+                    value: store.expSnapEbt,
+                    onChanged: (v) => store.setExperienceToggle('snapEbt', v),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 160),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text('Continue'),
+              onPressed: () => context.go(AppRoute.budget.path),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: TextButton(
+              onPressed: () => context.go(AppRoute.budget.path),
+              child: const Text('Skip for now'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Storyboard: Household Goals (step 9) ----------
+
+class GoalsPage extends ConsumerWidget {
+  const GoalsPage({super.key});
+
+  static const _goalDefs = [
+    ('save-money', 'Save money on groceries'),
+    ('home-cooked', 'Eat more home-cooked meals'),
+    ('family-recipes', 'Find family-friendly recipes'),
+    ('less-waste', 'Reduce food waste'),
+    ('try-new', 'Try new and healthy meals'),
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.watch(appStoreProvider);
+    return _StepScaffold(
+      title: 'Make it personal',
+      step: 9,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        children: [
+          const _StepHeader(
+            icon: Icons.auto_awesome_outlined,
+            title: 'Let\'s make it personal',
+            subtitle: 'Choose a few goals for your household — these shape your suggestions.',
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 80),
+            child: _FieldCard(
+              child: Column(
+                children: [
+                  for (final g in _goalDefs)
+                    CheckboxListTile(
+                      value: store.goals.contains(g.$1),
+                      onChanged: (v) => store.setGoal(g.$1, v ?? false),
+                      title: Text(g.$2),
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.trailing,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 160),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text('Continue'),
+              onPressed: () => context.go(AppRoute.rewards.path),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Storyboard: Join Kinplora Rewards (step 10) ----------
+
+class RewardsIntroPage extends ConsumerWidget {
+  const RewardsIntroPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.watch(appStoreProvider);
+    final scheme = Theme.of(context).colorScheme;
+    return _StepScaffold(
+      title: 'Rewards',
+      step: 10,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        children: [
+          const _StepHeader(
+            icon: Icons.star_outline,
+            title: 'Join Kinplora Rewards',
+            subtitle: 'Scan grocery receipts, complete challenges and earn points for real rewards.',
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 80),
+            child: _FieldCard(
+              child: Column(
+                children: [
+                  const ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.receipt_long_outlined),
+                    title: Text('Earn points on eligible purchases'),
+                  ),
+                  const ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.emoji_events_outlined),
+                    title: Text('Unlock bonus challenges'),
+                  ),
+                  const ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.redeem_outlined),
+                    title: Text('Redeem for rewards (coming soon)'),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Points start at 0 — receipt scanning arrives with the rewards update.',
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 160),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.star_outline),
+              label: Text(
+                store.rewardsEnrolled ? 'Rewards joined' : 'Join rewards',
+              ),
+              onPressed: store.rewardsEnrolled
+                  ? () => context.go(AppRoute.planSelect.path)
+                  : () {
+                      store.setRewardsEnrolled(true);
+                      context.go(AppRoute.planSelect.path);
+                    },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: TextButton(
+              onPressed: () => context.go(AppRoute.planSelect.path),
+              child: const Text('Maybe later'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Storyboard: Choose a Plan (step 11) ----------
+
+class PlanSelectPage extends ConsumerWidget {
+  const PlanSelectPage({super.key});
+
+  static const _plans = [
+    (
+      'free',
+      'Free',
+      'Core meal planning, grocery lists, and basic games',
+      '\$0',
+    ),
+    (
+      'plus',
+      'Kinplora Plus',
+      'Advanced planning, savings tools, rewards, and more',
+      '\$4.99/mo',
+    ),
+    (
+      'family',
+      'Kinplora Family',
+      'Everything in Plus, for larger households, with premium games and insights',
+      '\$9.99/mo',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.watch(appStoreProvider);
+    final scheme = Theme.of(context).colorScheme;
+    return _StepScaffold(
+      title: 'Choose a plan',
+      step: 11,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        children: [
+          const _StepHeader(
+            icon: Icons.workspace_premium_outlined,
+            title: 'Choose a plan',
+            subtitle: 'Get the most from Kinplora with a plan that fits your household. Paid tiers are not on sale yet — choosing one keeps you on Free until billing opens.',
+          ),
+          const SizedBox(height: 20),
+          for (var i = 0; i < _plans.length; i++) ...[
+            _FadeSlideIn(
+              delay: Duration(milliseconds: 80 * (i + 1)),
+              child: GestureDetector(
+                onTap: () => store.setPlanChoice(_plans[i].$1),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: store.planChoice == _plans[i].$1
+                          ? scheme.primary
+                          : scheme.outlineVariant.withValues(alpha: .5),
+                      width: store.planChoice == _plans[i].$1 ? 2 : 1,
+                    ),
+                    color: store.planChoice == _plans[i].$1
+                        ? scheme.primary.withValues(alpha: .08)
+                        : null,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  _plans[i].$2,
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _plans[i].$4,
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(color: scheme.primary),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _plans[i].$3,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        store.planChoice == _plans[i].$1
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: store.planChoice == _plans[i].$1
+                            ? scheme.primary
+                            : scheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+          const SizedBox(height: 14),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 320),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.arrow_forward),
+              label: const Text('Continue'),
+              onPressed: () => context.go(AppRoute.firstPlan.path),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Storyboard: You're All Set (step 13) ----------
+
+class OnboardingCompletePage extends ConsumerWidget {
+  const OnboardingCompletePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final store = ref.watch(appStoreProvider);
+    final scheme = Theme.of(context).colorScheme;
+    final done = [
+      ('Profile created', store.displayName != null),
+      ('Household set up', store.circle != null),
+      ('Preferences saved', true),
+      ('Rewards enrolled', store.rewardsEnrolled),
+      ('Plan selected', store.planChoice.isNotEmpty),
+    ];
+    return _StepScaffold(
+      title: 'All set',
+      step: 13,
+      showBack: false,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+        children: [
+          _FadeSlideIn(
+            child: Center(
+              child: Column(
+                children: [
+                  Container(
+                    width: 84,
+                    height: 84,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: scheme.primary.withValues(alpha: .15),
+                    ),
+                    child: Icon(
+                      Icons.check_circle,
+                      size: 44,
+                      color: scheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'You\'re all set!',
+                    style: Theme.of(context).textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Your Kinplora account is ready!',
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 120),
+            child: _FieldCard(
+              child: Column(
+                children: [
+                  for (final d in done) ...[
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      leading: Icon(
+                        d.$2 ? Icons.check_circle : Icons.circle_outlined,
+                        color: d.$2 ? scheme.primary : scheme.onSurfaceVariant,
+                        size: 20,
+                      ),
+                      title: Text(d.$1),
+                    ),
+                    if (d != done.last)
+                      Divider(
+                        height: 1,
+                        indent: 36,
+                        color: scheme.outlineVariant.withValues(alpha: .45),
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 28),
+          _FadeSlideIn(
+            delay: const Duration(milliseconds: 240),
+            child: FilledButton.icon(
+              icon: const Icon(Icons.dashboard_outlined),
+              label: const Text('Go to my dashboard'),
+              onPressed: () => context.go(AppRoute.home.path),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

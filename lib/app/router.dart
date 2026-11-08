@@ -30,10 +30,17 @@ enum AppRoute {
   welcome('/welcome'),
   preview('/preview'),
   account('/onboarding/account'),
+  profile('/onboarding/profile'),
   household('/onboarding/household'),
   foodNeeds('/onboarding/food-needs'),
+  experience('/onboarding/experience'),
+  connect('/onboarding/connect'),
   budget('/onboarding/budget'),
+  goals('/onboarding/goals'),
+  rewards('/onboarding/rewards'),
+  planSelect('/onboarding/plan'),
   firstPlan('/onboarding/first-plan'),
+  complete('/onboarding/complete'),
   home('/home'),
   plan('/plan'),
   shop('/shop'),
@@ -70,10 +77,17 @@ enum AppRoute {
 const _publicPaths = {'/welcome', '/preview', '/onboarding/account'};
 const _onboardingPaths = {
   '/onboarding/account',
+  '/onboarding/profile',
   '/onboarding/household',
   '/onboarding/food-needs',
+  '/onboarding/experience',
+  '/onboarding/connect',
   '/onboarding/budget',
+  '/onboarding/goals',
+  '/onboarding/rewards',
+  '/onboarding/plan',
   '/onboarding/first-plan',
+  '/onboarding/complete',
 };
 const _kidsPaths = {
   '/kids/home',
@@ -97,15 +111,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return _publicPaths.contains(path) ? null : AppRoute.welcome.path;
       }
       if (store.circle == null) {
-        // Signed in but no household yet: force onboarding (except account step).
-        if (path == AppRoute.account.path ||
-            path == AppRoute.household.path ||
-            path == AppRoute.foodNeeds.path ||
-            path == AppRoute.budget.path ||
-            path == AppRoute.firstPlan.path) {
+        // Signed in but no household yet: keep them inside the onboarding
+        // flow (every step is allowed; anything else redirects in).
+        if (_onboardingPaths.contains(path) ||
+            path == AppRoute.preview.path ||
+            path == AppRoute.welcome.path) {
           return null;
         }
-        return AppRoute.household.path;
+        return AppRoute.profile.path;
       }
       // Signed in with circle: keep minors inside kids-safe surfaces.
       if (store.actorIsMinor &&
@@ -138,6 +151,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (c, s) => const AccountPage(),
       ),
       GoRoute(
+        path: AppRoute.profile.path,
+        builder: (c, s) => const ProfileSetupPage(),
+      ),
+      GoRoute(
         path: AppRoute.household.path,
         builder: (c, s) => const HouseholdPage(),
       ),
@@ -146,12 +163,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (c, s) => const FoodNeedsPage(),
       ),
       GoRoute(
+        path: AppRoute.experience.path,
+        builder: (c, s) => const ExperiencePage(),
+      ),
+      GoRoute(
+        path: AppRoute.connect.path,
+        builder: (c, s) => const ConnectAccountsPage(),
+      ),
+      GoRoute(
         path: AppRoute.budget.path,
         builder: (c, s) => const BudgetPage(),
+      ),
+      GoRoute(path: AppRoute.goals.path, builder: (c, s) => const GoalsPage()),
+      GoRoute(
+        path: AppRoute.rewards.path,
+        builder: (c, s) => const RewardsIntroPage(),
+      ),
+      GoRoute(
+        path: AppRoute.planSelect.path,
+        builder: (c, s) => const PlanSelectPage(),
       ),
       GoRoute(
         path: AppRoute.firstPlan.path,
         builder: (c, s) => const FirstPlanPage(),
+      ),
+      GoRoute(
+        path: AppRoute.complete.path,
+        builder: (c, s) => const OnboardingCompletePage(),
       ),
       GoRoute(path: AppRoute.home.path, builder: (c, s) => const HomePage()),
       GoRoute(
